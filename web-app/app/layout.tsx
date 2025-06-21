@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { Analytics } from "@vercel/analytics/react";
+import { Providers } from './providers'; // <-- Impor provider
 
 const inter = Inter({
   subsets: ['latin'],
@@ -62,10 +63,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="id" className={`${inter.variable} scroll-smooth`}>
-      <body className="font-sans bg-slate-950 text-slate-300 leading-relaxed antialiased">
-        {children}
-        <Analytics />
+    <html lang="id" suppressHydrationWarning> {/* Tambahkan suppressHydrationWarning */}
+      <body className="font-sans bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 leading-relaxed antialiased transition-colors duration-300">
+        <Providers> {/* Bungkus dengan Provider */}
+          {children}
+          <Analytics />
+        </Providers>
       </body>
     </html>
   );
