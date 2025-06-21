@@ -201,21 +201,31 @@ export const PricingSection: React.FC<{ sectionRef: React.RefObject<HTMLElement>
 };
 
 
+// Ganti komponen BlogSection yang lama dengan yang ini
 export const BlogSection: React.FC<{ sectionRef: React.RefObject<HTMLElement> }> = ({ sectionRef }) => (
     <section ref={sectionRef} id="blog" className="py-16 md:py-24">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
-                <h2 className="text-3xl md:text-4xl font-bold text-white">Artikel Terbaru</h2>
+                <Link href="/blog" className="text-3xl md:text-4xl font-bold text-white hover:text-cyan-400 transition-colors">
+                    Artikel Terbaru
+                </Link>
                 <p className="text-slate-400 mt-3 max-w-2xl mx-auto">Berbagi pemikiran, wawasan, dan tutorial seputar teknologi.</p>
             </div>
             <div className="max-w-4xl mx-auto grid gap-10">
-                {blogArticles.map((article, index) => (
-                    <div key={index} className="bg-slate-800 p-8 rounded-xl shadow-lg group border border-slate-700 hover:border-cyan-400 transition-all duration-300">
+                {blogArticles.slice(0, 3).map((article) => ( // Hanya tampilkan 3 artikel terbaru
+                    <div key={article.slug} className="bg-slate-800 p-8 rounded-xl shadow-lg group border border-slate-700 hover:border-cyan-400 transition-all duration-300">
                         <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-cyan-400 transition-colors duration-300">{article.title}</h3>
                         <p className="text-slate-400 mb-5">{article.summary}</p>
-                        <a href={article.link} target="_blank" rel="noopener noreferrer" className="font-semibold text-cyan-500 hover:text-cyan-300 transition-colors duration-300 flex items-center gap-2">Baca Selengkapnya <ArrowRight className="w-4 h-4"/></a>
+                        <Link href={`/blog/${article.slug}`} className="font-semibold text-cyan-500 hover:text-cyan-300 transition-colors duration-300 flex items-center gap-2">
+                            Baca Selengkapnya <ArrowRight className="w-4 h-4"/>
+                        </Link>
                     </div>
                 ))}
+            </div>
+             <div className="text-center mt-12">
+                <Link href="/blog" className="bg-slate-700 text-white font-bold py-3 px-8 rounded-full hover:bg-slate-600 transition-all duration-300">
+                    Lihat Semua Artikel
+                </Link>
             </div>
         </div>
     </section>
