@@ -66,7 +66,7 @@ export const Header: React.FC<{ currentSection: Section; onNavClick: (section: S
         <div className="flex items-center justify-between h-20">
           <a href="#home" onClick={(e) => { e.preventDefault(); onNavClick('home');}} className="text-2xl font-bold text-white cursor-pointer flex items-center gap-2">
             <Code className="w-8 h-8 text-cyan-400"/>
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500">Ayick.dev</span>
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500">Jasa Pembuatan Web</span>
           </a>
           <nav className="hidden md:flex items-center space-x-2">
             {navLinks.map(link => <NavLink key={link.section} {...link} currentSection={currentSection} onClick={handleNavClick} />)}
@@ -94,7 +94,7 @@ export const HeroSection: React.FC<{ onNavClick: (section: Section) => void; sec
     <section ref={sectionRef} id="home" className="min-h-screen flex items-center justify-center bg-grid-pattern animate-fade-in">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold text-white mb-4 leading-tight">
-                Jasa Pembuatan Website Profesional <span className="bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500">Ayick</span>
+                Jasa Pembuatan Website <span className="bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500"> Profesional</span>
             </h1>
             <p className="text-lg md:text-xl text-slate-300 max-w-3xl mx-auto mb-8">
                 Web Developer & Akselerator Digital. Membantu Anda membangun kehadiran online yang kuat dan efektif.
