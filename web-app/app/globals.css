@@ -5,9 +5,10 @@
 @layer utilities {
     .bg-grid-pattern {
         background-image:
-            linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-        background-size: 40px 40px;
+            linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+        
+        @apply dark:bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.3),rgba(255,255,255,0))];
     }
 
     .animate-fade-in {
@@ -20,9 +21,9 @@
     }
 }
 
-/* --- TAMBAHKAN STYLING BARU DI SINI --- */
+/* Penyesuaian Dark Mode yang Lebih Baik untuk Konten Blog */
 @layer base {
-    .prose {
+    .dark .prose {
         --tw-prose-body: theme(colors.slate[300]);
         --tw-prose-headings: theme(colors.white);
         --tw-prose-lead: theme(colors.slate[400]);
