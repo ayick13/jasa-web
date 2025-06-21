@@ -9,10 +9,51 @@ const inter = Inter({
   variable: '--font-inter',
 });
 
+// URL dasar situs Anda
+const siteUrl = 'https://ariftirtana.my.id/';
+
 export const metadata: Metadata = {
-  title: 'Ayick.dev | Web Developer & Digital Accelerator',
-  description:
-    'Membangun kehadiran online yang kuat dan efektif melalui solusi web yang modern, cepat, dan fungsional.',
+  // --- Metadata Dasar & SEO ---
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: 'Ayick.dev | Web Developer & Digital Accelerator',
+    template: '%s | Ayick.dev',
+  },
+  description: 'Membangun kehadiran online yang kuat dan efektif melalui solusi web yang modern, cepat, dan fungsional di Gresik, Indonesia.',
+  keywords: ['Web Developer', 'Jasa Pembuatan Website', 'Next.js', 'React Developer', 'Gresik', 'Digital Accelerator', 'Portfolio'],
+  authors: [{ name: 'Ayick', url: siteUrl }],
+  creator: 'Ayick',
+  publisher: 'Ayick.dev',
+  robots: {
+    index: true,
+    follow: true,
+  },
+
+  // --- Open Graph (untuk Facebook, LinkedIn, dll.) ---
+  openGraph: {
+    title: 'Ayick.dev | Web Developer & Digital Accelerator',
+    description: 'Solusi web modern, cepat, dan fungsional untuk bisnis Anda.',
+    url: siteUrl,
+    siteName: 'Ayick.dev',
+    images: [
+      {
+        url: '/og-image.png', // Path ke gambar pratinjau Anda
+        width: 1200,
+        height: 630,
+        alt: 'Ayick.dev - Web Developer',
+      },
+    ],
+    locale: 'id_ID',
+    type: 'website',
+  },
+
+  // --- Twitter Card ---
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Ayick.dev | Web Developer & Digital Accelerator',
+    description: 'Bangun kehadiran online Anda dengan solusi web dari Ayick.dev.',
+    images: ['/og-image.png'], // Path ke gambar pratinjau Anda
+  },
 };
 
 export default function RootLayout({
