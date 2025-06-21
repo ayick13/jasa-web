@@ -15,7 +15,7 @@ const navLinks = [
     { section: 'home', label: 'Beranda', icon: Home }, 
     { section: 'about', label: 'Tentang', icon: User },
     { section: 'services', label: 'Layanan', icon: Layers }, 
-    { section: 'portfolio', label: 'Proyek', icon: Briefcase }, // Tambahkan Proyek
+    { section: 'portfolio', label: 'Proyek', icon: Briefcase },
     { section: 'pricing', label: 'Harga', icon: Tag },
     { section: 'blog', label: 'Blog', icon: Rss }, 
     { section: 'contact', label: 'Kontak', icon: Mail }
@@ -37,10 +37,55 @@ const skillsData = [
 ];
 
 const pricingData = [
-    { title: "Basic", price: "1.5jt", period: "proyek", description: "Untuk portofolio pribadi atau website sederhana.", features: ["1 Halaman Landing Page", "Desain Responsif", "Formulir Kontak", "Hosting Dasar"], isRecommended: false },
-    { title: "Pro", price: "4jt", period: "proyek", description: "Pilihan terbaik untuk bisnis kecil atau startup.", features: ["Hingga 5 Halaman", "Desain Kustom", "CMS", "Optimasi SEO Dasar", "Dukungan 1 Bulan"], isRecommended: true },
-    { title: "Enterprise", price: "Hubungi", period: "kami", description: "Solusi lengkap untuk kebutuhan bisnis yang kompleks.", features: ["Halaman Tak Terbatas", "Fitur E-commerce", "Integrasi API", "Dukungan Prioritas"], isRecommended: false }
+    { 
+        title: "Basic", 
+        price: "1.5jt", 
+        period: "proyek", 
+        description: "Ideal untuk portofolio pribadi, landing page, atau profil bisnis sederhana.", 
+        features: [
+            "Hingga 3 Halaman", 
+            "Desain Modern & Responsif", 
+            "Formulir Kontak Berfungsi",
+            "Setup SEO Dasar",
+            "1 Sesi Revisi Desain",
+            "Hosting & Domain (.com) 1 Tahun"
+        ], 
+        isRecommended: false 
+    },
+    { 
+        title: "Pro", 
+        price: "4jt", 
+        period: "proyek", 
+        description: "Pilihan populer untuk UKM, startup, atau company profile yang lebih lengkap.", 
+        features: [
+            "Hingga 8 Halaman", 
+            "Semua fitur paket Basic",
+            "Desain Eksklusif Sesuai Brand", 
+            "Manajemen Konten (CMS)", 
+            "Integrasi Media Sosial & WhatsApp",
+            "Analitik Pengunjung (Google Analytics)",
+            "Dukungan Teknis 3 Bulan"
+        ], 
+        isRecommended: true 
+    },
+    { 
+        title: "Enterprise", 
+        price: "Hubungi", 
+        period: "kami", 
+        description: "Solusi kustom untuk kebutuhan kompleks seperti e-commerce atau aplikasi web.", 
+        features: [
+            "Halaman & Fitur Tanpa Batas",
+            "Semua fitur paket Pro",
+            "Fungsionalitas E-Commerce", 
+            "Integrasi API Pihak Ketiga",
+            "Optimasi Performa Lanjutan",
+            "Laporan SEO Bulanan",
+            "Dukungan Prioritas & Pemeliharaan"
+        ], 
+        isRecommended: false 
+    }
 ];
+
 
 // --- Komponen-komponen ---
 
