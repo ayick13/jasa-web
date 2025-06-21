@@ -312,7 +312,7 @@ export const Footer: React.FC = () => (
                 <a href="#" aria-label="LinkedIn" className="hover:text-cyan-400 transition-colors"><Linkedin className="w-6 h-6"/></a>
                 <a href="#" aria-label="Instagram" className="hover:text-cyan-400 transition-colors"><Instagram className="w-6 h-6"/></a>
             </div>
-            <p>&copy; {new Date().getFullYear()} Ayick.dev. Hak Cipta Dilindungi.</p>
+            <p>&copy; {new Date().getFullYear()} Ayick.dev. Hak Cipta Dilindungi..</p>
         </div>
     </footer>
 );
