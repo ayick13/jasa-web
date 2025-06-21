@@ -52,7 +52,8 @@ export default function Home() {
         <HeroSection onNavClick={handleNavClick} sectionRef={sectionRefs.home} />
         <AboutSection sectionRef={sectionRefs.about} />
         <ServicesSection sectionRef={sectionRefs.services} />
-        <PricingSection sectionRef={sectionRefs.pricing} onNavClick={handleNavClick} />
+        {/* ----- PERBAIKAN DI SINI ----- */}
+        <PricingSection sectionRef={sectionRefs.pricing} />
         <BlogSection sectionRef={sectionRefs.blog} />
         <ContactSection sectionRef={sectionRefs.contact} />
       </main>
