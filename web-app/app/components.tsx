@@ -3,6 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import Script from 'next/script'; // Import Next.js Script component
 import { Home, User, Rss, Layers, Mail, Menu, X, Github, Linkedin, Instagram, Code, CheckCircle, Smartphone, BarChart2, ArrowRight, Tag, Star, Settings, PenTool, Share2, Briefcase, Eye } from 'lucide-react';
 import { blogArticles } from '@/lib/blog-data';
 import { portfolioProjects } from '@/lib/portfolio-data';
@@ -315,7 +316,9 @@ export const ContactSection: React.FC<{ sectionRef: React.RefObject<HTMLElement>
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault(); setIsSubmitting(true); setStatus('');
         const formData = new FormData(event.currentTarget);
-        const data = { name: formData.get('name'), email: formData.get('email'), message: formData.get('message')};
+        
+        // Dapatkan semua data formulir, termasuk token Turnstile
+        const data = Object.fromEntries(formData.entries());
 
         try {
             const response = await fetch('/api/send-email', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
@@ -325,6 +328,7 @@ export const ContactSection: React.FC<{ sectionRef: React.RefObject<HTMLElement>
 
     return (
         <section ref={sectionRef} id="contact" className="py-16 md:py-24">
+            <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer /> {/* Tambahkan skrip Turnstile di sini */}
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center mb-16">
                     <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white">Hubungi Saya</h2>
@@ -346,6 +350,12 @@ export const ContactSection: React.FC<{ sectionRef: React.RefObject<HTMLElement>
                             <label htmlFor="message" className="block text-slate-700 dark:text-slate-300 mb-2 font-medium">Pesan</label>
                             <textarea id="message" name="message" rows={5} required className="w-full bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg py-3 px-4 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-cyan-500" placeholder="Jelaskan kebutuhan Anda..."></textarea>
                         </div>
+                        
+                        {/* Tambahkan widget Cloudflare Turnstile di sini */}
+                        <div className="mb-6 flex justify-center">
+                            <div className="cf-turnstile" data-sitekey="0x4AAAAAABh0uR4HC9nKVVTQ"></div> {/* Ganti dengan Site Key Anda */}
+                        </div>
+
                         <div className="text-center">
                             <button type="submit" disabled={isSubmitting} className="bg-cyan-500 text-white font-bold py-3 px-10 rounded-full shadow-lg shadow-cyan-500/30 hover:bg-cyan-600 transition-all duration-300 transform hover:scale-105 disabled:bg-slate-400 dark:disabled:bg-slate-600 disabled:cursor-not-allowed">
                                 {isSubmitting ? 'Mengirim...' : 'Kirim Pesan'}
