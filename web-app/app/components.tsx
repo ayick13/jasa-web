@@ -36,8 +36,8 @@ const skillsData = [
 
 const pricingData = [
     { title: "Basic", price: "1.5jt", period: "proyek", description: "Untuk portofolio pribadi atau website sederhana.", features: ["1 Halaman Landing Page", "Desain Responsif", "Formulir Kontak", "Hosting Dasar"], isRecommended: false },
-    { title: "Pro", price: "4jt", period: "proyek", description: "Pilihan terbaik untuk bisnis kecil atau startup.", features: ["Hingga 5 Halaman", "Desain Kustom", "CMS", "Optimasi SEO Dasar", "Dukungan 1 Bulan"], isRecommended: true },
-    { title: "Enterprise", price: "Hubungi", period: "kami", description: "Solusi lengkap untuk kebutuhan bisnis yang kompleks.", features: ["Halaman Tak Terbatas", "Fitur E-commerce", "Integrasi API", "Dukungan Prioritas"], isRecommended: false }
+    { title: "Pro", price: "4jt", period: "proyek", description: "Pilihan terbaik untuk bisnis kecil atau startup.", features: ["Hingga 5 Halaman", "Desain Kustom", "CMS", "Optimasi SEO Dasar", "Email Kustom", "Dukungan 1 Bulan"], isRecommended: true },
+    { title: "Enterprise", price: "Hubungi", period: "kami", description: "Solusi lengkap untuk kebutuhan bisnis yang kompleks.", features: ["Halaman Tak Terbatas", "Fitur E-commerce", "Email Kustom", "Dukungan Prioritas"], isRecommended: false }
 ];
 
 // --- Komponen-komponen ---
