@@ -24,8 +24,8 @@ export const portfolioProjects: Project[] = [
     liveUrl: 'https://waffledan.co.id',
   },
   {
-    slug: 'ai-media-generator',
-    title: 'AI Media Generator Suite',
+    slug: 'ruangriung-ai-image-generator',
+    title: 'RuangRiung AI Image Generator',
     category: 'Aplikasi Web / AI',
     summary: 'Aplikasi web inovatif yang berfungsi sebagai AI media generator, terintegrasi dengan Pollinations API untuk membuat gambar, audio, dan video.',
     description: `
@@ -63,8 +63,8 @@ export const portfolioProjects: Project[] = [
     liveUrl: 'https://csfirefighter.com',
   },
   {
-    slug: 'multi-language-ai-tool',
-    title: 'Multi-Language AI Tool',
+    slug: 'squad-image-creator-bing-ai',
+    title: 'Squad Image Creator Bing AI',
     category: 'Aplikasi Web / AI',
     summary: 'Aplikasi AI multifungsi yang menyediakan layanan translator dan generator media, dibangun dengan integrasi Pollinations API.',
     description: `
