@@ -230,7 +230,7 @@ export const ContactSection: React.FC<{ sectionRef: React.RefObject<HTMLElement>
                 <p className="text-slate-400 mt-3 max-w-2xl mx-auto">Punya proyek atau ide? Mari kita diskusikan!</p>
             </div>
             <div className="max-w-2xl mx-auto bg-slate-800 p-8 md:p-12 rounded-xl shadow-2xl border border-slate-700">
-                <form action="https://formspree.io/f/YOUR_FORMSPREE_ID" method="POST">
+                <form action="https://formspree.io/f/mblyazpo" method="POST">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                         <div>
                             <label htmlFor="name" className="block text-slate-300 mb-2 font-medium">Nama</label>
