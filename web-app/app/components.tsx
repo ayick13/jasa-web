@@ -3,17 +3,19 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Home, User, Rss, Layers, Mail, Menu, X, Github, Linkedin, Instagram, Code, CheckCircle, Smartphone, BarChart2, ArrowRight, Tag, Star, Settings, PenTool, Share2 } from 'lucide-react';
+import { Home, User, Rss, Layers, Mail, Menu, X, Github, Linkedin, Instagram, Code, CheckCircle, Smartphone, BarChart2, ArrowRight, Tag, Star, Settings, PenTool, Share2, Briefcase, Eye } from 'lucide-react';
 import { blogArticles } from '@/lib/blog-data';
+import { portfolioProjects } from '@/lib/portfolio-data';
 import { ThemeSwitcher } from './theme-switcher';
 
 // --- Data & Tipe ---
-type Section = 'home' | 'about' | 'services' | 'pricing' | 'blog' | 'contact';
+type Section = 'home' | 'about' | 'services' | 'portfolio' | 'pricing' | 'blog' | 'contact';
 
 const navLinks = [
     { section: 'home', label: 'Beranda', icon: Home }, 
     { section: 'about', label: 'Tentang', icon: User },
     { section: 'services', label: 'Layanan', icon: Layers }, 
+    { section: 'portfolio', label: 'Proyek', icon: Briefcase }, // Tambahkan Proyek
     { section: 'pricing', label: 'Harga', icon: Tag },
     { section: 'blog', label: 'Blog', icon: Rss }, 
     { section: 'contact', label: 'Kontak', icon: Mail }
@@ -36,8 +38,8 @@ const skillsData = [
 
 const pricingData = [
     { title: "Basic", price: "1.5jt", period: "proyek", description: "Untuk portofolio pribadi atau website sederhana.", features: ["1 Halaman Landing Page", "Desain Responsif", "Formulir Kontak", "Hosting Dasar"], isRecommended: false },
-    { title: "Pro", price: "4jt", period: "proyek", description: "Pilihan terbaik untuk bisnis kecil atau startup.", features: ["Hingga 5 Halaman", "Desain Kustom", "CMS", "Optimasi SEO Dasar", "Email Kustom", "Dukungan 1 Bulan"], isRecommended: true },
-    { title: "Enterprise", price: "Hubungi", period: "kami", description: "Solusi lengkap untuk kebutuhan bisnis yang kompleks.", features: ["Halaman Tak Terbatas", "Fitur E-commerce", "Email Kustom", "Dukungan Prioritas"], isRecommended: false }
+    { title: "Pro", price: "4jt", period: "proyek", description: "Pilihan terbaik untuk bisnis kecil atau startup.", features: ["Hingga 5 Halaman", "Desain Kustom", "CMS", "Optimasi SEO Dasar", "Dukungan 1 Bulan"], isRecommended: true },
+    { title: "Enterprise", price: "Hubungi", period: "kami", description: "Solusi lengkap untuk kebutuhan bisnis yang kompleks.", features: ["Halaman Tak Terbatas", "Fitur E-commerce", "Integrasi API", "Dukungan Prioritas"], isRecommended: false }
 ];
 
 // --- Komponen-komponen ---
@@ -162,6 +164,40 @@ export const ServicesSection: React.FC<{ sectionRef: React.RefObject<HTMLElement
     </section>
 );
 
+export const PortfolioSection: React.FC<{ sectionRef: React.RefObject<HTMLElement> }> = ({ sectionRef }) => (
+    <section ref={sectionRef} id="portfolio" className="py-16 md:py-24 bg-slate-50 dark:bg-slate-900">
+         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+                <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white">Proyek Unggulan</h2>
+                <p className="text-slate-500 dark:text-slate-400 mt-3 max-w-2xl mx-auto">Berikut adalah beberapa contoh pekerjaan yang telah saya selesaikan.</p>
+            </div>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {portfolioProjects.slice(0, 3).map((project) => ( 
+                     <Link href={`/proyek/${project.slug}`} key={project.slug} className="block bg-white dark:bg-slate-800 rounded-xl shadow-lg group border border-slate-200 dark:border-slate-700 overflow-hidden hover:border-cyan-500 transition-all duration-300 transform hover:-translate-y-2">
+                        <div className="relative w-full h-48">
+                            <Image
+                                src={project.imageUrl}
+                                alt={project.title}
+                                fill
+                                className="object-cover transition-transform duration-300 group-hover:scale-105"
+                            />
+                        </div>
+                        <div className="p-6">
+                            <p className="text-sm font-semibold text-cyan-600 dark:text-cyan-400 mb-1">{project.category}</p>
+                            <h3 className="text-xl font-bold text-slate-800 dark:text-white">{project.title}</h3>
+                        </div>
+                    </Link>
+                ))}
+            </div>
+            <div className="text-center mt-12">
+                <Link href="/proyek" className="bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-white font-bold py-3 px-8 rounded-full hover:bg-slate-200 dark:hover:bg-slate-600 transition-all duration-300">
+                    Lihat Semua Proyek
+                </Link>
+            </div>
+        </div>
+    </section>
+);
+
 export const PricingSection: React.FC<{ sectionRef: React.RefObject<HTMLElement> }> = ({ sectionRef }) => {
     const handlePricingClick = (packageName: string) => {
         const message = `Halo, saya tertarik dengan paket ${packageName}. Bisakah kita diskusikan lebih lanjut?`;
@@ -170,7 +206,7 @@ export const PricingSection: React.FC<{ sectionRef: React.RefObject<HTMLElement>
     };
 
     return (
-        <section ref={sectionRef} id="pricing" className="py-16 md:py-24 bg-slate-50 dark:bg-slate-900">
+        <section ref={sectionRef} id="pricing" className="py-16 md:py-24">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center mb-16">
                     <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white">Paket Harga</h2>
@@ -178,7 +214,7 @@ export const PricingSection: React.FC<{ sectionRef: React.RefObject<HTMLElement>
                 </div>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 items-start max-w-6xl mx-auto">
                     {pricingData.map((tier) => (
-                        <div key={tier.title} className={`bg-white dark:bg-slate-800 p-8 rounded-xl shadow-lg border-2 flex flex-col h-full relative overflow-hidden ${tier.isRecommended ? 'border-cyan-500' : 'border-slate-700'}`}>
+                        <div key={tier.title} className={`bg-white dark:bg-slate-800 p-8 rounded-xl shadow-lg border-2 flex flex-col h-full relative overflow-hidden ${tier.isRecommended ? 'border-cyan-500' : 'border-slate-200 dark:border-slate-700'}`}>
                             {tier.isRecommended && <div className="absolute top-0 right-0 bg-cyan-500 text-white text-xs font-bold px-4 py-1 rounded-bl-lg flex items-center gap-1"><Star className="w-4 h-4" /><span>PALING POPULER</span></div>}
                             <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">{tier.title}</h3>
                             <p className="text-slate-500 dark:text-slate-400 mb-6 flex-grow">{tier.description}</p>
@@ -199,7 +235,7 @@ export const PricingSection: React.FC<{ sectionRef: React.RefObject<HTMLElement>
 };
 
 export const BlogSection: React.FC<{ sectionRef: React.RefObject<HTMLElement> }> = ({ sectionRef }) => (
-    <section ref={sectionRef} id="blog" className="py-16 md:py-24">
+    <section ref={sectionRef} id="blog" className="py-16 md:py-24 bg-slate-50 dark:bg-slate-900">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
                 <Link href="/blog" className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white hover:text-cyan-500 dark:hover:text-cyan-400 transition-colors">
@@ -243,7 +279,7 @@ export const ContactSection: React.FC<{ sectionRef: React.RefObject<HTMLElement>
     };
 
     return (
-        <section ref={sectionRef} id="contact" className="py-16 md:py-24 bg-slate-50 dark:bg-slate-900">
+        <section ref={sectionRef} id="contact" className="py-16 md:py-24">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center mb-16">
                     <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white">Hubungi Saya</h2>
