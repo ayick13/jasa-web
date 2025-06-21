@@ -3,13 +3,18 @@
 // OLEH KARENA ITU, JANGAN ADA "use client" DI SINI.
 
 import { Metadata } from 'next';
-import { blogArticles } from '@/lib/blog-data'; // Pastikan path ini benar
+import { blogArticles } from '@/lib/blog-data'; 
 import { notFound } from 'next/navigation';
-import type { PageProps } from 'next'; // Impor PageProps dari 'next'
-import BlogPostContent from './blog-post-content'; // Impor komponen klien baru yang akan kita buat
+// PERBAIKAN: Hapus impor PageProps yang salah
+// import type { PageProps } from 'next'; 
+import BlogPostContent from './blog-post-content'; 
 
-// Define Props untuk tipe params
-type BlogPostPageProps = PageProps<{ slug: string }>;
+// PERBAIKAN: Definisikan tipe Props secara langsung
+type BlogPostPageProps = {
+    params: { slug: string };
+    // Tambahkan searchParams jika Anda menggunakannya di komponen halaman Anda
+    // searchParams?: { [key: string]: string | string[] | undefined };
+};
 
 export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
     const article = blogArticles.find((a) => a.slug === params.slug);
@@ -21,7 +26,6 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
             title: article.title,
             description: article.summary,
             type: 'article',
-            // Pastikan publishedDate adalah string yang bisa di-parse oleh Date
             publishedTime: new Date(article.publishedDate).toISOString(),
             images: [article.imageUrl],
         },
@@ -35,7 +39,6 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
 }
 
 export async function generateStaticParams() {
-    // Fungsi ini berjalan di server pada waktu build untuk menghasilkan rute statis
     return blogArticles.map((article) => ({ slug: article.slug }));
 }
 

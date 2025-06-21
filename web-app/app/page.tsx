@@ -1,43 +1,64 @@
-// web-app/app/page.tsx
 'use client';
 
-import React, { useRef, useEffect, useState, useMemo } from 'react'; // Import useMemo
-import { HeroSection, AboutSection, ServicesSection, PortfolioSection, PricingSection, BlogSection, ContactSection, Header, Footer } from '@/app/components';
-import { ThemeProvider } from './providers'; // Import ThemeProvider
+import React, { useState, useEffect, useRef, useMemo } from 'react'; 
+import {
+  Header,
+  HeroSection,
+  AboutSection,
+  ServicesSection,
+  PortfolioSection, 
+  PricingSection,
+  BlogSection,
+  ContactSection,
+  Footer
+} from './components';
+
+type Section = 'home' | 'about' | 'services' | 'portfolio' | 'pricing' | 'blog' | 'contact' | 'ai-suite'; 
 
 export default function Home() {
-  const heroRef = useRef<HTMLElement>(null);
+  const [currentSection, setCurrentSection] = useState<Section>('home');
+
+  // PERBAIKAN: Panggil useRef di tingkat teratas komponen
+  const homeRef = useRef<HTMLElement>(null);
   const aboutRef = useRef<HTMLElement>(null);
   const servicesRef = useRef<HTMLElement>(null);
-  const portfolioRef = useRef<HTMLElement>(null);
+  const portfolioRef = useRef<HTMLElement>(null); 
   const pricingRef = useRef<HTMLElement>(null);
   const blogRef = useRef<HTMLElement>(null);
   const contactRef = useRef<HTMLElement>(null);
 
-  // Bungkus sectionRefs dalam useMemo
+  // Gunakan useMemo untuk objek sectionRefs, mereferensikan ref yang sudah dibuat di atas
   const sectionRefs = useMemo(() => ({
-    home: heroRef,
+    home: homeRef,
     about: aboutRef,
     services: servicesRef,
-    portfolio: portfolioRef,
+    portfolio: portfolioRef, 
     pricing: pricingRef,
     blog: blogRef,
     contact: contactRef,
-  }), []); // Dependency array kosong karena ref tidak akan berubah
+  }), []); // Dependency array kosong karena refs ini stabil
 
-  const [currentSection, setCurrentSection] = useState<keyof typeof sectionRefs>('home');
+  const handleNavClick = (section: Section) => {
+    // Navigasi ke AI Suite adalah halaman terpisah, bukan scroll ke section
+    if (section === 'ai-suite') {
+      window.location.href = '/ai-suite'; 
+    } else {
+      sectionRefs[section].current?.scrollIntoView({ behavior: 'smooth' });
+    }
+    setCurrentSection(section);
+  };
 
   useEffect(() => {
     const observerOptions = {
       root: null,
       rootMargin: '0px',
-      threshold: 0.7, // Percentage of the section that needs to be visible
+      threshold: 0.7, 
     };
 
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
-          const sectionId = entry.target.id as keyof typeof sectionRefs;
+          const sectionId = entry.target.id as Section;
           setCurrentSection(sectionId);
         }
       });
@@ -59,26 +80,20 @@ export default function Home() {
       });
       observer.disconnect();
     };
-  }, [sectionRefs]); // sectionRefs sekarang aman di sini
-
-  const handleNavClick = (section: keyof typeof sectionRefs) => {
-    const ref = sectionRefs[section];
-    if (ref && ref.current) {
-      ref.current.scrollIntoView({ behavior: 'smooth' });
-    }
-    setCurrentSection(section);
-  };
+  }, [sectionRefs]); // sectionRefs sekarang aman di sini karena dimemoized
 
   return (
     <>
       <Header currentSection={currentSection} onNavClick={handleNavClick} />
-      <HeroSection onNavClick={handleNavClick} sectionRef={heroRef} />
-      <AboutSection sectionRef={aboutRef} />
-      <ServicesSection sectionRef={servicesRef} />
-      <PortfolioSection sectionRef={portfolioRef} />
-      <PricingSection sectionRef={pricingRef} />
-      <BlogSection sectionRef={blogRef} />
-      <ContactSection sectionRef={contactRef} />
+      <main>
+        <HeroSection onNavClick={handleNavClick} sectionRef={sectionRefs.home} />
+        <AboutSection sectionRef={sectionRefs.about} />
+        <ServicesSection sectionRef={sectionRefs.services} />
+        <PortfolioSection sectionRef={sectionRefs.portfolio} /> 
+        <PricingSection sectionRef={sectionRefs.pricing} />
+        <BlogSection sectionRef={sectionRefs.blog} />
+        <ContactSection sectionRef={sectionRefs.contact} />
+      </main>
       <Footer />
     </>
   );
