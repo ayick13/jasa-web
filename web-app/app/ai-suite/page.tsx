@@ -410,7 +410,7 @@ const AISuitePage: React.FC = () => {
                 onClick={handleEnhancePrompt} 
                 disabled={isLoading}
               >
-                <Zap className="mr-2" size={16} /> Enhance Prompt Lagi
+                <Zap className="mr-2" size={16} /> Tingkatkan
               </button>
               <button
                 type="button"

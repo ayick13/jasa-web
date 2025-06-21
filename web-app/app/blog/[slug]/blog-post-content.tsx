@@ -1,12 +1,15 @@
-'use client'; // Tambahkan direktif ini
+// web-app/app/blog/[slug]/blog-post-content.tsx
+'use client'; // Ini adalah komponen klien
 
-import { Metadata } from 'next';
-import { blogArticles } from '@/lib/blog-data';
-import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowLeft, Calendar, MessageSquare } from 'lucide-react';
-import type { PageProps } from 'next'; // Impor PageProps dari 'next'
+import { Article } from '@/lib/blog-data'; // Impor tipe Article
+
+// Props untuk komponen ini
+interface BlogPostContentProps {
+    article: Article;
+}
 
 const BlogCTA = () => (
     <div className="mt-16 bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50 rounded-xl p-8 text-center">
@@ -26,40 +29,7 @@ const BlogCTA = () => (
     </div>
 );
 
-// Gunakan PageProps untuk tipe params
-type BlogPostPageProps = PageProps<{ slug: string }>;
-
-export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
-    const article = blogArticles.find((a) => a.slug === params.slug);
-    if (!article) { return { title: 'Artikel Tidak Ditemukan' }; }
-    return {
-        title: article.title,
-        description: article.summary,
-        openGraph: {
-            title: article.title,
-            description: article.summary,
-            type: 'article',
-            // Pastikan publishedDate adalah string yang bisa di-parse oleh Date
-            publishedTime: new Date(article.publishedDate).toISOString(),
-            images: [article.imageUrl],
-        },
-        twitter: {
-            card: 'summary_large_image',
-            title: article.title,
-            description: article.summary,
-            images: [article.imageUrl],
-        }
-    };
-}
-
-export async function generateStaticParams() {
-    return blogArticles.map((article) => ({ slug: article.slug }));
-}
-
-export default function BlogPostPage({ params }: BlogPostPageProps) {
-    const article = blogArticles.find((a) => a.slug === params.slug);
-    if (!article) { notFound(); }
-
+export default function BlogPostContent({ article }: BlogPostContentProps) {
     return (
         <article className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
             <div className="max-w-3xl mx-auto">
@@ -79,6 +49,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
                     <Image src={article.imageUrl} alt={article.title} fill className="object-cover" priority />
                 </div>
                 
+                {/* Konten blog dirender di sini */}
                 <div className="prose prose-lg dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: article.content }} />
 
                 <BlogCTA />
