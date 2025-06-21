@@ -19,7 +19,7 @@ export const portfolioProjects: Project[] = [
       <p>Waffledan membutuhkan sebuah platform digital untuk menjangkau pasar yang lebih luas dan mempermudah proses pemesanan. Tantangannya adalah menciptakan pengalaman belanja yang cepat, menarik, dan mudah digunakan.</p>
       <p class="mt-4">Solusi yang dihadirkan adalah website e-commerce yang dibangun dengan Next.js untuk performa maksimal. Desain UI/UX dibuat bersih dan modern, menonjolkan visual produk waffle yang menggugah selera. Fitur utama meliputi katalog produk, keranjang belanja, dan integrasi pembayaran online yang aman.</p>
     `,
-    technologies: ['WordPress','Elementor', 'BeBuilder', 'liteServer', 'E-Commerce'],
+    technologies: ['Next.js', 'React', 'Tailwind CSS', 'E-Commerce'],
     imageUrl: 'https://placehold.co/1200x800/1e293b/93c5fd/png?text=Waffledan',
     liveUrl: 'https://waffledan.co.id',
   },
@@ -33,7 +33,7 @@ export const portfolioProjects: Project[] = [
       <p class="mt-4">Dengan frontend yang dibangun menggunakan HTML, CSS, dan JavaScript, aplikasi ini terhubung langsung ke Pollinations API. Fitur utamanya meliputi Text-to-Image, Text-to-Audio, dan pembuatan prompt video. Proyek ini menunjukkan kemampuan dalam integrasi API pihak ketiga dan membangun aplikasi yang fungsional untuk kebutuhan kreatif.</p>
     `,
     technologies: ['HTML', 'JavaScript', 'API Integration', 'AI', 'Pollinations'],
-    imageUrl: 'https://placehold.co/1200x800/1e293b/6366f1/png?text=RuangRiung+AI+Generator',
+    imageUrl: 'https://placehold.co/1200x800/1e293b/6366f1/png?text=AI+Generator',
     liveUrl: 'https://ruangriung.my.id',
   },
   {
@@ -46,7 +46,7 @@ export const portfolioProjects: Project[] = [
       <p class="mt-4">Website ini dirancang dengan palet warna korporat dan tata letak yang bersih untuk memancarkan citra elegan dan terpercaya. Setiap layanan dan unit bisnis dijelaskan secara detail. Desain yang responsif memastikan pengalaman yang optimal bagi pengguna desktop maupun mobile yang mengakses informasi perusahaan.</p>
     `,
     technologies: ['Next.js', 'React', 'Tailwind CSS', 'Corporate Design'],
-    imageUrl: 'https://placehold.co/1200x800/1e293b/a855f7/png?text=Rasyifa+Nusantara+Group',
+    imageUrl: 'https://placehold.co/1200x800/1e293b/a855f7/png?text=Rasyifa+Group',
     liveUrl: 'https://rasyifanusantaragroup.com',
   },
   {
@@ -69,7 +69,7 @@ export const portfolioProjects: Project[] = [
     summary: 'Aplikasi AI multifungsi yang menyediakan layanan translator dan generator media, dibangun dengan integrasi Pollinations API.',
     description: `
       <p>Proyek ini (sebelumnya SICBA) adalah sebuah demonstrasi kekuatan integrasi API untuk menciptakan tools AI yang bermanfaat. Dibangun dengan frontend sederhana, aplikasi ini memberikan akses langsung ke beberapa model AI melalui satu antarmuka.</p>
-      <p class="mt-4">Fungsionalitas utamanya adalah sebagai penerjemah multi-bahasa dan generator media (gambar, audio dan Translation AI). Backend sederhana berfungsi sebagai jembatan yang aman untuk menghubungkan permintaan pengguna ke API key dari Pollinations, menunjukkan kemampuan untuk membangun aplikasi yang cepat dan ringan untuk tugas-tugas spesifik.</p>
+      <p class="mt-4">Fungsionalitas utamanya adalah sebagai penerjemah multi-bahasa dan generator media (gambar dan audio). Backend sederhana berfungsi sebagai jembatan yang aman untuk menghubungkan permintaan pengguna ke API key dari Pollinations, menunjukkan kemampuan untuk membangun aplikasi yang cepat dan ringan untuk tugas-tugas spesifik.</p>
     `,
     technologies: ['HTML', 'JavaScript', 'API Integration', 'AI', 'Translator'],
     imageUrl: 'https://placehold.co/1200x800/1e293b/14b8a6/png?text=AI+Translator',
