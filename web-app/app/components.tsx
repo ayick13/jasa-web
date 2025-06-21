@@ -66,7 +66,7 @@ export const Header: React.FC<{ currentSection: Section; onNavClick: (section: S
         <div className="flex items-center justify-between h-20">
           <a href="#home" onClick={(e) => { e.preventDefault(); onNavClick('home');}} className="text-2xl font-bold text-white cursor-pointer flex items-center gap-2">
             <Code className="w-8 h-8 text-cyan-400"/>
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500">Jasa Pembuatan Web</span>
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500">Jasa Pembuatan Website</span>
           </a>
           <nav className="hidden md:flex items-center space-x-2">
             {navLinks.map(link => <NavLink key={link.section} {...link} currentSection={currentSection} onClick={handleNavClick} />)}
