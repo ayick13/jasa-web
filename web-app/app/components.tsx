@@ -222,37 +222,82 @@ export const BlogSection: React.FC<{ sectionRef: React.RefObject<HTMLElement> }>
 );
 
 
-export const ContactSection: React.FC<{ sectionRef: React.RefObject<HTMLElement> }> = ({ sectionRef }) => (
-    <section ref={sectionRef} id="contact" className="py-16 md:py-24 bg-slate-900">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-16">
-                <h2 className="text-3xl md:text-4xl font-bold text-white">Hubungi Saya</h2>
-                <p className="text-slate-400 mt-3 max-w-2xl mx-auto">Punya proyek atau ide? Mari kita diskusikan!</p>
-            </div>
-            <div className="max-w-2xl mx-auto bg-slate-800 p-8 md:p-12 rounded-xl shadow-2xl border border-slate-700">
-                <form action="https://formspree.io/f/mblyazpo" method="POST">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                        <div>
-                            <label htmlFor="name" className="block text-slate-300 mb-2 font-medium">Nama</label>
-                            <input type="text" id="name" name="name" required className="w-full bg-slate-700 border border-slate-600 rounded-lg py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500" placeholder="Nama Anda" />
+export const ContactSection: React.FC<{ sectionRef: React.RefObject<HTMLElement> }> = ({ sectionRef }) => {
+    const [status, setStatus] = React.useState('');
+    const [isSubmitting, setIsSubmitting] = React.useState(false);
+
+    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        setIsSubmitting(true);
+        setStatus('');
+
+        const formData = new FormData(event.currentTarget);
+        const data = {
+            name: formData.get('name'),
+            email: formData.get('email'),
+            message: formData.get('message'),
+        };
+
+        try {
+            const response = await fetch('/api/send-email', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                setStatus('sukses');
+                (event.target as HTMLFormElement).reset();
+            } else {
+                setStatus('gagal');
+                console.error('API Error:', result.message);
+            }
+        } catch (error) {
+            setStatus('gagal');
+            console.error('Fetch Error:', error);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    return (
+        <section ref={sectionRef} id="contact" className="py-16 md:py-24 bg-slate-900">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="text-center mb-16">
+                    <h2 className="text-3xl md:text-4xl font-bold text-white">Hubungi Saya</h2>
+                    <p className="text-slate-400 mt-3 max-w-2xl mx-auto">Punya proyek atau ide? Mari kita diskusikan!</p>
+                </div>
+                <div className="max-w-2xl mx-auto bg-slate-800 p-8 md:p-12 rounded-xl shadow-2xl border border-slate-700">
+                    <form onSubmit={handleSubmit}>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <div>
+                                <label htmlFor="name" className="block text-slate-300 mb-2 font-medium">Nama</label>
+                                <input type="text" id="name" name="name" required className="w-full bg-slate-700 border border-slate-600 rounded-lg py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500" placeholder="Nama Anda" />
+                            </div>
+                            <div>
+                                <label htmlFor="email" className="block text-slate-300 mb-2 font-medium">Email</label>
+                                <input type="email" id="email" name="email" required className="w-full bg-slate-700 border border-slate-600 rounded-lg py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500" placeholder="email@contoh.com" />
+                            </div>
                         </div>
-                        <div>
-                            <label htmlFor="email" className="block text-slate-300 mb-2 font-medium">Email</label>
-                            <input type="email" id="email" name="email" required className="w-full bg-slate-700 border border-slate-600 rounded-lg py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500" placeholder="email@contoh.com" />
+                        <div className="mb-6">
+                            <label htmlFor="message" className="block text-slate-300 mb-2 font-medium">Pesan</label>
+                            <textarea id="message" name="message" rows={5} required className="w-full bg-slate-700 border border-slate-600 rounded-lg py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500" placeholder="Jelaskan kebutuhan Anda..."></textarea>
                         </div>
-                    </div>
-                    <div className="mb-6">
-                        <label htmlFor="message" className="block text-slate-300 mb-2 font-medium">Pesan</label>
-                        <textarea id="message" name="message" rows={5} required className="w-full bg-slate-700 border border-slate-600 rounded-lg py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500" placeholder="Jelaskan kebutuhan Anda..."></textarea>
-                    </div>
-                    <div className="text-center">
-                        <button type="submit" className="bg-cyan-500 text-white font-bold py-3 px-10 rounded-full shadow-lg shadow-cyan-500/30 hover:bg-cyan-600 transition-all duration-300 transform hover:scale-105">Kirim Pesan</button>
-                    </div>
-                </form>
+                        <div className="text-center">
+                            <button type="submit" disabled={isSubmitting} className="bg-cyan-500 text-white font-bold py-3 px-10 rounded-full shadow-lg shadow-cyan-500/30 hover:bg-cyan-600 transition-all duration-300 transform hover:scale-105 disabled:bg-slate-600 disabled:cursor-not-allowed">
+                                {isSubmitting ? 'Mengirim...' : 'Kirim Pesan'}
+                            </button>
+                        </div>
+                    </form>
+                    {status === 'sukses' && <p className="text-center text-green-400 mt-4">Pesan berhasil dikirim! Terima kasih telah menghubungi.</p>}
+                    {status === 'gagal' && <p className="text-center text-red-400 mt-4">Maaf, terjadi kesalahan. Silakan coba lagi nanti.</p>}
+                </div>
             </div>
-        </div>
-    </section>
-);
+        </section>
+    );
+};
 
 
 export const Footer: React.FC = () => (
