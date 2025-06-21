@@ -1,48 +1,37 @@
-// web-app/app/blog/[slug]/page.tsx
-// Halaman ini adalah Komponen Server karena mengekspor generateStaticParams dan generateMetadata.
-// OLEH KARENA ITU, JANGAN ADA "use client" DI SINI.
-
 import { Metadata } from 'next';
-import { blogArticles } from '@/lib/blog-data'; // Pastikan path ini benar
-import { notFound } from 'next/navigation';
-import type { PageProps } from 'next'; // Impor PageProps dari 'next'
-import BlogPostContent from './blog-post-content'; // Impor komponen klien baru
+import Link from 'next/link';
+import { blogArticles } from '@/lib/blog-data';
+import { ArrowRight } from 'lucide-react';
 
-// Define Props untuk tipe params
-type BlogPostPageProps = PageProps<{ slug: string }>;
+export const metadata: Metadata = {
+  title: 'Blog',
+  description: 'Kumpulan artikel, wawasan, dan tutorial seputar pengembangan web dan teknologi dari Ayick.dev.',
+};
 
-export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
-    const article = blogArticles.find((a) => a.slug === params.slug);
-    if (!article) { return { title: 'Artikel Tidak Ditemukan' }; }
-    return {
-        title: article.title,
-        description: article.summary,
-        openGraph: {
-            title: article.title,
-            description: article.summary,
-            type: 'article',
-            publishedTime: new Date(article.publishedDate).toISOString(),
-            images: [article.imageUrl],
-        },
-        twitter: {
-            card: 'summary_large_image',
-            title: article.title,
-            description: article.summary,
-            images: [article.imageUrl],
-        }
-    };
-}
+export default function BlogIndexPage() {
+  return (
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
+      <div className="text-center mb-16">
+        <h1 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white">Artikel Blog</h1>
+        <p className="text-slate-600 dark:text-slate-400 mt-3 max-w-2xl mx-auto">
+          Berbagi pemikiran, wawasan, dan tutorial seputar teknologi web.
+        </p>
+      </div>
 
-export async function generateStaticParams() {
-    return blogArticles.map((article) => ({ slug: article.slug }));
-}
-
-export default function BlogPostPage({ params }: BlogPostPageProps) {
-    const article = blogArticles.find((a) => a.slug === params.slug);
-    if (!article) { notFound(); }
-
-    return (
-        // Render komponen klien yang berisi konten blog
-        <BlogPostContent article={article} />
-    );
+      <div className="max-w-3xl mx-auto grid gap-10">
+        {blogArticles.map((article) => (
+          <Link href={`/blog/${article.slug}`} key={article.slug} className="block bg-white dark:bg-slate-800/50 p-8 rounded-xl shadow-md hover:shadow-xl group border border-slate-200 dark:border-slate-800 hover:border-cyan-500 dark:hover:border-cyan-500 transition-all duration-300">
+            <p className="text-sm text-slate-500 dark:text-slate-400 mb-2">{article.publishedDate}</p>
+            <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-3 group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors duration-300">
+              {article.title}
+            </h2>
+            <p className="text-slate-600 dark:text-slate-300 mb-5">{article.summary}</p>
+            <div className="font-semibold text-cyan-600 dark:text-cyan-400 transition-colors duration-300 flex items-center gap-2">
+              Baca Selengkapnya <ArrowRight className="w-4 h-4" />
+            </div>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
 }

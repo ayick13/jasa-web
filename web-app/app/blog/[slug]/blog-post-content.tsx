@@ -1,5 +1,5 @@
 // web-app/app/blog/[slug]/blog-post-content.tsx
-'use client'; // Ini adalah komponen klien
+'use client'; // Ini adalah komponen klien, jadi "use client" HARUS ADA di sini
 
 import Link from 'next/link';
 import Image from 'next/image';
@@ -48,7 +48,7 @@ export default function BlogPostContent({ article }: BlogPostContentProps) {
                 <div className="relative w-full h-64 md:h-96 mb-8 rounded-xl overflow-hidden shadow-lg border border-slate-200 dark:border-slate-800">
                     <Image src={article.imageUrl} alt={article.title} fill className="object-cover" priority />
                 </div>
-                
+
                 {/* Konten blog dirender di sini */}
                 <div className="prose prose-lg dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: article.content }} />
 
