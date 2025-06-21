@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { Home, User, Rss, Layers, Mail, Menu, X, Github, Linkedin, Instagram, Code, CheckCircle, Smartphone, BarChart2, ArrowRight, Tag, Star } from 'lucide-react';
+import { Home, User, Rss, Layers, Mail, Menu, X, Github, Linkedin, Instagram, Code, CheckCircle, Smartphone, BarChart2, ArrowRight, Tag, Star, Settings, PenTool, Share2 } from 'lucide-react';
 
 // --- Data & Tipe Digabung di sini untuk kesederhanaan ---
 type Section = 'home' | 'about' | 'services' | 'pricing' | 'blog' | 'contact';
@@ -19,7 +19,10 @@ const navLinks = [
 const servicesData = [
     { icon: Code, title: "Pengembangan Web", description: "Membangun situs web kustom dari awal, memastikan fungsionalitas yang mulus." },
     { icon: Smartphone, title: "Desain Responsif", description: "Memastikan situs web Anda terlihat sempurna di semua perangkat." },
-    { icon: BarChart2, title: "Optimasi SEO", description: "Meningkatkan visibilitas situs web Anda di mesin pencari." }
+    { icon: BarChart2, title: "Optimasi SEO", description: "Meningkatkan visibilitas situs web Anda di mesin pencari." },
+    { icon: Settings, title: "Pemeliharaan Website", description: "Menjaga website Anda tetap aman, cepat, dan selalu update." },
+    { icon: PenTool, title: "Desain UI/UX", description: "Menciptakan pengalaman pengguna yang intuitif dan menarik secara visual." },
+    { icon: Share2, title: "Integrasi API", description: "Menghubungkan website Anda dengan layanan dan sistem pihak ketiga." }
 ];
 
 const skillsData = [
@@ -161,33 +164,41 @@ export const ServicesSection: React.FC<{ sectionRef: React.RefObject<HTMLElement
 );
 
 
-export const PricingSection: React.FC<{ sectionRef: React.RefObject<HTMLElement>; onNavClick: (section: Section) => void; }> = ({ sectionRef, onNavClick }) => (
-    <section ref={sectionRef} id="pricing" className="py-16 md:py-24 bg-slate-900">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-16">
-                <h2 className="text-3xl md:text-4xl font-bold text-white">Paket Harga</h2>
-                <p className="text-slate-400 mt-3 max-w-2xl mx-auto">Pilih paket yang paling sesuai dengan kebutuhan Anda.</p>
-            </div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 items-start max-w-6xl mx-auto">
-                {pricingData.map((tier) => (
-                    <div key={tier.title} className={`bg-slate-800 p-8 rounded-xl shadow-lg border-2 flex flex-col h-full relative overflow-hidden ${tier.isRecommended ? 'border-cyan-500' : 'border-slate-700'}`}>
-                        {tier.isRecommended && <div className="absolute top-0 right-0 bg-cyan-500 text-white text-xs font-bold px-4 py-1 rounded-bl-lg flex items-center gap-1"><Star className="w-4 h-4" /><span>PALING POPULER</span></div>}
-                        <h3 className="text-2xl font-bold text-white mb-2">{tier.title}</h3>
-                        <p className="text-slate-400 mb-6 flex-grow">{tier.description}</p>
-                        <div className="mb-6">
-                            {tier.price === 'Hubungi' ? <span className="text-4xl font-extrabold text-white">Hubungi</span> : <span className="text-4xl font-extrabold text-white">Rp {tier.price}</span>}
-                            <span className="text-slate-400 ml-1">/ {tier.period}</span>
+export const PricingSection: React.FC<{ sectionRef: React.RefObject<HTMLElement> }> = ({ sectionRef }) => {
+    const handlePricingClick = (packageName: string) => {
+        const message = `Halo, saya tertarik dengan paket ${packageName}. Bisakah kita diskusikan lebih lanjut?`;
+        const whatsappUrl = `https://api.whatsapp.com/send?phone=6281330763633&text=${encodeURIComponent(message)}`;
+        window.open(whatsappUrl, '_blank');
+    };
+
+    return (
+        <section ref={sectionRef} id="pricing" className="py-16 md:py-24 bg-slate-900">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="text-center mb-16">
+                    <h2 className="text-3xl md:text-4xl font-bold text-white">Paket Harga</h2>
+                    <p className="text-slate-400 mt-3 max-w-2xl mx-auto">Pilih paket yang paling sesuai dengan kebutuhan Anda.</p>
+                </div>
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 items-start max-w-6xl mx-auto">
+                    {pricingData.map((tier) => (
+                        <div key={tier.title} className={`bg-slate-800 p-8 rounded-xl shadow-lg border-2 flex flex-col h-full relative overflow-hidden ${tier.isRecommended ? 'border-cyan-500' : 'border-slate-700'}`}>
+                            {tier.isRecommended && <div className="absolute top-0 right-0 bg-cyan-500 text-white text-xs font-bold px-4 py-1 rounded-bl-lg flex items-center gap-1"><Star className="w-4 h-4" /><span>PALING POPULER</span></div>}
+                            <h3 className="text-2xl font-bold text-white mb-2">{tier.title}</h3>
+                            <p className="text-slate-400 mb-6 flex-grow">{tier.description}</p>
+                            <div className="mb-6">
+                                {tier.price === 'Hubungi' ? <span className="text-4xl font-extrabold text-white">Hubungi</span> : <span className="text-4xl font-extrabold text-white">Rp {tier.price}</span>}
+                                <span className="text-slate-400 ml-1">/ {tier.period}</span>
+                            </div>
+                            <ul className="space-y-4 mb-8 text-slate-300">
+                                {tier.features.map((feature) => (<li key={feature} className="flex items-center gap-3"><CheckCircle className="w-5 h-5 text-cyan-400 flex-shrink-0"/> <span>{feature}</span></li>))}
+                            </ul>
+                            <button onClick={() => handlePricingClick(tier.title)} className={`w-full mt-auto font-bold py-3 px-8 rounded-full transition-all duration-300 transform hover:scale-105 ${tier.isRecommended ? 'bg-cyan-500 text-white shadow-lg shadow-cyan-500/30 hover:bg-cyan-600' : 'bg-slate-700 text-white hover:bg-slate-600'}`}>Pilih Paket</button>
                         </div>
-                        <ul className="space-y-4 mb-8 text-slate-300">
-                            {tier.features.map((feature) => (<li key={feature} className="flex items-center gap-3"><CheckCircle className="w-5 h-5 text-cyan-400 flex-shrink-0"/> <span>{feature}</span></li>))}
-                        </ul>
-                        <button onClick={() => onNavClick('contact')} className={`w-full mt-auto font-bold py-3 px-8 rounded-full transition-all duration-300 transform hover:scale-105 ${tier.isRecommended ? 'bg-cyan-500 text-white shadow-lg shadow-cyan-500/30 hover:bg-cyan-600' : 'bg-slate-700 text-white hover:bg-slate-600'}`}>Pilih Paket</button>
-                    </div>
-                ))}
+                    ))}
+                </div>
             </div>
-        </div>
-    </section>
-);
+        </section>
+    );
+};
 
 
 export const BlogSection: React.FC<{ sectionRef: React.RefObject<HTMLElement> }> = ({ sectionRef }) => (
@@ -219,7 +230,7 @@ export const ContactSection: React.FC<{ sectionRef: React.RefObject<HTMLElement>
                 <p className="text-slate-400 mt-3 max-w-2xl mx-auto">Punya proyek atau ide? Mari kita diskusikan!</p>
             </div>
             <div className="max-w-2xl mx-auto bg-slate-800 p-8 md:p-12 rounded-xl shadow-2xl border border-slate-700">
-                <form>
+                <form action="https://formspree.io/f/YOUR_FORMSPREE_ID" method="POST">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                         <div>
                             <label htmlFor="name" className="block text-slate-300 mb-2 font-medium">Nama</label>
