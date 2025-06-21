@@ -1,7 +1,7 @@
 // web-app/app/page.tsx
 'use client';
 
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useMemo } from 'react'; // Import useMemo
 import { HeroSection, AboutSection, ServicesSection, PortfolioSection, PricingSection, BlogSection, ContactSection, Header, Footer } from '@/app/components';
 import { ThemeProvider } from './providers'; // Import ThemeProvider
 
@@ -14,7 +14,8 @@ export default function Home() {
   const blogRef = useRef<HTMLElement>(null);
   const contactRef = useRef<HTMLElement>(null);
 
-  const sectionRefs = {
+  // Bungkus sectionRefs dalam useMemo
+  const sectionRefs = useMemo(() => ({
     home: heroRef,
     about: aboutRef,
     services: servicesRef,
@@ -22,7 +23,7 @@ export default function Home() {
     pricing: pricingRef,
     blog: blogRef,
     contact: contactRef,
-  };
+  }), []); // Dependency array kosong karena ref tidak akan berubah
 
   const [currentSection, setCurrentSection] = useState<keyof typeof sectionRefs>('home');
 
@@ -58,7 +59,7 @@ export default function Home() {
       });
       observer.disconnect();
     };
-  }, [sectionRefs]); // Tambahkan sectionRefs di sini sebagai dependency
+  }, [sectionRefs]); // sectionRefs sekarang aman di sini
 
   const handleNavClick = (section: keyof typeof sectionRefs) => {
     const ref = sectionRefs[section];
