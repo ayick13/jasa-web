@@ -20,7 +20,7 @@ export const portfolioProjects: Project[] = [
       <p class="mt-4">Solusi yang dihadirkan adalah website e-commerce yang dibangun dengan Next.js untuk performa maksimal. Desain UI/UX dibuat bersih dan modern, menonjolkan visual produk waffle yang menggugah selera. Fitur utama meliputi katalog produk, keranjang belanja, dan integrasi pembayaran online yang aman.</p>
     `,
     technologies: ['Next.js', 'React', 'Tailwind CSS', 'E-Commerce'],
-    imageUrl: '/images/blog/ruangriung.png',
+    imageUrl: '/images/blog/waffledan.png',
     liveUrl: 'https://waffledan.co.id',
   },
   {
@@ -33,7 +33,7 @@ export const portfolioProjects: Project[] = [
       <p class="mt-4">Dengan frontend yang dibangun menggunakan HTML, CSS, dan JavaScript, aplikasi ini terhubung langsung ke Pollinations API. Fitur utamanya meliputi Text-to-Image, Text-to-Audio, dan pembuatan prompt video. Proyek ini menunjukkan kemampuan dalam integrasi API pihak ketiga dan membangun aplikasi yang fungsional untuk kebutuhan kreatif.</p>
     `,
     technologies: ['HTML', 'JavaScript', 'API Integration', 'AI', 'Pollinations'],
-    imageUrl: 'https://placehold.co/1200x800/1e293b/6366f1/png?text=Ruangriung+AI+Generator',
+    imageUrl: '/images/blog/ruangriung.png',
     liveUrl: 'https://ruangriung.my.id',
   },
   {
