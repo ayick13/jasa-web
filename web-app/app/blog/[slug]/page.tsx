@@ -2,9 +2,8 @@ import { Metadata } from 'next';
 import { blogArticles } from '@/lib/blog-data';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Calendar, MessageSquare, ArrowRight } from 'lucide-react';
+import { ArrowLeft, Calendar, MessageSquare } from 'lucide-react';
 
-// --- Komponen CTA Baru ---
 const BlogCTA = () => (
   <div className="mt-16 bg-slate-800 border border-slate-700 rounded-xl p-8 text-center">
     <h3 className="text-2xl font-bold text-white mb-3">
@@ -23,12 +22,10 @@ const BlogCTA = () => (
   </div>
 );
 
-
 type Props = {
   params: { slug: string };
 };
 
-// Fungsi untuk generate metadata dinamis
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const article = blogArticles.find((a) => a.slug === params.slug);
   if (!article) {
@@ -46,7 +43,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-// Fungsi untuk generate halaman statis saat build
 export async function generateStaticParams() {
   return blogArticles.map((article) => ({
     slug: article.slug,
@@ -57,7 +53,7 @@ export default function BlogPostPage({ params }: Props) {
   const article = blogArticles.find((a) => a.slug === params.slug);
 
   if (!article) {
-    notFound(); // Tampilkan halaman 404 jika artikel tidak ada
+    notFound();
   }
 
   return (
@@ -67,21 +63,19 @@ export default function BlogPostPage({ params }: Props) {
           <ArrowLeft className="w-4 h-4" />
           Kembali ke semua artikel
         </Link>
-        
+
         <h1 className="text-4xl md:text-5xl font-bold text-white leading-tight mb-4">{article.title}</h1>
-        
+
         <div className="flex items-center gap-2 text-slate-400 mb-8">
             <Calendar className="w-5 h-5" />
             <span>Diterbitkan pada {article.publishedDate}</span>
         </div>
-        
-        {/* Konten Artikel */}
+
         <div
           className="prose prose-invert prose-lg max-w-none text-slate-300"
           dangerouslySetInnerHTML={{ __html: article.content }}
         />
 
-        {/* --- Penambahan Komponen CTA di sini --- */}
         <BlogCTA />
       </div>
     </article>
