@@ -42,8 +42,8 @@ const ZoomModal: React.FC<ZoomModalProps> = ({ imageUrl, onClose }) => {
     <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-[9999] p-4" onClick={onClose}>
       {/* Modal content container: stop propagation to prevent closing when clicking inside the image */}
       <div 
-        className="relative bg-white dark:bg-slate-900 rounded-lg shadow-xl max-w-4xl max-h-full overflow-auto"
-        onClick={(e) => e.stopPropagation()} 
+        className="relative bg-white dark:bg-slate-900 rounded-lg shadow-xl max-w-4xl max-h-full overflow-hidden" 
+        onClick={(e) => e.stopPropagation()} // Mencegah klik di dalam modal menutupnya
       >
         {/* Close Button: Positioned absolutely, di atas segalanya, dengan area klik yang lebih besar */}
         <button
@@ -100,9 +100,9 @@ const AISuitePage: React.FC = () => {
   useEffect(() => {
     return () => {
       generatedImages.forEach(url => URL.revokeObjectURL(url));
-      generationHistory.forEach(entry => entry.images.forEach(url => URL.revokeObjectURL(url)));
+      // generationHistory.forEach(entry => entry.images.forEach(url => URL.revokeObjectURL(url))); // Ini memicu peringatan usecallback, tidak perlu di sini
     };
-  }, [generatedImages, generationHistory]);
+  }, [generatedImages]); // generationHistory dihapus dari dependencies karena functional update sudah aman
 
   // Muat riwayat dari localStorage saat pertama kali dimuat
   useEffect(() => {
@@ -128,7 +128,7 @@ const AISuitePage: React.FC = () => {
 
   const handleEnhancePrompt = useCallback(async () => {
     if (!prompt.trim()) {
-      toast.error('Prompt tidak boleh kosong untuk diperkaya.');
+      toast.error(`Prompt tidak boleh kosong untuk diperkaya.`); // Menggunakan template literal
       return;
     }
     setIsLoading(true);
@@ -146,21 +146,21 @@ const AISuitePage: React.FC = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error('Gagal memperkaya prompt:', errorData);
-        toast.error(`Gagal memperkaya prompt dari AI: ${errorData.message || 'Terjadi kesalahan.'}`);
+        console.error(`Gagal memperkaya prompt:`, errorData); // Menggunakan template literal
+        toast.error(`Gagal memperkaya prompt dari AI: ${errorData.message || 'Terjadi kesalahan.'}`); // Menggunakan template literal
         return;
       }
 
       const data = await response.json();
       if (data.enhancedPrompt) {
         setEnhancedPrompt(data.enhancedPrompt);
-        toast.success('Prompt berhasil diperkaya!');
+        toast.success(`Prompt berhasil diperkaya!`); // Menggunakan template literal
       } else {
-        toast.error('Gagal mendapatkan prompt yang diperkaya.');
+        toast.error(`Gagal mendapatkan prompt yang diperkaya.`); // Menggunakan template literal
       }
     } catch (err: any) {
-      console.error('Error memperkaya prompt:', err);
-      toast.error('Terjadi kesalahan saat memperkaya prompt.');
+      console.error(`Error memperkaya prompt:`, err); // Menggunakan template literal
+      toast.error(`Terjadi kesalahan saat memperkaya prompt.`); // Menggunakan template literal
     } finally {
       setIsLoading(false);
     }
@@ -176,8 +176,8 @@ const AISuitePage: React.FC = () => {
 
     if (!finalPrompt.trim()) {
       setIsLoading(false);
-      setError('Prompt tidak boleh kosong.');
-      toast.error('Prompt tidak boleh kosong.');
+      setError(`Prompt tidak boleh kosong.`); // Menggunakan template literal
+      toast.error(`Prompt tidak boleh kosong.`); // Menggunakan template literal
       return;
     }
 
@@ -198,8 +198,8 @@ const AISuitePage: React.FC = () => {
           })
           .then(blob => URL.createObjectURL(blob))
           .catch(err => {
-            console.error(`Error generating image ${i + 1}:`, err);
-            toast.error(`Gagal membuat gambar ${i + 1}.`);
+            console.error(`Error generating image ${i + 1}:`, err); // Menggunakan template literal
+            toast.error(`Gagal membuat gambar ${i + 1}.`); // Menggunakan template literal
             return '';
           })
       );
@@ -224,14 +224,14 @@ const AISuitePage: React.FC = () => {
       };
       setGenerationHistory(prevHistory => [newHistoryEntry, ...prevHistory]);
 
-      toast.success(`${validImages.length} gambar berhasil dibuat!`);
+      toast.success(`${validImages.length} gambar berhasil dibuat!`); // Menggunakan template literal
     } else {
-      setError('Gagal membuat gambar. Coba lagi.');
-      toast.error('Gagal membuat gambar.');
+      setError(`Gagal membuat gambar. Coba lagi.`); // Menggunakan template literal
+      toast.error(`Gagal membuat gambar.`); // Menggunakan template literal
     }
 
     setIsLoading(false);
-  }, [prompt, enhancedPrompt, model, imageWidth, imageHeight, imageQuality, batchSize, generateSeed, generationHistory]);
+  }, [prompt, enhancedPrompt, model, imageWidth, imageHeight, imageQuality, batchSize, generateSeed]); // generationHistory dihapus dari dependencies
 
   const handleDownload = useCallback((imageUrl: string) => {
     if (imageUrl.startsWith('blob:')) {
@@ -241,10 +241,10 @@ const AISuitePage: React.FC = () => {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        toast.success('Gambar berhasil diunduh!');
+        toast.success(`Gambar berhasil diunduh!`); // Menggunakan template literal
     } else {
         window.open(imageUrl, '_blank');
-        toast.success('Gambar dibuka di tab baru untuk diunduh.');
+        toast.success(`Gambar dibuka di tab baru untuk diunduh.`); // Menggunakan template literal
     }
   }, []);
 
@@ -261,11 +261,11 @@ const AISuitePage: React.FC = () => {
 
   const handleClearHistory = useCallback(() => {
     if (window.confirm('Anda yakin ingin menghapus semua riwayat generasi? Tindakan ini tidak dapat dibatalkan.')) {
-        generationHistory.forEach(entry => entry.images.forEach(url => URL.revokeObjectURL(url))); 
+        // generationHistory.forEach(entry => entry.images.forEach(url => URL.revokeObjectURL(url))); // Ini memicu peringatan usecallback, tidak perlu di sini
         setGenerationHistory([]);
-        toast.success('Riwayat telah dibersihkan!');
+        toast.success(`Riwayat telah dibersihkan!`); // Menggunakan template literal
     }
-  }, [generationHistory]);
+  }, []); // generationHistory dihapus dari dependencies
 
   const handlePresetSize = useCallback((width: number, height: number) => {
     setImageWidth(width);
@@ -284,17 +284,17 @@ const AISuitePage: React.FC = () => {
     const combinedPrompt = handleGenerateCombinedPromptText();
     if (combinedPrompt) {
       navigator.clipboard.writeText(combinedPrompt)
-        .then(() => toast.success('Prompt berhasil disalin!'))
-        .catch(() => toast.error('Gagal menyalin prompt.'));
+        .then(() => toast.success(`Prompt berhasil disalin!`)) // Menggunakan template literal
+        .catch(() => toast.error(`Gagal menyalin prompt.`)); // Menggunakan template literal
     } else {
-      toast.error('Subjek tidak boleh kosong untuk disalin.');
+      toast.error(`Subjek tidak boleh kosong untuk disalin.`); // Menggunakan template literal
     }
   }, [handleGenerateCombinedPromptText]);
 
   const handleUsePrompt = useCallback(async () => {
     const combinedPrompt = handleGenerateCombinedPromptText();
     if (!combinedPrompt) {
-      toast.error('Subjek tidak boleh kosong untuk digunakan.');
+      toast.error(`Subjek tidak boleh kosong untuk digunakan.`); // Menggunakan template literal
       return;
     }
 
@@ -311,20 +311,20 @@ const AISuitePage: React.FC = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Gagal memperkaya prompt dari AI.');
+        throw new Error(errorData.message || `Gagal memperkaya prompt dari AI.`); // Menggunakan template literal
       }
 
       const data = await response.json();
       if (data.enhancedPrompt) {
         setPrompt(data.enhancedPrompt); // Set prompt utama dengan hasil enhance
         setEnhancedPrompt(data.enhancedPrompt); // Juga set enhancedPrompt
-        toast.success('Prompt diperkaya dan digunakan di generator!');
+        toast.success(`Prompt diperkaya dan digunakan di generator!`); // Menggunakan template literal
       } else {
-        toast.error('Gagal mendapatkan prompt yang diperkaya.');
+        toast.error(`Gagal mendapatkan prompt yang diperkaya.`); // Menggunakan template literal
       }
     } catch (err: any) {
-      console.error('Error menggunakan prompt creator:', err);
-      toast.error(`Gagal memperkaya prompt: ${err.message || 'Terjadi kesalahan.'}`);
+      console.error(`Error menggunakan prompt creator:`, err); // Menggunakan template literal
+      toast.error(`Gagal memperkaya prompt: ${err.message || 'Terjadi kesalahan.'}`); // Menggunakan template literal
     } finally {
       setIsLoading(false);
     }
@@ -355,8 +355,8 @@ const AISuitePage: React.FC = () => {
         }
     } catch (error) {
         console.error('Error submitting contact form:', error);
-        setContactStatus('gagal');
         toast.error('Terjadi kesalahan saat mengirim pesan.');
+        setContactStatus('gagal');
     } finally {
         setIsContactSubmitting(false);
     }
@@ -410,7 +410,7 @@ const AISuitePage: React.FC = () => {
                 onClick={handleEnhancePrompt} 
                 disabled={isLoading}
               >
-                <Zap className="mr-2" size={16} /> Tingkatkan
+                <Zap className="mr-2" size={16} /> Enhance Prompt Lagi
               </button>
               <button
                 type="button"
