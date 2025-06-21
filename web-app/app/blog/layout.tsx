@@ -15,7 +15,7 @@ export default function BlogLayout({
             {/* Logo / Brand */}
             <Link href="/" className="text-2xl font-bold text-white cursor-pointer flex items-center gap-2">
               <Code className="w-8 h-8 text-cyan-400"/>
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500">Ayick.dev</span>
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500">Jasa Pembuatan Website</span>
             </Link>
             
             {/* Menu Navigasi Blog */}
