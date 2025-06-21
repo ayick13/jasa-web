@@ -2,7 +2,27 @@ import { Metadata } from 'next';
 import { blogArticles } from '@/lib/blog-data';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Calendar } from 'lucide-react';
+import { ArrowLeft, Calendar, MessageSquare, ArrowRight } from 'lucide-react';
+
+// --- Komponen CTA Baru ---
+const BlogCTA = () => (
+  <div className="mt-16 bg-slate-800 border border-slate-700 rounded-xl p-8 text-center">
+    <h3 className="text-2xl font-bold text-white mb-3">
+      Siap Mewujudkan Ide Anda?
+    </h3>
+    <p className="text-slate-400 max-w-xl mx-auto mb-6">
+      Baik itu website baru, optimasi, atau sekadar konsultasi, saya siap membantu. Mari diskusikan bagaimana kita bisa membangun solusi digital yang tepat untuk Anda.
+    </p>
+    <Link 
+      href="/#contact" 
+      className="inline-flex items-center justify-center gap-2 bg-cyan-500 text-white font-bold py-3 px-8 rounded-full shadow-lg shadow-cyan-500/30 hover:bg-cyan-600 transition-all duration-300 transform hover:scale-105"
+    >
+      <MessageSquare className="w-5 h-5" />
+      Hubungi Saya Sekarang
+    </Link>
+  </div>
+);
+
 
 type Props = {
   params: { slug: string };
@@ -55,10 +75,14 @@ export default function BlogPostPage({ params }: Props) {
             <span>Diterbitkan pada {article.publishedDate}</span>
         </div>
         
+        {/* Konten Artikel */}
         <div
           className="prose prose-invert prose-lg max-w-none text-slate-300"
           dangerouslySetInnerHTML={{ __html: article.content }}
         />
+
+        {/* --- Penambahan Komponen CTA di sini --- */}
+        <BlogCTA />
       </div>
     </article>
   );
