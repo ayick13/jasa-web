@@ -29,11 +29,11 @@ export const portfolioProjects: Project[] = [
     category: 'Aplikasi Web / AI',
     summary: 'Aplikasi web inovatif yang berfungsi sebagai AI media generator, terintegrasi dengan Pollinations API untuk membuat gambar, audio, dan video.',
     description: `
-      <p>Proyek ini (sebelumnya Ruang Riung) dikembangkan sebagai sebuah tools kreatif berbasis AI. Tujuannya adalah untuk menyediakan antarmuka yang sederhana dan cepat bagi pengguna untuk berinteraksi dengan model AI yang kompleks tanpa perlu pengetahuan teknis.</p>
+      <p>Proyek RuangRiung dikembangkan sebagai sebuah tools kreatif berbasis AI. Tujuannya adalah untuk menyediakan antarmuka yang sederhana dan cepat bagi pengguna untuk berinteraksi dengan model AI yang kompleks tanpa perlu pengetahuan teknis.</p>
       <p class="mt-4">Dengan frontend yang dibangun menggunakan HTML, CSS, dan JavaScript, aplikasi ini terhubung langsung ke Pollinations API. Fitur utamanya meliputi Text-to-Image, Text-to-Audio, dan pembuatan prompt video. Proyek ini menunjukkan kemampuan dalam integrasi API pihak ketiga dan membangun aplikasi yang fungsional untuk kebutuhan kreatif.</p>
     `,
     technologies: ['HTML', 'JavaScript', 'API Integration', 'AI', 'Pollinations'],
-    imageUrl: 'https://placehold.co/1200x800/1e293b/6366f1/png?text=AI+Generator',
+    imageUrl: 'https://placehold.co/1200x800/1e293b/6366f1/png?text=Ruangriung+AI+Generator',
     liveUrl: 'https://ruangriung.my.id',
   },
   {
@@ -68,11 +68,11 @@ export const portfolioProjects: Project[] = [
     category: 'Aplikasi Web / AI',
     summary: 'Aplikasi AI multifungsi yang menyediakan layanan translator dan generator media, dibangun dengan integrasi Pollinations API.',
     description: `
-      <p>Proyek ini (sebelumnya SICBA) adalah sebuah demonstrasi kekuatan integrasi API untuk menciptakan tools AI yang bermanfaat. Dibangun dengan frontend sederhana, aplikasi ini memberikan akses langsung ke beberapa model AI melalui satu antarmuka.</p>
+      <p>Proyek SICBA adalah sebuah demonstrasi kekuatan integrasi API untuk menciptakan tools AI yang bermanfaat. Dibangun dengan frontend sederhana, aplikasi ini memberikan akses langsung ke beberapa model AI melalui satu antarmuka.</p>
       <p class="mt-4">Fungsionalitas utamanya adalah sebagai penerjemah multi-bahasa dan generator media (gambar dan audio). Backend sederhana berfungsi sebagai jembatan yang aman untuk menghubungkan permintaan pengguna ke API key dari Pollinations, menunjukkan kemampuan untuk membangun aplikasi yang cepat dan ringan untuk tugas-tugas spesifik.</p>
     `,
     technologies: ['HTML', 'JavaScript', 'API Integration', 'AI', 'Translator'],
-    imageUrl: 'https://placehold.co/1200x800/1e293b/14b8a6/png?text=AI+Translator',
+    imageUrl: 'https://placehold.co/1200x800/1e293b/14b8a6/png?text=AI+Image+Generator',
     liveUrl: 'https://sicba.my.id',
   },
 ];
