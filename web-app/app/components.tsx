@@ -2,7 +2,10 @@
 
 import React from 'react';
 import Image from 'next/image';
+import Link from 'next/link'; // <--- PERBAIKAN: Impor Link ditambahkan di sini
 import { Home, User, Rss, Layers, Mail, Menu, X, Github, Linkedin, Instagram, Code, CheckCircle, Smartphone, BarChart2, ArrowRight, Tag, Star, Settings, PenTool, Share2 } from 'lucide-react';
+import { blogArticles } from '@/lib/blog-data';
+
 
 // --- Data & Tipe Digabung di sini untuk kesederhanaan ---
 type Section = 'home' | 'about' | 'services' | 'pricing' | 'blog' | 'contact';
@@ -36,13 +39,6 @@ const pricingData = [
     { title: "Pro", price: "4jt", period: "proyek", description: "Pilihan terbaik untuk bisnis kecil atau startup.", features: ["Hingga 5 Halaman", "Desain Kustom", "CMS", "Optimasi SEO Dasar", "Dukungan 1 Bulan"], isRecommended: true },
     { title: "Enterprise", price: "Hubungi", period: "kami", description: "Solusi lengkap untuk kebutuhan bisnis yang kompleks.", features: ["Halaman Tak Terbatas", "Fitur E-commerce", "Integrasi API", "Dukungan Prioritas"], isRecommended: false }
 ];
-
-const blogArticles = [
-    { title: "Mengapa Website Cepat & Desain Menarik Penting?", summary: "Pelajari bagaimana kecepatan dan desain memengaruhi kesuksesan bisnis online Anda.", link: "#" },
-    { title: "Panduan Lengkap untuk Website Bisnis Anda", summary: "Langkah penting untuk membangun kehadiran online yang kuat bagi bisnis Anda.", link: "#" },
-    { title: "Website Modern dengan Biaya Terjangkau", summary: "Temukan cara mendapatkan website berkualitas tinggi tanpa merusak anggaran.", link: "#" }
-];
-
 
 // --- Komponen-komponen ---
 
@@ -200,8 +196,6 @@ export const PricingSection: React.FC<{ sectionRef: React.RefObject<HTMLElement>
     );
 };
 
-
-// Ganti komponen BlogSection yang lama dengan yang ini
 export const BlogSection: React.FC<{ sectionRef: React.RefObject<HTMLElement> }> = ({ sectionRef }) => (
     <section ref={sectionRef} id="blog" className="py-16 md:py-24">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
