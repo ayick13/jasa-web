@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     siteName: 'Ayick.dev',
     images: [
       {
-        url: '/og-image.png', // Path ke gambar pratinjau Anda
+        url: '/picture/og.png', // Path ke gambar pratinjau Anda
         width: 1200,
         height: 630,
         alt: 'Ayick.dev - Web Developer',
@@ -53,7 +53,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Ayick.dev | Web Developer & Digital Accelerator',
     description: 'Bangun kehadiran online Anda dengan solusi web dari Ayick.dev.',
-    images: ['/og-image.png'], // Path ke gambar pratinjau Anda
+    images: ['/picture/og.png'], // Path ke gambar pratinjau Anda
   },
 };
 
