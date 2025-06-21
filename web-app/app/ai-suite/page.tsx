@@ -42,8 +42,8 @@ const ZoomModal: React.FC<ZoomModalProps> = ({ imageUrl, onClose }) => {
     <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-[9999] p-4" onClick={onClose}>
       {/* Modal content container: stop propagation to prevent closing when clicking inside the image */}
       <div 
-        className="relative bg-white dark:bg-slate-900 rounded-lg shadow-xl max-w-4xl max-h-full overflow-hidden" 
-        onClick={(e) => e.stopPropagation()} // Mencegah klik di dalam modal menutupnya
+        className="relative bg-white dark:bg-slate-900 rounded-lg shadow-xl max-w-4xl max-h-full overflow-auto"
+        onClick={(e) => e.stopPropagation()} 
       >
         {/* Close Button: Positioned absolutely, di atas segalanya, dengan area klik yang lebih besar */}
         <button
