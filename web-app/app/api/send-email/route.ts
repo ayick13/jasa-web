@@ -3,15 +3,35 @@ import nodemailer from 'nodemailer';
 
 export async function POST(request: Request) {
   try {
-    const { name, email, message } = await request.json();
+    const { name, email, message, 'cf-turnstile-response': turnstileToken } = await request.json();
 
     // Pastikan environment variables sudah di-set
     const user = process.env.GMAIL_USER;
     const pass = process.env.GMAIL_APP_PASSWORD;
+    const turnstileSecretKey = process.env.CLOUDFLARE_TURNSTILE_SECRET_KEY; // Kunci rahasia Turnstile baru
 
-    if (!user || !pass) {
-        console.error("Gmail credentials are not set in environment variables.");
+    if (!user || !pass || !turnstileSecretKey) {
+        console.error("Environment variables for Gmail or Cloudflare Turnstile are not set.");
         return NextResponse.json({ message: "Konfigurasi server tidak lengkap." }, { status: 500 });
+    }
+
+    // Verifikasi Cloudflare Turnstile
+    const turnstileFormData = new FormData();
+    turnstileFormData.append('secret', turnstileSecretKey); //
+    turnstileFormData.append('response', turnstileToken); //
+    turnstileFormData.append('remoteip', request.headers.get('CF-Connecting-IP') || ''); // Opsional: Sertakan IP pengguna
+
+    const url = 'https://challenges.cloudflare.com/turnstile/v0/siteverify'; //
+    const turnstileResponse = await fetch(url, {
+        method: 'POST',
+        body: turnstileFormData,
+    });
+
+    const turnstileResult = await turnstileResponse.json();
+
+    if (!turnstileResult.success) { //
+        console.error("Cloudflare Turnstile verification failed:", turnstileResult['error-codes']);
+        return NextResponse.json({ message: "Verifikasi CAPTCHA gagal. Silakan coba lagi." }, { status: 400 });
     }
 
     const transporter = nodemailer.createTransport({
