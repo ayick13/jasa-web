@@ -100,9 +100,8 @@ const AISuitePage: React.FC = () => {
   useEffect(() => {
     return () => {
       generatedImages.forEach(url => URL.revokeObjectURL(url));
-      // generationHistory.forEach(entry => entry.images.forEach(url => URL.revokeObjectURL(url))); // Ini memicu peringatan usecallback, tidak perlu di sini
     };
-  }, [generatedImages]); // generationHistory dihapus dari dependencies karena functional update sudah aman
+  }, [generatedImages]);
 
   // Muat riwayat dari localStorage saat pertama kali dimuat
   useEffect(() => {
@@ -128,7 +127,6 @@ const AISuitePage: React.FC = () => {
 
   const handleEnhancePrompt = useCallback(async () => {
     if (!prompt.trim()) {
-      // eslint-disable-next-line react/no-unescaped-entities
       toast.error(`Prompt tidak boleh kosong untuk diperkaya.`); 
       return;
     }
@@ -147,8 +145,7 @@ const AISuitePage: React.FC = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error(`Gagal memperkaya prompt:`, errorData); // Menggunakan template literal
-        // eslint-disable-next-line react/no-unescaped-entities
+        console.error(`Gagal memperkaya prompt:`, errorData); 
         toast.error(`Gagal memperkaya prompt dari AI: ${errorData.message || 'Terjadi kesalahan.'}`); 
         return;
       }
@@ -156,15 +153,12 @@ const AISuitePage: React.FC = () => {
       const data = await response.json();
       if (data.enhancedPrompt) {
         setEnhancedPrompt(data.enhancedPrompt);
-        // eslint-disable-next-line react/no-unescaped-entities
         toast.success(`Prompt berhasil diperkaya!`); 
       } else {
-        // eslint-disable-next-line react/no-unescaped-entities
         toast.error(`Gagal mendapatkan prompt yang diperkaya.`); 
       }
     } catch (err: any) {
-      console.error(`Error memperkaya prompt:`, err); // Menggunakan template literal
-      // eslint-disable-next-line react/no-unescaped-entities
+      console.error(`Error memperkaya prompt:`, err); 
       toast.error(`Terjadi kesalahan saat memperkaya prompt.`); 
     } finally {
       setIsLoading(false);
@@ -181,7 +175,7 @@ const AISuitePage: React.FC = () => {
 
     if (!finalPrompt.trim()) {
       setIsLoading(false);
-      // eslint-disable-next-line react/no-unescaped-entities
+      setError(`Prompt tidak boleh kosong.`); 
       toast.error(`Prompt tidak boleh kosong.`); 
       return;
     }
@@ -203,8 +197,7 @@ const AISuitePage: React.FC = () => {
           })
           .then(blob => URL.createObjectURL(blob))
           .catch(err => {
-            console.error(`Error generating image ${i + 1}:`, err); // Menggunakan template literal
-            // eslint-disable-next-line react/no-unescaped-entities
+            console.error(`Error generating image ${i + 1}:`, err); 
             toast.error(`Gagal membuat gambar ${i + 1}.`); 
             return '';
           })
@@ -230,10 +223,8 @@ const AISuitePage: React.FC = () => {
       };
       setGenerationHistory(prevHistory => [newHistoryEntry, ...prevHistory]);
 
-      // eslint-disable-next-line react/no-unescaped-entities
       toast.success(`${validImages.length} gambar berhasil dibuat!`); 
     } else {
-      // eslint-disable-next-line react/no-unescaped-entities
       toast.error(`Gagal membuat gambar. Coba lagi.`); 
     }
 
@@ -248,11 +239,9 @@ const AISuitePage: React.FC = () => {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        // eslint-disable-next-line react/no-unescaped-entities
         toast.success(`Gambar berhasil diunduh!`); 
     } else {
         window.open(imageUrl, '_blank');
-        // eslint-disable-next-line react/no-unescaped-entities
         toast.success(`Gambar dibuka di tab baru untuk diunduh.`); 
     }
   }, []);
@@ -265,13 +254,12 @@ const AISuitePage: React.FC = () => {
   const handleClearPrompt = useCallback(() => {
     setPrompt('');
     setEnhancedPrompt('');
-    // eslint-disable-next-line react/no-unescaped-entities
-    toast('Prompt telah dibersihkan.', { icon: '✨' }); 
+    toast('Prompt telah dibersihkan.', { icon: '✨' });
   }, []);
 
   const handleClearHistory = useCallback(() => {
     if (window.confirm('Anda yakin ingin menghapus semua riwayat generasi? Tindakan ini tidak dapat dibatalkan.')) {
-        // eslint-disable-next-line react/no-unescaped-entities
+        setGenerationHistory([]);
         toast.success(`Riwayat telah dibersihkan!`); 
     }
   }, []); 
@@ -293,12 +281,9 @@ const AISuitePage: React.FC = () => {
     const combinedPrompt = handleGenerateCombinedPromptText();
     if (combinedPrompt) {
       navigator.clipboard.writeText(combinedPrompt)
-        // eslint-disable-next-line react/no-unescaped-entities
         .then(() => toast.success(`Prompt berhasil disalin!`)) 
-        // eslint-disable-next-line react/no-unescaped-entities
         .catch(() => toast.error(`Gagal menyalin prompt.`)); 
     } else {
-      // eslint-disable-next-line react/no-unescaped-entities
       toast.error(`Subjek tidak boleh kosong untuk disalin.`); 
     }
   }, [handleGenerateCombinedPromptText]);
@@ -306,7 +291,6 @@ const AISuitePage: React.FC = () => {
   const handleUsePrompt = useCallback(async () => {
     const combinedPrompt = handleGenerateCombinedPromptText();
     if (!combinedPrompt) {
-      // eslint-disable-next-line react/no-unescaped-entities
       toast.error(`Subjek tidak boleh kosong untuk digunakan.`); 
       return;
     }
@@ -324,22 +308,19 @@ const AISuitePage: React.FC = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || `Gagal memperkaya prompt dari AI.`); // Menggunakan template literal
+        throw new Error(errorData.message || `Gagal memperkaya prompt dari AI.`); 
       }
 
       const data = await response.json();
       if (data.enhancedPrompt) {
         setPrompt(data.enhancedPrompt); // Set prompt utama dengan hasil enhance
         setEnhancedPrompt(data.enhancedPrompt); // Juga set enhancedPrompt
-        // eslint-disable-next-line react/no-unescaped-entities
         toast.success(`Prompt diperkaya dan digunakan di generator!`); 
       } else {
-        // eslint-disable-next-line react/no-unescaped-entities
         toast.error(`Gagal mendapatkan prompt yang diperkaya.`); 
       }
     } catch (err: any) {
-      console.error(`Error menggunakan prompt creator:`, err); // Menggunakan template literal
-      // eslint-disable-next-line react/no-unescaped-entities
+      console.error(`Error menggunakan prompt creator:`, err); 
       toast.error(`Gagal memperkaya prompt: ${err.message || 'Terjadi kesalahan.'}`); 
     } finally {
       setIsLoading(false);
@@ -364,16 +345,13 @@ const AISuitePage: React.FC = () => {
         if (response.ok) {
             setContactStatus('sukses');
             (event.target as HTMLFormElement).reset();
-            // eslint-disable-next-line react/no-unescaped-entities
             toast.success('Pesan berhasil dikirim!'); 
         } else {
             setContactStatus('gagal');
-            // eslint-disable-next-line react/no-unescaped-entities
             toast.error('Gagal mengirim pesan.'); 
         }
     } catch (error) {
         console.error('Error submitting contact form:', error);
-        // eslint-disable-next-line react/no-unescaped-entities
         toast.error('Terjadi kesalahan saat mengirim pesan.'); 
         setContactStatus('gagal');
     } finally {
