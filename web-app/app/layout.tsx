@@ -2,7 +2,8 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { Analytics } from "@vercel/analytics/react";
-import { Providers } from './providers'; // <-- Impor provider
+import { Providers } from './providers';
+import { Toaster } from 'react-hot-toast'; // Import Toaster
 
 const inter = Inter({
   subsets: ['latin'],
@@ -63,11 +64,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="id" suppressHydrationWarning> {/* Tambahkan suppressHydrationWarning */}
+    <html lang="id" suppressHydrationWarning>
       <body className="font-sans bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 leading-relaxed antialiased transition-colors duration-300">
-        <Providers> {/* Bungkus dengan Provider */}
+        <Providers>
           {children}
           <Analytics />
+          <Toaster /> {/* Tambahkan Toaster di sini */}
         </Providers>
       </body>
     </html>
