@@ -19,21 +19,21 @@ export const portfolioProjects: Project[] = [
       <p>Waffledan membutuhkan sebuah platform digital untuk menjangkau pasar yang lebih luas dan mempermudah proses pemesanan. Tantangannya adalah menciptakan pengalaman belanja yang cepat, menarik, dan mudah digunakan.</p>
       <p class="mt-4">Solusi yang dihadirkan adalah website e-commerce yang dibangun dengan Next.js untuk performa maksimal. Desain UI/UX dibuat bersih dan modern, menonjolkan visual produk waffle yang menggugah selera. Fitur utama meliputi katalog produk, keranjang belanja, dan integrasi pembayaran online yang aman.</p>
     `,
-    technologies: ['Next.js', 'React', 'Tailwind CSS', 'E-Commerce'],
+    technologies: ['WordPress','Elementor', 'BeBuilder', 'liteServer', 'E-Commerce'],
     imageUrl: 'https://placehold.co/1200x800/1e293b/93c5fd/png?text=Waffledan',
     liveUrl: 'https://waffledan.co.id',
   },
   {
-    slug: 'ruang-riung-space',
-    title: 'Ruang Riung Co-working',
-    category: 'Company Profile',
-    summary: 'Website informatif dan profesional untuk co-working dan event space, Ruang Riung.',
+    slug: 'ai-media-generator',
+    title: 'AI Media Generator Suite',
+    category: 'Aplikasi Web / AI',
+    summary: 'Aplikasi web inovatif yang berfungsi sebagai AI media generator, terintegrasi dengan Pollinations API untuk membuat gambar, audio, dan video.',
     description: `
-      <p>Ruang Riung bertujuan untuk menjadi pusat bagi para profesional dan komunitas di area mereka. Mereka memerlukan website yang tidak hanya menampilkan fasilitas yang tersedia, tetapi juga memudahkan calon penyewa untuk mendapatkan informasi dan melakukan reservasi.</p>
-      <p class="mt-4">Website ini dirancang dengan tampilan yang profesional dan modern untuk menarik target audiens yang tepat. Struktur informasi dibuat jelas, menampilkan detail ruang, fasilitas, paket harga, dan galeri foto. Sebuah formulir kontak dan peta lokasi terintegrasi untuk mempermudah calon klien menghubungi dan mengunjungi lokasi.</p>
+      <p>Proyek ini (sebelumnya Ruang Riung) dikembangkan sebagai sebuah tools kreatif berbasis AI. Tujuannya adalah untuk menyediakan antarmuka yang sederhana dan cepat bagi pengguna untuk berinteraksi dengan model AI yang kompleks tanpa perlu pengetahuan teknis.</p>
+      <p class="mt-4">Dengan frontend yang dibangun menggunakan HTML, CSS, dan JavaScript, aplikasi ini terhubung langsung ke Pollinations API. Fitur utamanya meliputi Text-to-Image, Text-to-Audio, dan pembuatan prompt video. Proyek ini menunjukkan kemampuan dalam integrasi API pihak ketiga dan membangun aplikasi yang fungsional untuk kebutuhan kreatif.</p>
     `,
-    technologies: ['Next.js', 'React', 'Leaflet.js', 'Company Profile'],
-    imageUrl: 'https://placehold.co/1200x800/1e293b/6366f1/png?text=Ruang+Riung',
+    technologies: ['HTML', 'JavaScript', 'API Integration', 'AI', 'Pollinations'],
+    imageUrl: 'https://placehold.co/1200x800/1e293b/6366f1/png?text=RuangRiung+AI+Generator',
     liveUrl: 'https://ruangriung.my.id',
   },
   {
@@ -46,7 +46,7 @@ export const portfolioProjects: Project[] = [
       <p class="mt-4">Website ini dirancang dengan palet warna korporat dan tata letak yang bersih untuk memancarkan citra elegan dan terpercaya. Setiap layanan dan unit bisnis dijelaskan secara detail. Desain yang responsif memastikan pengalaman yang optimal bagi pengguna desktop maupun mobile yang mengakses informasi perusahaan.</p>
     `,
     technologies: ['Next.js', 'React', 'Tailwind CSS', 'Corporate Design'],
-    imageUrl: 'https://placehold.co/1200x800/1e293b/a855f7/png?text=Rasyifa+Group',
+    imageUrl: 'https://placehold.co/1200x800/1e293b/a855f7/png?text=Rasyifa+Nusantara+Group',
     liveUrl: 'https://rasyifanusantaragroup.com',
   },
   {
@@ -63,16 +63,16 @@ export const portfolioProjects: Project[] = [
     liveUrl: 'https://csfirefighter.com',
   },
   {
-    slug: 'sicba-sistem-informasi',
-    title: 'SICBA - Sistem Informasi',
-    category: 'Aplikasi Web',
-    summary: 'Pengembangan aplikasi web fungsional untuk pendataan dan pengelolaan Sistem Informasi Cagar Budaya.',
+    slug: 'multi-language-ai-tool',
+    title: 'Multi-Language AI Tool',
+    category: 'Aplikasi Web / AI',
+    summary: 'Aplikasi AI multifungsi yang menyediakan layanan translator dan generator media, dibangun dengan integrasi Pollinations API.',
     description: `
-      <p>Proyek SICBA (Sistem Informasi Cagar Budaya) membutuhkan sebuah aplikasi web yang andal untuk mengelola data yang kompleks. Fokus utamanya adalah fungsionalitas, keamanan data, dan kemudahan akses bagi para penggunanya.</p>
-      <p class="mt-4">Aplikasi ini dibangun sebagai sistem yang robust, memungkinkan pengguna untuk melakukan pendataan, pencarian, dan pengelolaan data cagar budaya secara efisien. Desain antarmuka dibuat fungsional dan intuitif agar mudah digunakan oleh operator. Proyek ini menunjukkan keahlian dalam merancang dan membangun aplikasi web yang lebih dari sekadar halaman informasi, melainkan sebuah alat kerja digital.</p>
+      <p>Proyek ini (sebelumnya SICBA) adalah sebuah demonstrasi kekuatan integrasi API untuk menciptakan tools AI yang bermanfaat. Dibangun dengan frontend sederhana, aplikasi ini memberikan akses langsung ke beberapa model AI melalui satu antarmuka.</p>
+      <p class="mt-4">Fungsionalitas utamanya adalah sebagai penerjemah multi-bahasa dan generator media (gambar, audio dan Translation AI). Backend sederhana berfungsi sebagai jembatan yang aman untuk menghubungkan permintaan pengguna ke API key dari Pollinations, menunjukkan kemampuan untuk membangun aplikasi yang cepat dan ringan untuk tugas-tugas spesifik.</p>
     `,
-    technologies: ['PHP', 'CodeIgniter', 'MySQL', 'Web Application'],
-    imageUrl: 'https://placehold.co/1200x800/1e293b/14b8a6/png?text=SICBA',
+    technologies: ['HTML', 'JavaScript', 'API Integration', 'AI', 'Translator'],
+    imageUrl: 'https://placehold.co/1200x800/1e293b/14b8a6/png?text=AI+Translator',
     liveUrl: 'https://sicba.my.id',
   },
 ];
