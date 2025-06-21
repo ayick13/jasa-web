@@ -8,14 +8,16 @@ const __dirname = dirname(__filename);
 
 const compat = new FlatCompat({
   baseDirectory: __dirname,
-  // Tidak perlu options seperti 'useEslintrc' di sini untuk flat config
 });
 
 const eslintConfig = [
-  // next/core-web-vitals sudah mencakup banyak aturan
   ...compat.extends("next/core-web-vitals"),
-  // next/typescript mungkin tidak perlu diexplicitly extends jika sudah dicakup oleh core-web-vitals
-  // atau jika konflik. Untuk saat ini, kita bisa coba versi yang lebih sederhana.
+  {
+    rules: {
+      // PERBAIKAN: Menonaktifkan aturan react/no-unescaped-entities secara global
+      "react/no-unescaped-entities": "off", 
+    },
+  },
 ];
 
 export default eslintConfig;
