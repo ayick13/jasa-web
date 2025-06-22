@@ -109,18 +109,58 @@ export const Header: React.FC<{ currentSection?: HomeSection; onNavClick?: (sect
   );
 };
 
-export const HeroSection: React.FC<{ onNavClick: (section: HomeSection) => void; sectionRef: React.RefObject<HTMLElement> }> = ({ onNavClick, sectionRef }) => (
-    <section ref={sectionRef} id="home" className="min-h-screen flex items-start md:items-center justify-center bg-grid-pattern animate-fade-in pt-28 md:pt-0">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold text-slate-900 dark:text-white mb-4 leading-tight">Selamat Datang di Dunia Digital <span className="bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500">Ayick</span></h1>
-            <p className="text-lg md:text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto mb-8">Web Developer & Akselerator Digital. Membantu Anda membangun kehadiran online yang kuat dan efektif.</p>
-            <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
-                <button onClick={() => onNavClick('contact')} className="bg-cyan-500 text-white font-bold py-3 px-8 rounded-full shadow-lg shadow-cyan-500/30 hover:bg-cyan-600 transition-all duration-300 transform hover:scale-105 w-full sm:w-auto">Hubungi Saya</button>
-                <button onClick={() => onNavClick('services')} className="bg-slate-700 dark:bg-slate-700 text-white dark:text-white font-bold py-3 px-8 rounded-full hover:bg-slate-600 dark:hover:bg-slate-600 transition-all duration-300 w-full sm:w-auto">Lihat Layanan</button>
+export const HeroSection: React.FC<{ onNavClick: (section: HomeSection) => void; sectionRef: React.RefObject<HTMLElement> }> = ({ onNavClick, sectionRef }) => {
+    // State untuk menyimpan nilai dari input field
+    const [prompt, setPrompt] = React.useState('');
+    // Hook untuk navigasi
+    const router = usePathname(); // Ganti dengan useRouter dari next/navigation jika ada error
+
+    // Fungsi yang akan dijalankan saat tombol Generate di klik
+    const handleGenerateClick = () => {
+        if (prompt) {
+            // Mengarahkan ke halaman /ai-suite dengan prompt sebagai query parameter
+            // (gunakan window.location.href jika router.push membuat masalah)
+            window.location.href = `/ai-suite?prompt=${encodeURIComponent(prompt)}`;
+        } else {
+            // Opsional: Beri tahu user untuk mengisi sesuatu
+            alert('Silakan tuliskan imajinasi Anda terlebih dahulu.');
+        }
+    };
+
+    return (
+        <section ref={sectionRef} id="home" className="min-h-screen flex items-start md:items-center justify-center bg-grid-pattern animate-fade-in pt-28 md:pt-0">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold text-slate-900 dark:text-white mb-4 leading-tight">Selamat Datang di Dunia Digital <span className="bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500">Ayick</span></h1>
+                <p className="text-lg md:text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto mb-8">Web Developer & Akselerator Digital. Membantu Anda membangun kehadiran online yang kuat dan efektif.</p>
+                
+                {/* Tombol yang sudah ada */}
+                <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
+                    <button onClick={() => onNavClick('contact')} className="bg-cyan-500 text-white font-bold py-3 px-8 rounded-full shadow-lg shadow-cyan-500/30 hover:bg-cyan-600 transition-all duration-300 transform hover:scale-105 w-full sm:w-auto">Hubungi Saya</button>
+                    <button onClick={() => onNavClick('services')} className="bg-slate-700 dark:bg-slate-700 text-white dark:text-white font-bold py-3 px-8 rounded-full hover:bg-slate-600 dark:hover:bg-slate-600 transition-all duration-300 w-full sm:w-auto">Lihat Layanan</button>
+                </div>
+
+                {/* Bagian Form AI Baru */}
+                <div className="mt-12 max-w-2xl mx-auto">
+                    <div className="flex flex-col sm:flex-row gap-2">
+                        <input
+                            type="text"
+                            value={prompt}
+                            onChange={(e) => setPrompt(e.target.value)}
+                            placeholder="Tuliskan imajinasimu disini.."
+                            className="flex-grow w-full px-5 py-3 text-base text-slate-900 bg-white border border-slate-200 rounded-full focus:ring-cyan-500 focus:border-cyan-500 dark:bg-slate-800 dark:border-slate-700 dark:text-white"
+                        />
+                        <button
+                            onClick={handleGenerateClick}
+                            className="bg-gradient-to-r from-cyan-400 to-blue-500 text-white font-bold py-3 px-6 rounded-full shadow-lg hover:opacity-90 transition-opacity duration-300 w-full sm:w-auto"
+                        >
+                            Generate
+                        </button>
+                    </div>
+                </div>
             </div>
-        </div>
-    </section>
-);
+        </section>
+    );
+};
 
 export const AboutSection: React.FC<{ sectionRef: React.RefObject<HTMLElement> }> = ({ sectionRef }) => (
     <section ref={sectionRef} id="about" className="py-16 md:py-24 bg-slate-50 dark:bg-slate-900">

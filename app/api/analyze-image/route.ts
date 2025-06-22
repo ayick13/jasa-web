@@ -1,9 +1,12 @@
-// web-app/app/api/analyze-image/route.ts
 import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
   try {
-    const { base64Image } = await request.json(); // Ambil gambar base64 dari klien
+    const { image } = await request.json(); 
+
+    if (!image) {
+        return NextResponse.json({ message: "Data gambar (base64) tidak ditemukan." }, { status: 400 });
+    }
 
     const pollinationToken = process.env.POLLINATIONS_TEXT_API_TOKEN;
 
@@ -12,7 +15,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: "Konfigurasi server tidak lengkap untuk analisis gambar." }, { status: 500 });
     }
 
-    const url = "https://text.pollinations.ai/openai"; // Endpoint yang sama, gunakan untuk Vision
+    const url = "https://text.pollinations.ai/openai";
     const headers = {
       "Content-Type": "application/json",
       "Authorization": `Bearer ${pollinationToken}`
@@ -20,20 +23,16 @@ export async function POST(request: Request) {
 
     const messages = [
         {
-            role: "system",
-            content: "You are an expert at analyzing images. Describe the image in detail, including objects, colors, style, composition, and any text present. Be thorough and precise."
-        },
-        {
             role: "user",
             content: [
                 {
                     type: "text",
-                    text: "Please analyze this image and describe it in detail."
+                    text: "Describe this image in a very detailed manner for a text-to-image prompt. Focus on the main subject, background, style, colors, lighting, and overall composition."
                 },
                 {
                     type: "image_url",
                     image_url: {
-                        url: `data:image/jpeg;base64,${base64Image}` // Data URL gambar
+                        url: `data:image/jpeg;base64,${image}`
                     }
                 }
             ]
@@ -41,10 +40,10 @@ export async function POST(request: Request) {
     ];
 
     const payload = {
+      // === PERBAIKAN DI SINI ===
       model: "openai", // Model ini akan diarahkan ke model vision yang sesuai oleh Pollinations.ai
       messages: messages,
-      seed: Math.floor(Math.random() * 1000000), // Seed untuk konsistensi/variasi
-      stream: false // Mengambil respons lengkap
+      stream: false
     };
 
     const response = await fetch(url, {

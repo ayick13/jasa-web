@@ -8,7 +8,7 @@ import { Header, Footer } from "./components"; // <-- PATH DIPERBAIKI DI SINI
 
 const inter = Inter({ subsets: ["latin"] });
 
-const businessName = "Dunia Digital Ayick";
+const businessName = "Jasa Pembuatan Website";
 const authorName = "Arif Tirtana";
 const businessDescription = "Selamat datang di Dunia Digital Ayick. Sebagai Web Developer & Akselerator Digital, saya membantu bisnis Anda melesat di dunia online melalui kehadiran digital yang kuat, efektif, dan modern.";
 const businessUrl = "https://ariftirtana.my.id"; 
