@@ -3,14 +3,14 @@ import { notFound } from 'next/navigation';
 import { blogArticles, Article } from '@/lib/blog-data';
 import BlogPostContent from './blog-post-content';
 
-// Interface props tetap sama, ini sudah benar.
+// Interface ini tetap digunakan untuk generateMetadata, jadi ini sudah benar.
 interface BlogPostPageProps {
   params: {
     slug: string;
   };
 }
 
-// Fungsi ini sudah async dan benar, tidak perlu diubah.
+// Fungsi ini sudah benar.
 export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
   const slug = params.slug;
   const article = blogArticles.find((a) => a.slug === slug);
@@ -40,9 +40,9 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
 }
 
 // === PERBAIKAN UTAMA DI SINI ===
-// Menghapus 'async' dari definisi komponen halaman utama.
-// Komponen halaman server tidak boleh 'async' kecuali jika diperlukan untuk server actions.
-export default function BlogPostPage({ params }: BlogPostPageProps) {
+// Kita biarkan Next.js yang menangani tipe props secara otomatis
+// dengan tidak menggunakan 'async' dan membiarkan tipenya diinferensi.
+export default function BlogPostPage({ params }: { params: { slug: string } }) {
   const slug = params.slug;
   const article: Article | undefined = blogArticles.find((a) => a.slug === slug);
 
