@@ -67,7 +67,7 @@ export const metadata: Metadata = {
     images: [
       {
         // Path gambar diperbarui sesuai permintaan Anda
-        url: '/images/picture/og.png', 
+        url: '/picture/og.png', 
         width: 1200,
         height: 630,
         alt: `Banner promosi untuk ${businessName}`,
@@ -88,7 +88,7 @@ export const metadata: Metadata = {
     creator: '@arif_tirtana_dev',
     images: {
       // Path gambar diperbarui sesuai permintaan Anda
-      url: '/images/picture/og.png', 
+      url: '/picture/og.png', 
       alt: `Twitter card promosi untuk ${businessName}`,
     },
   },
