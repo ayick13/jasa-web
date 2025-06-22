@@ -2,22 +2,54 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  :root {
+    /* Variabel CSS untuk Mode Terang */
+    --background: theme(colors.slate.50);
+    --grid-color: theme(colors.slate.900/0.04);
+    
+    --prose-body: theme(colors.slate.600);
+    --prose-headings: theme(colors.slate.900);
+    --prose-links: theme(colors.cyan.600);
+    --prose-bold: theme(colors.slate.900);
+    --prose-bullets: theme(colors.cyan.500);
+    --prose-hr: theme(colors.slate.200);
+    --prose-quotes: theme(colors.slate.800);
+    --prose-quote-borders: theme(colors.cyan.400);
+    --prose-code: theme(colors.cyan.700);
+    --prose-pre-bg: theme(colors.slate.800);
+  }
+
+  .dark {
+    /* Variabel CSS untuk Mode Gelap */
+    --background: theme(colors.slate.950);
+    --grid-color: theme(colors.white/0.05);
+
+    --prose-body: theme(colors.slate.300);
+    --prose-headings: theme(colors.white);
+    --prose-links: theme(colors.cyan.400);
+    --prose-bold: theme(colors.white);
+    --prose-bullets: theme(colors.cyan.500);
+    --prose-hr: theme(colors.slate.700);
+    --prose-quotes: theme(colors.slate.200);
+    --prose-quote-borders: theme(colors.cyan.500);
+    --prose-code: theme(colors.cyan.300);
+    --prose-pre-bg: theme(colors.slate.800);
+  }
+
+  /* Menghilangkan backtick yang tidak perlu pada blok kode inline */
+  .prose code::before, .prose code::after {
+      content: none;
+  }
+}
+
 @layer utilities {
     .bg-grid-pattern {
-        /* Latar belakang hero section untuk mode terang */
-        background-color: theme(colors.slate.50);
+        background-color: var(--background);
         background-image:
-            linear-gradient(rgba(0, 0, 0, 0.04) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
+            linear-gradient(var(--grid-color) 1px, transparent 1px),
+            linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
         background-size: 40px 40px;
-    }
-
-    .dark .bg-grid-pattern {
-        /* Latar belakang hero section untuk mode gelap */
-        background-color: theme(colors.slate.950);
-        background-image:
-            linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
     }
 
     .animate-fade-in {
@@ -27,54 +59,5 @@
     @keyframes fadeIn {
         from { opacity: 0; transform: translateY(10px); }
         to { opacity: 1; transform: translateY(0); }
-    }
-}
-
-/* Styling Komprehensif untuk Konten Artikel (Prose)
-  Ini akan memastikan mode terang dan gelap keduanya sempurna.
-*/
-@layer base {
-    /* Gaya Dasar untuk Mode Terang */
-    .prose {
-        --tw-prose-body: theme(colors.slate[600]);
-        --tw-prose-headings: theme(colors.slate[900]);
-        --tw-prose-lead: theme(colors.slate[500]);
-        --tw-prose-links: theme(colors.cyan[600]);
-        --tw-prose-bold: theme(colors.slate[900]);
-        --tw-prose-counters: theme(colors.slate[500]);
-        --tw-prose-bullets: theme(colors.cyan[500]);
-        --tw-prose-hr: theme(colors.slate[200]);
-        --tw-prose-quotes: theme(colors.slate[800]);
-        --tw-prose-quote-borders: theme(colors.cyan[400]);
-        --tw-prose-captions: theme(colors.slate[500]);
-        --tw-prose-code: theme(colors.cyan[700]);
-        --tw-prose-pre-code: theme(colors.slate[200]);
-        --tw-prose-pre-bg: theme(colors.slate[800]);
-        --tw-prose-th-borders: theme(colors.slate[300]);
-        --tw-prose-td-borders: theme(colors.slate[200]);
-    }
-
-    /* Gaya Tambahan untuk Mode Gelap */
-    .dark .prose {
-        --tw-prose-body: theme(colors.slate[300]);
-        --tw-prose-headings: theme(colors.white);
-        --tw-prose-lead: theme(colors.slate[400]);
-        --tw-prose-links: theme(colors.cyan[400]);
-        --tw-prose-bold: theme(colors.white);
-        --tw-prose-counters: theme(colors.slate[400]);
-        --tw-prose-bullets: theme(colors.cyan[500]);
-        --tw-prose-hr: theme(colors.slate[700]);
-        --tw-prose-quotes: theme(colors.slate[200]);
-        --tw-prose-quote-borders: theme(colors.cyan[500]);
-        --tw-prose-captions: theme(colors.slate[500]);
-        --tw-prose-code: theme(colors.cyan[300]);
-        --tw-prose-pre-code: theme(colors.slate[300]);
-        --tw-prose-pre-bg: theme(colors.slate[800]);
-        --tw-prose-th-borders: theme(colors.slate[600]);
-        --tw-prose-td-borders: theme(colors.slate[700]);
-    }
-    
-    .prose code::before, .prose code::after {
-        content: none;
     }
 }
