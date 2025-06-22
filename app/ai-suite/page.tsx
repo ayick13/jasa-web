@@ -101,6 +101,7 @@ function AISuitePageContent() {
 
     useEffect(() => { try { const savedHistory = localStorage.getItem('generationHistory'); if (savedHistory) { setHistory(JSON.parse(savedHistory)); } } catch (e) { console.error("Failed to load history:", e); } }, []);
     
+    // === PERBAIKAN BUG ESLINT DI SINI ===
     const saveHistory = useCallback((newPrompt: string) => {
         setHistory(prevHistory => {
             const newItem: HistoryItem = { id: `hist-${Date.now()}`, prompt: newPrompt, timestamp: new Date().toLocaleString('id-ID') };
@@ -108,13 +109,12 @@ function AISuitePageContent() {
             try { localStorage.setItem('generationHistory', JSON.stringify(updatedHistory)); } catch (e) { console.error("Failed to save history:", e); }
             return updatedHistory;
         });
-    }, []); 
+    }, []); // Fungsi ini sekarang stabil dan tidak perlu dependency 'history'
     
     const handleModelChange = (newModel: ImageGenModel) => { if (newModel === 'dall-e-3') { const savedKey = localStorage.getItem('openai_api_key'); if (!savedKey) { setIsDalleModalOpen(true); } else { setImageGenModel('dall-e-3'); } } else { setImageGenModel(newModel); } };
     const handleSaveDalleKey = (key: string) => { localStorage.setItem('openai_api_key', key); setIsDalleModalOpen(false); setImageGenModel('dall-e-3'); toast.success("API Key DALL-E 3 disimpan untuk sesi ini."); };
     const handleCloseDalleModal = () => { setIsDalleModalOpen(false); if (imageGenModel === 'dall-e-3') { setImageGenModel('flux'); } };
     
-    // === PERBAIKAN ESLINT WARNING DI SINI ===
     const handleGenerateImage = useCallback(async () => {
         if (!prompt.trim()) return toast.error('Prompt tidak boleh kosong.');
         const finalPrompt = imageGenModel === 'dall-e-3' ? prompt : `${prompt}${artStyle !== 'realistic' ? `, in the style of ${artStyle.replace('-', ' ')}` : ''}${quality === 'hd' ? ', hd' : quality === 'ultrahd' ? ', 4k, photorealistic' : ''}`;
