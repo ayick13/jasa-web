@@ -114,6 +114,7 @@ function AISuitePageContent() {
     const handleSaveDalleKey = (key: string) => { localStorage.setItem('openai_api_key', key); setIsDalleModalOpen(false); setImageGenModel('dall-e-3'); toast.success("API Key DALL-E 3 disimpan untuk sesi ini."); };
     const handleCloseDalleModal = () => { setIsDalleModalOpen(false); if (imageGenModel === 'dall-e-3') { setImageGenModel('flux'); } };
     
+    // === PERBAIKAN ESLINT WARNING DI SINI ===
     const handleGenerateImage = useCallback(async () => {
         if (!prompt.trim()) return toast.error('Prompt tidak boleh kosong.');
         const finalPrompt = imageGenModel === 'dall-e-3' ? prompt : `${prompt}${artStyle !== 'realistic' ? `, in the style of ${artStyle.replace('-', ' ')}` : ''}${quality === 'hd' ? ', hd' : quality === 'ultrahd' ? ', 4k, photorealistic' : ''}`;
