@@ -1,9 +1,10 @@
 // app/layout.tsx
 
-import type { Metadata, Viewport } from "next"; // <-- Tambahkan Viewport ke import
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
+import { Header, Footer } from "./components"; // <-- PATH DIPERBAIKI DI SINI
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -13,7 +14,6 @@ const businessDescription = "Selamat datang di Dunia Digital Ayick. Sebagai Web 
 const businessUrl = "https://ariftirtana.my.id"; 
 const imagePath = "/picture/og.png";
 
-// --- METADATA (Untuk SEO dan Konten) ---
 export const metadata: Metadata = {
   metadataBase: new URL(businessUrl),
   title: {
@@ -64,14 +64,11 @@ export const metadata: Metadata = {
   manifest: '/manifest.json',
 };
 
-// --- VIEWPORT (Untuk Tampilan Browser) ---
 export const viewport: Viewport = {
   themeColor: '#1a73e8',
   colorScheme: 'light',
 };
 
-
-// --- Komponen Layout Utama ---
 export default function RootLayout({
   children,
 }: Readonly<{
