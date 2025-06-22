@@ -110,7 +110,7 @@ export const Header: React.FC<{ currentSection?: HomeSection; onNavClick?: (sect
 };
 
 export const HeroSection: React.FC<{ onNavClick: (section: HomeSection) => void; sectionRef: React.RefObject<HTMLElement> }> = ({ onNavClick, sectionRef }) => (
-    <section ref={sectionRef} id="home" className="min-h-screen flex items-center justify-center bg-grid-pattern animate-fade-in">
+    <section ref={sectionRef} id="home" className="min-h-screen flex items-start md:items-center justify-center bg-grid-pattern animate-fade-in pt-28 md:pt-0">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold text-slate-900 dark:text-white mb-4 leading-tight">Selamat Datang di Dunia Digital <span className="bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500">Ayick</span></h1>
             <p className="text-lg md:text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto mb-8">Web Developer & Akselerator Digital. Membantu Anda membangun kehadiran online yang kuat dan efektif.</p>
