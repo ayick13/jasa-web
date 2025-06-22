@@ -1,3 +1,5 @@
+// app/page.tsx
+
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo } from 'react'; 
@@ -12,13 +14,11 @@ import {
   ContactSection,
   Footer
 } from './components';
-
-type Section = 'home' | 'about' | 'services' | 'portfolio' | 'pricing' | 'blog' | 'contact' | 'ai-suite'; 
+import { type Section } from '@/lib/types'; // <-- IMPOR TIPE DARI SINI
 
 export default function Home() {
   const [currentSection, setCurrentSection] = useState<Section>('home');
 
-  // PERBAIKAN: Panggil useRef di tingkat teratas komponen
   const homeRef = useRef<HTMLElement>(null);
   const aboutRef = useRef<HTMLElement>(null);
   const servicesRef = useRef<HTMLElement>(null);
@@ -27,8 +27,8 @@ export default function Home() {
   const blogRef = useRef<HTMLElement>(null);
   const contactRef = useRef<HTMLElement>(null);
 
-  // Gunakan useMemo untuk objek sectionRefs, mereferensikan ref yang sudah dibuat di atas
-  const sectionRefs = useMemo(() => ({
+  // Kita tidak perlu ref untuk halaman, jadi kita hapus
+  const sectionRefs: Record<Exclude<Section, 'ai-suite' | 'battle-video'>, React.RefObject<HTMLElement>> = useMemo(() => ({
     home: homeRef,
     about: aboutRef,
     services: servicesRef,
@@ -36,14 +36,15 @@ export default function Home() {
     pricing: pricingRef,
     blog: blogRef,
     contact: contactRef,
-  }), []); // Dependency array kosong karena refs ini stabil
+  }), []);
 
   const handleNavClick = (section: Section) => {
-    // Navigasi ke AI Suite adalah halaman terpisah, bukan scroll ke section
-    if (section === 'ai-suite') {
-      window.location.href = '/ai-suite'; 
+    // Navigasi ke halaman jika itu adalah link halaman
+    if (section === 'ai-suite' || section === 'battle-video') {
+      window.location.href = `/${section}`;
     } else {
-      sectionRefs[section].current?.scrollIntoView({ behavior: 'smooth' });
+      // Scroll ke seksi jika itu adalah link seksi
+      sectionRefs[section]?.current?.scrollIntoView({ behavior: 'smooth' });
     }
     setCurrentSection(section);
   };
@@ -64,23 +65,20 @@ export default function Home() {
       });
     }, observerOptions);
 
-    // Observe all sections
     Object.values(sectionRefs).forEach(ref => {
       if (ref.current) {
         observer.observe(ref.current);
       }
     });
 
-    // Disconnect observer on cleanup
     return () => {
       Object.values(sectionRefs).forEach(ref => {
         if (ref.current) {
           observer.unobserve(ref.current);
         }
       });
-      observer.disconnect();
     };
-  }, [sectionRefs]); // sectionRefs sekarang aman di sini karena dimemoized
+  }, [sectionRefs]);
 
   return (
     <>
