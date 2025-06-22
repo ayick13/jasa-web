@@ -1,7 +1,5 @@
-import { NextRequest } from 'next/server';
-
-// Mengaktifkan Edge Runtime untuk performa streaming terbaik
-export const runtime = 'edge';
+// File: app/api/chat/route.ts
+import { NextResponse, NextRequest } from 'next/server';
 
 export async function POST(req: NextRequest) {
   try {
@@ -10,26 +8,21 @@ export async function POST(req: NextRequest) {
     const pollinationToken = process.env.POLLINATIONS_TEXT_API_TOKEN;
     if (!pollinationToken) {
       console.error("SERVER ERROR: POLLINATIONS_TEXT_API_TOKEN is not set.");
-      return new Response(JSON.stringify({ error: "Konfigurasi token di server salah." }), { 
-        status: 500,
-        headers: { 'Content-Type': 'application/json' }
-      });
+      return NextResponse.json({ error: "Konfigurasi token di server salah." }, { status: 500 });
     }
 
+    // Payload non-streaming, properti "stream" dihilangkan
     const payload = {
       model: model || "openai",
       messages: messages,
-      stream: true,
+      // stream: false // Tidak perlu, karena default-nya false
     };
 
-    // Panggil API eksternal dengan header yang sudah benar
     const externalResponse = await fetch("https://text.pollinations.ai/openai", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${pollinationToken}`,
-        // === PERBAIKAN KRUSIAL DI SINI ===
-        "Accept": "text/event-stream" 
       },
       body: JSON.stringify(payload),
     });
@@ -37,46 +30,25 @@ export async function POST(req: NextRequest) {
     if (!externalResponse.ok) {
         const errorBody = await externalResponse.text();
         console.error("External API Error:", errorBody);
-        return new Response(JSON.stringify({ error: `API eksternal gagal: ${errorBody}` }), { 
-            status: externalResponse.status,
-            headers: { 'Content-Type': 'application/json' }
-        });
+        return NextResponse.json({ error: `API eksternal gagal: ${errorBody}` }, { status: externalResponse.status });
     }
 
-    // Buat ReadableStream baru untuk mengalirkan (pipe) respons ke klien
-    const stream = new ReadableStream({
-      async start(controller) {
-        if (!externalResponse.body) {
-          controller.close();
-          return;
-        }
-        const reader = externalResponse.body.getReader();
-        const decoder = new TextDecoder();
+    // Tunggu respons JSON penuh dan parsing
+    const data = await externalResponse.json();
 
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) {
-            break;
-          }
-          controller.enqueue(value);
-        }
-        controller.close();
-      },
-    });
+    // Ekstrak konten pesan lengkap
+    const reply = data?.choices?.[0]?.message?.content;
 
-    return new Response(stream, {
-      headers: { 
-          "Content-Type": "text/event-stream",
-          "Cache-Control": "no-cache",
-          "Connection": "keep-alive",
-       },
-    });
+    if (!reply) {
+        console.error("Invalid response structure from external API:", data);
+        return NextResponse.json({ error: "Gagal mem-parsing balasan dari AI." }, { status: 500 });
+    }
+
+    // Kirim balasan lengkap sebagai JSON tunggal
+    return NextResponse.json({ reply });
 
   } catch (error) {
-    console.error("Error in chat streaming API route:", error);
-    return new Response(JSON.stringify({ error: "Terjadi kesalahan internal pada server." }), { 
-        status: 500,
-        headers: { 'Content-Type': 'application/json' }
-    });
+    console.error("Error in chat API route:", error);
+    return NextResponse.json({ error: "Terjadi kesalahan internal pada server." }, { status: 500 });
   }
 }
