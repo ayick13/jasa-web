@@ -4,8 +4,8 @@ import React, { useState, useCallback, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import Script from 'next/script'; // Untuk Cloudflare Turnstile
-// Impor ikon Facebook dari Lucide-React
-import { ArrowLeft, Download, ZoomIn, Zap, Eraser, History, X, User, Mail, Code, Briefcase, Tag, Star, Home, Layers, Rss, Github, Linkedin, Instagram, Facebook, ChevronDown, ChevronUp } from 'lucide-react'; 
+// PERBAIKAN: Tambahkan kembali X ke impor
+import { ArrowLeft, Download, Zap, Eraser, History, User, Mail, Code, Briefcase, Tag, Star, Home, Layers, Rss, Github, Linkedin, Instagram, Facebook, ChevronDown, ChevronUp, Lightbulb, Image as ImageIcon, Upload, X } from 'lucide-react'; 
 import { toast } from 'react-hot-toast'; // Untuk notifikasi
 
 // --- Data & Tipe untuk AI Suite ---
@@ -28,45 +28,7 @@ interface GenerationHistoryEntry {
   timestamp: Date;
 }
 
-// Komponen Modal Zoom
-interface ZoomModalProps {
-  imageUrl: string | null;
-  onClose: () => void;
-}
-
-const ZoomModal: React.FC<ZoomModalProps> = ({ imageUrl, onClose }) => {
-  if (!imageUrl) return null;
-
-  return (
-    // Overlay modal: Full screen, paling tinggi z-index, background dim. Klik di sini akan menutup modal.
-    <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-[9999] p-4" onClick={onClose}>
-      {/* Modal content container: stop propagation to prevent closing when clicking inside the image */}
-      <div 
-        className="relative bg-white dark:bg-slate-900 rounded-lg shadow-xl max-w-4xl max-h-full overflow-auto"
-        onClick={(e) => e.stopPropagation()} 
-      >
-        {/* Close Button: Positioned absolutely, di atas segalanya, dengan area klik yang lebih besar */}
-        <button
-          onClick={onClose}
-          className="absolute top-2 right-2 text-white bg-red-600 hover:bg-red-700 rounded-full p-2.5 focus:outline-none z-[10001] flex items-center justify-center cursor-pointer w-10 h-10" 
-          aria-label="Close"
-        >
-          <X size={24} />
-        </button>
-        <Image
-          src={imageUrl}
-          alt="Zoomed Image"
-          layout="intrinsic"
-          width={1024}
-          height={1024}
-          // Max height disesuaikan agar tidak tumpang tindih dengan tombol close atau scrollbar
-          className="max-w-full max-h-[calc(100vh-80px)] object-contain" 
-          unoptimized
-        />
-      </div>
-    </div>
-  );
-};
+// Komponen ZoomModal telah dihapus sepenuhnya (tidak ada di sini)
 
 
 const AISuitePage: React.FC = () => {
@@ -80,8 +42,6 @@ const AISuitePage: React.FC = () => {
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showZoomModal, setShowZoomModal] = useState(false);
-  const [selectedImageForZoom, setSelectedImageForZoom] = useState<string | null>(null);
   const [generationHistory, setGenerationHistory] = useState<GenerationHistoryEntry[]>([]);
 
   // State untuk Prompt Creator
@@ -89,12 +49,23 @@ const AISuitePage: React.FC = () => {
   const [additionalDetailsPrompt, setAdditionalDetailsPrompt] = useState('');
   const [showPromptCreator, setShowPromptCreator] = useState(false); // Default false (tertutup)
 
+  // State baru untuk Prompt Suggestions
+  const [promptSuggestions, setPromptSuggestions] = useState<string[]>([]);
+  const [isGeneratingSuggestions, setIsGeneratingSuggestions] = useState(false);
+
+  // State baru untuk Image Analysis
+  const [showImageAnalysisModal, setShowImageAnalysisModal] = useState(false);
+  const [uploadedImagePreview, setUploadedImagePreview] = useState<string | null>(null);
+  const [imageAnalysisResult, setImageAnalysisResult] = useState<string | null>(null);
+  const [isAnalyzingImage, setIsAnalyzingImage] = useState(false);
+
   // State untuk Contact Form
   const [contactStatus, setContactStatus] = useState('');
   const [isContactSubmitting, setIsContactSubmitting] = useState(false);
 
+
   // Fungsi untuk menghasilkan seed acak untuk gambar yang berbeda
-  const generateSeed = useCallback(() => Math.random().toString(36).substring(2, 15), []);
+  const generateSeed = useCallback(() => `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`, []);
 
   // Effect untuk membersihkan URL objek saat komponen unmount atau gambar diganti
   useEffect(() => {
@@ -109,6 +80,8 @@ const AISuitePage: React.FC = () => {
     if (savedHistory) {
       setGenerationHistory(JSON.parse(savedHistory));
     }
+    // Generate suggestions on initial load
+    handleGenerateSuggestions();
   }, []);
 
   // Simpan riwayat ke localStorage setiap kali berubah
@@ -151,8 +124,8 @@ const AISuitePage: React.FC = () => {
       }
 
       const data = await response.json();
-      if (data.enhancedPrompt) {
-        setEnhancedPrompt(data.enhancedPrompt);
+      if (data.enhancedPrompt) { 
+        setEnhancedPrompt(data.enhancedPrompt); 
         toast.success(`Prompt berhasil diperkaya!`); 
       } else {
         toast.error(`Gagal mendapatkan prompt yang diperkaya.`); 
@@ -175,7 +148,6 @@ const AISuitePage: React.FC = () => {
 
     if (!finalPrompt.trim()) {
       setIsLoading(false);
-      setError(`Prompt tidak boleh kosong.`); 
       toast.error(`Prompt tidak boleh kosong.`); 
       return;
     }
@@ -246,11 +218,6 @@ const AISuitePage: React.FC = () => {
     }
   }, []);
 
-  const handleZoom = useCallback((imageUrl: string) => {
-    setSelectedImageForZoom(imageUrl);
-    setShowZoomModal(true);
-  }, []);
-
   const handleClearPrompt = useCallback(() => {
     setPrompt('');
     setEnhancedPrompt('');
@@ -312,9 +279,9 @@ const AISuitePage: React.FC = () => {
       }
 
       const data = await response.json();
-      if (data.enhancedPrompt) {
-        setPrompt(data.enhancedPrompt); // Set prompt utama dengan hasil enhance
-        setEnhancedPrompt(data.enhancedPrompt); // Juga set enhancedPrompt
+      if (data.enhancedPrompt) { 
+        setPrompt(data.enhancedPrompt); 
+        setEnhancedPrompt(data.enhancedPrompt); 
         toast.success(`Prompt diperkaya dan digunakan di generator!`); 
       } else {
         toast.error(`Gagal mendapatkan prompt yang diperkaya.`); 
@@ -327,10 +294,132 @@ const AISuitePage: React.FC = () => {
     }
   }, [handleGenerateCombinedPromptText, setPrompt, setEnhancedPrompt]);
 
+  // --- Prompt Suggestions Handlers ---
+  const handleGenerateSuggestions = useCallback(async (contextPrompt?: string) => {
+    setIsGeneratingSuggestions(true);
+    try {
+      const response = await fetch('/api/suggest-prompt', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contextPrompt }),
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || `Gagal mendapatkan saran prompt.`);
+      }
+      const data = await response.json();
+      if (data.suggestions && Array.isArray(data.suggestions)) {
+        setPromptSuggestions(data.suggestions);
+        toast.success('Saran prompt baru berhasil dibuat!');
+      } else {
+        toast.error('Gagal mendapatkan saran prompt.');
+      }
+    } catch (err: any) {
+      console.error('Error generating prompt suggestions:', err);
+      toast.error(`Terjadi kesalahan saat mendapatkan saran prompt: ${err.message || 'Coba lagi.'}`);
+    } finally {
+      setIsGeneratingSuggestions(false);
+    }
+  }, []);
+
+  const handleUseSuggestion = useCallback((suggestion: string) => {
+    setPrompt(suggestion);
+    setEnhancedPrompt(''); // Reset enhanced prompt when using a suggestion
+    toast.success('Saran prompt digunakan!');
+  }, []);
+
+  // --- Image Analysis Handlers ---
+  const handleImageUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        // Simple compression/resizing logic for client-side (optional, for large images)
+        const img = new (window as any).Image();
+        img.src = reader.result as string;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          const maxWidth = 800;
+          const maxHeight = 800;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > maxWidth) {
+              height *= maxWidth / width;
+              width = maxWidth;
+            }
+          } else {
+            if (height > maxHeight) {
+              width *= maxHeight / height;
+              height = maxHeight;
+            }
+          }
+          canvas.width = width;
+          canvas.height = height;
+          ctx?.drawImage(img, 0, 0, width, height);
+
+          // Convert to JPEG for sending
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.7); // Adjust quality
+          setUploadedImagePreview(dataUrl);
+          setImageAnalysisResult(null); // Clear previous result
+        };
+      };
+      reader.readAsDataURL(file);
+    }
+  }, []);
+
+  const handleAnalyzeImage = useCallback(async () => {
+    if (!uploadedImagePreview) {
+      toast.error('Mohon unggah gambar terlebih dahulu.');
+      return;
+    }
+    setIsAnalyzingImage(true);
+    setImageAnalysisResult(null);
+    setError(null);
+
+    try {
+      const base64Image = uploadedImagePreview.split(',')[1]; // Dapatkan bagian base64
+      const response = await fetch('/api/analyze-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ base64Image }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Gagal menganalisis gambar.');
+      }
+
+      const data = await response.json();
+      if (data.description) {
+        setImageAnalysisResult(data.description);
+        toast.success('Analisis gambar berhasil!');
+      } else {
+        toast.error('Gagal mendapatkan deskripsi gambar.');
+      }
+    } catch (err: any) {
+      console.error('Error analyzing image:', err);
+      toast.error(`Terjadi kesalahan saat menganalisis gambar: ${err.message || 'Coba lagi.'}`);
+    } finally {
+      setIsAnalyzingImage(false);
+    }
+  }, [uploadedImagePreview]);
+
+  const handleUseAnalysisAsPrompt = useCallback(() => {
+    if (imageAnalysisResult) {
+      setPrompt(imageAnalysisResult);
+      setEnhancedPrompt('');
+      setShowImageAnalysisModal(false); // Tutup modal setelah digunakan
+      toast.success('Deskripsi gambar digunakan sebagai prompt!');
+    }
+  }, [imageAnalysisResult]);
 
   // Handler untuk Contact Form
   const handleContactSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    // Tambahkan logika Turnstile ke sini jika belum ada di API route
     setIsContactSubmitting(true);
     setContactStatus('');
     const formData = new FormData(event.currentTarget);
@@ -361,7 +450,7 @@ const AISuitePage: React.FC = () => {
 
 
   return (
-    // Background tema konsisten (non-neumorphic)
+    // Background tema konsisten
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200">
       <header className="bg-white dark:bg-slate-950 shadow-sm py-4"> {/* Header konsisten */}
         <div className="container mx-auto px-4 flex justify-between items-center">
@@ -383,6 +472,124 @@ const AISuitePage: React.FC = () => {
         <p className="text-lg text-slate-600 dark:text-slate-300 mb-8 text-center md:text-left">
           Hasilkan gambar AI yang menakjubkan dan perkaya prompt Anda menggunakan Pollinations.ai.
         </p>
+
+        {/* Saran Prompt dari AI */}
+        <section className="bg-white dark:bg-slate-800 p-8 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 mb-10">
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6 flex items-center justify-between">
+                <Lightbulb className="mr-3 text-yellow-500"/> Saran Prompt AI
+                <button 
+                    onClick={() => handleGenerateSuggestions()} 
+                    disabled={isGeneratingSuggestions || isLoading}
+                    className="bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-white font-semibold py-2 px-4 rounded-full hover:bg-slate-200 dark:hover:bg-slate-600 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    {isGeneratingSuggestions ? (
+                      <svg className="animate-spin h-5 w-5 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    ) : 'Refresh Saran'}
+                </button>
+            </h2>
+            {isGeneratingSuggestions && promptSuggestions.length === 0 ? (
+                <p className="text-slate-500 dark:text-slate-400 flex items-center"><svg className="animate-spin h-4 w-4 mr-2 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Membuat saran...</p>
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {promptSuggestions.map((suggestion, index) => (
+                        <button 
+                            key={index} 
+                            onClick={() => handleUseSuggestion(suggestion)}
+                            className="bg-slate-100 dark:bg-slate-700 text-left p-4 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled={isLoading}
+                        >
+                            <p className="font-semibold text-cyan-600 dark:text-cyan-400 text-sm mb-1">Saran #{index + 1}</p>
+                            <p className="text-slate-800 dark:text-slate-200 text-sm">{suggestion}</p>
+                        </button>
+                    ))}
+                </div>
+            )}
+            {promptSuggestions.length === 0 && !isGeneratingSuggestions && (
+                <p className="text-slate-500 dark:text-slate-400">Tidak ada saran prompt. Coba refresh!</p>
+            )}
+        </section>
+
+        {/* Image Analysis Section */}
+        <section className="bg-white dark:bg-slate-800 p-8 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 mb-10">
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6 flex items-center justify-between">
+                <ImageIcon className="mr-3 text-blue-500"/> Analisis Gambar
+                <button 
+                    onClick={() => setShowImageAnalysisModal(true)} 
+                    disabled={isLoading}
+                    className="bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-white font-semibold py-2 px-4 rounded-full hover:bg-slate-200 dark:hover:bg-slate-600 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    Unggah & Analisis
+                </button>
+            </h2>
+            <p className="text-slate-600 dark:text-slate-300">
+                Unggah gambar untuk mendapatkan deskripsi AI, yang bisa Anda gunakan sebagai prompt!
+            </p>
+        </section>
+
+        {/* Modal Analisis Gambar */}
+        {showImageAnalysisModal && (
+            <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-[9999] p-4" onClick={() => setShowImageAnalysisModal(false)}>
+                <div className="relative bg-white dark:bg-slate-900 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-auto p-6" onClick={(e) => e.stopPropagation()}>
+                    <button
+                        onClick={() => setShowImageAnalysisModal(false)}
+                        className="absolute top-3 right-3 text-white bg-red-600 hover:bg-red-700 rounded-full p-2 focus:outline-none z-10"
+                    >
+                        <X size={24} />
+                    </button>
+                    <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">Analisis Gambar</h3>
+                    
+                    <div className="mb-4 text-center">
+                        <input 
+                            type="file" 
+                            accept="image/*" 
+                            onChange={handleImageUpload} 
+                            className="hidden" 
+                            id="image-upload-input" 
+                        />
+                        <label htmlFor="image-upload-input" className="cursor-pointer bg-blue-500 text-white font-semibold py-2 px-4 rounded-full hover:bg-blue-600 inline-flex items-center">
+                            <Upload className="mr-2" size={20} /> Pilih Gambar
+                        </label>
+                        {uploadedImagePreview && (
+                            <div className="mt-4 max-h-64 overflow-hidden rounded-lg border border-slate-200 dark:border-slate-700">
+                                <Image src={uploadedImagePreview} alt="Preview" width={300} height={200} layout="responsive" objectFit="contain" />
+                            </div>
+                        )}
+                    </div>
+                    
+                    {uploadedImagePreview && (
+                        <div className="text-center mb-4">
+                            <button
+                                onClick={handleAnalyzeImage}
+                                disabled={isAnalyzingImage || isLoading}
+                                className="bg-cyan-500 text-white font-bold py-2 px-6 rounded-full shadow-lg hover:bg-cyan-600 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {isAnalyzingImage ? (
+                                    <svg className="animate-spin h-5 w-5 text-current mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                ) : (
+                                    <ImageIcon className="mr-2" size={20} />
+                                )}
+                                {isAnalyzingImage ? 'Menganalisis...' : 'Analisis Gambar'}
+                            </button>
+                        </div>
+                    )}
+
+                    {imageAnalysisResult && (
+                        <div className="mt-4 p-4 bg-slate-100 dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
+                            <h4 className="font-semibold text-slate-900 dark:text-white mb-2">Hasil Analisis:</h4>
+                            <p className="text-slate-800 dark:text-slate-200 text-sm mb-3">{imageAnalysisResult}</p>
+                            <button
+                                onClick={handleUseAnalysisAsPrompt}
+                                className="bg-violet-500 text-white font-semibold py-2 px-4 rounded-full shadow-md hover:bg-violet-600 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                                disabled={isLoading}
+                            >
+                                Gunakan sebagai Prompt
+                            </button>
+                        </div>
+                    )}
+                    {error && <p className="text-red-500 mt-2">{error}</p>}
+                </div>
+            </div>
+        )}
 
         <section id="generate-section" className="bg-white dark:bg-slate-800 p-8 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 mb-10">
           <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">Generator Gambar AI</h2>
@@ -491,10 +698,7 @@ const AISuitePage: React.FC = () => {
           >
             {isLoading ? (
               <>
-                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
+                <svg className="animate-spin h-5 w-5 text-current mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                 Membuat Gambar...
               </>
             ) : (
@@ -526,11 +730,11 @@ const AISuitePage: React.FC = () => {
             </div>
 
             <div>
-              <label htmlFor="batchSize" className="block text-slate-700 dark:text-slate-300 mb-2 font-medium">
+              <label htmlFor="batchCount" className="block text-slate-700 dark:text-slate-300 mb-2 font-medium">
                 Jumlah Gambar
               </label>
               <select
-                id="batchSize"
+                id="batchCount"
                 className="w-full bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg py-2 px-3 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
                 value={batchSize}
                 onChange={(e) => setBatchSize(parseInt(e.target.value))}
@@ -669,22 +873,13 @@ const AISuitePage: React.FC = () => {
                       className="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-105"
                       unoptimized
                     />
-                    <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center space-x-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                       <button
                         onClick={() => handleDownload(imageUrl)}
-                        className="bg-white text-slate-800 p-3 rounded-full hover:bg-slate-200 focus:outline-none focus:ring-2 focus:ring-white"
-                        aria-label={`Unduh Gambar ${index + 1}`}
-                        title="Unduh Gambar"
+                        className="bg-white text-slate-800 p-2 rounded-full hover:bg-slate-200"
+                        title="Unduh"
                       >
-                        <Download size={20} />
-                      </button>
-                      <button
-                        onClick={() => handleZoom(imageUrl)}
-                        className="bg-white text-slate-800 p-3 rounded-full hover:bg-slate-200 focus:outline-none focus:ring-2 focus:ring-white"
-                        aria-label={`Perbesar Gambar ${index + 1}`}
-                        title="Perbesar Gambar"
-                      >
-                        <ZoomIn size={20} />
+                        <Download size={16} />
                       </button>
                     </div>
                   </div>
@@ -730,30 +925,23 @@ const AISuitePage: React.FC = () => {
                     </p>
                   )}
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
-                    {entry.images.map((imgUrl, idx) => (
-                      <div key={idx} className="relative rounded-lg overflow-hidden group">
+                    {entry.images.map((imageUrl, index) => (
+                      <div key={index} className="relative rounded-lg overflow-hidden group">
                         <Image
-                          src={imgUrl}
-                          alt={`History Image ${idx + 1}`}
-                          layout="fill"
-                          objectFit="cover"
-                          className="transition-transform duration-300 hover:scale-105"
+                          src={imageUrl}
+                          alt={`History Image ${index + 1}`}
+                          width={imageWidth}
+                          height={imageHeight}
+                          className="w-full h-auto object-cover transition-transform duration-300 hover:scale-105"
                           unoptimized
                         />
-                        <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center space-x-2 opacity-0 hover:opacity-100 transition-opacity duration-300">
+                        <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                           <button
-                            onClick={() => handleDownload(imgUrl)}
+                            onClick={() => handleDownload(imageUrl)}
                             className="bg-white text-slate-800 p-2 rounded-full hover:bg-slate-200"
                             title="Unduh"
                           >
                             <Download size={16} />
-                          </button>
-                          <button
-                            onClick={() => handleZoom(imgUrl)}
-                            className="bg-white text-slate-800 p-2 rounded-full hover:bg-slate-200"
-                            title="Perbesar"
-                          >
-                            <ZoomIn size={16} />
                           </button>
                         </div>
                       </div>
@@ -826,9 +1014,6 @@ const AISuitePage: React.FC = () => {
             <p>&copy; {new Date().getFullYear()} Ayick.dev. Hak Cipta Dilindungi.</p>
         </div>
       </footer>
-
-
-      <ZoomModal imageUrl={selectedImageForZoom} onClose={() => setShowZoomModal(false)} />
     </div>
   );
 };
