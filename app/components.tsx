@@ -6,28 +6,26 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import Script from 'next/script';
-import { Home, User, Rss, Layers, Mail, Menu, X, Github, Linkedin, Instagram, Code, CheckCircle, Smartphone, BarChart2, ArrowRight, Tag, Star, Settings, PenTool, Share2, Briefcase, Eye, Zap, Video } from 'lucide-react'; 
+import { Home, User, Rss, Layers, Mail, Menu, X, Github, Linkedin, Instagram, Code, CheckCircle, Smartphone, BarChart2, ArrowRight, Tag, Star, Settings, PenTool, Share2, Briefcase, Eye, Zap } from 'lucide-react'; 
 import { blogArticles } from '@/lib/blog-data';
 import { portfolioProjects } from '@/lib/portfolio-data';
 import { ThemeSwitcher } from './theme-switcher';
-import { type Section } from '@/lib/types'; // <-- IMPOR TIPE DARI SINI
 
 // --- Data & Tipe ---
+// Mengembalikan definisi tipe Section seperti semula
+type Section = 'home' | 'about' | 'services' | 'portfolio' | 'pricing' | 'blog' | 'contact' | 'ai-suite'; 
 
-const navLinks: { section: Section; label: string; icon: React.ElementType }[] = [
+const navLinks = [
     { section: 'home', label: 'Beranda', icon: Home }, 
     { section: 'about', label: 'Tentang', icon: User },
     { section: 'services', label: 'Layanan', icon: Layers }, 
     { section: 'portfolio', label: 'Proyek', icon: Briefcase },
     { section: 'pricing', label: 'Harga', icon: Tag },
     { section: 'blog', label: 'Blog', icon: Rss }, 
-    { section: 'battle-video', label: 'Battle Video', icon: Video },
+    // Link Battle Video telah dihapus dari sini
     { section: 'ai-suite', label: 'AI Suite', icon: Zap },
     { section: 'contact', label: 'Kontak', icon: Mail }
-];
-
-// ... (sisa kode Anda dari sini ke bawah tetap sama, tidak perlu diubah)
-
+] as const;
 
 const servicesData = [
     { icon: Code, title: "Pengembangan Web", description: "Membangun situs web kustom dari awal, memastikan fungsionalitas yang mulus." },
@@ -103,9 +101,8 @@ interface NavLinkProps {
 }
 
 const NavLink: React.FC<NavLinkProps> = ({ section, label, icon: Icon, currentSection, onClick, isMobile = false }) => {
-  const isPageLink = section === 'ai-suite' || section === 'battle-video';
-
-  if (isPageLink) {
+  // Logika untuk Battle Video telah dihapus
+  if (section === 'ai-suite') {
     return (
       <Link href={`/${section}`} className={`flex items-center space-x-2 p-2 rounded-md transition-all duration-300 ${
         currentSection === section 
