@@ -1,7 +1,6 @@
-// File: app/api/chat/route.ts
 import { NextRequest } from 'next/server';
 
-// Fungsi ini memungkinkan Next.js untuk menangani streaming
+// Mengaktifkan Edge Runtime untuk performa streaming terbaik
 export const runtime = 'edge';
 
 export async function POST(req: NextRequest) {
@@ -10,32 +9,48 @@ export async function POST(req: NextRequest) {
 
     const pollinationToken = process.env.POLLINATIONS_TEXT_API_TOKEN;
     if (!pollinationToken) {
-      return new Response(JSON.stringify({ error: "Server configuration error." }), { status: 500 });
+      console.error("SERVER ERROR: POLLINATIONS_TEXT_API_TOKEN is not set.");
+      return new Response(JSON.stringify({ error: "Konfigurasi token di server salah." }), { 
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      });
     }
 
     const payload = {
-      model: model || "openai", // Gunakan model yang dipilih, atau fallback ke "openai"
+      model: model || "openai",
       messages: messages,
       stream: true,
     };
 
-    const response = await fetch("https://text.pollinations.ai/openai", {
+    // Panggil API eksternal dengan header yang sudah benar
+    const externalResponse = await fetch("https://text.pollinations.ai/openai", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${pollinationToken}`,
+        // === PERBAIKAN KRUSIAL DI SINI ===
+        "Accept": "text/event-stream" 
       },
       body: JSON.stringify(payload),
     });
 
-    // Membuat stream baru untuk dikirim ke klien
+    if (!externalResponse.ok) {
+        const errorBody = await externalResponse.text();
+        console.error("External API Error:", errorBody);
+        return new Response(JSON.stringify({ error: `API eksternal gagal: ${errorBody}` }), { 
+            status: externalResponse.status,
+            headers: { 'Content-Type': 'application/json' }
+        });
+    }
+
+    // Buat ReadableStream baru untuk mengalirkan (pipe) respons ke klien
     const stream = new ReadableStream({
       async start(controller) {
-        if (!response.body) {
+        if (!externalResponse.body) {
           controller.close();
           return;
         }
-        const reader = response.body.getReader();
+        const reader = externalResponse.body.getReader();
         const decoder = new TextDecoder();
 
         while (true) {
@@ -43,19 +58,25 @@ export async function POST(req: NextRequest) {
           if (done) {
             break;
           }
-          const chunk = decoder.decode(value);
-          controller.enqueue(chunk);
+          controller.enqueue(value);
         }
         controller.close();
       },
     });
 
     return new Response(stream, {
-      headers: { "Content-Type": "text/event-stream" },
+      headers: { 
+          "Content-Type": "text/event-stream",
+          "Cache-Control": "no-cache",
+          "Connection": "keep-alive",
+       },
     });
 
   } catch (error) {
     console.error("Error in chat streaming API route:", error);
-    return new Response(JSON.stringify({ error: "Internal Server Error" }), { status: 500 });
+    return new Response(JSON.stringify({ error: "Terjadi kesalahan internal pada server." }), { 
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+    });
   }
 }
