@@ -7,7 +7,7 @@ import { toast, Toaster } from 'react-hot-toast';
 import { 
     Download, Zap, Eraser, Sparkles, Wand2, MessageSquare, Bot, Send, Settings, 
     ChevronDown, ImageIcon, BrainCircuit, Upload, CheckCircle, Copy, CornerDownLeft, X,
-    Volume2, Paperclip // Mengembalikan Paperclip untuk upload gambar di chat
+    Volume2, Paperclip
 } from 'lucide-react';
 
 // --- Tipe Data & Konstanta ---
@@ -15,11 +15,10 @@ const imageGenModels = ['flux', 'turbo'] as const;
 type ImageGenModel = (typeof imageGenModels)[number];
 const artStyles = ['realistic', 'photographic', 'anime', 'manga', 'pixel-art', 'fantasy', 'sci-fi', 'steampunk', 'cyberpunk', 'cinematic'] as const;
 type ArtStyle = (typeof artStyles)[number];
-const qualityOptions = ['standar', 'hd', 'ultra'] as const;
+const qualityOptions = ['standar', 'hd', 'ultrahd'] as const;
 type QualityOption = (typeof qualityOptions)[number];
 const batchSizes = [1, 2, 3, 4] as const;
 type BatchSize = (typeof batchSizes)[number];
-// ChatMessage sekarang bisa berisi gambar
 interface ChatMessage { id: string; role: 'user' | 'assistant'; content: string; imageUrl?: string; }
 interface GeneratedImageData { url: string; prompt: string; model: ImageGenModel; artStyle: ArtStyle; quality: QualityOption; width: number; height: number; seed: string; }
 
@@ -38,28 +37,19 @@ const Accordion = ({ title, icon, children, defaultOpen = false }: { title: stri
     );
 };
 
-// --- KOMPONEN BARU: Syntax Highlighting untuk Kode ---
 const CodeBlock = ({ language, code }: { language: string, code: string }) => {
-    const handleCopy = () => {
-        navigator.clipboard.writeText(code);
-        toast.success("Kode disalin ke clipboard!");
-    };
+    const handleCopy = () => { navigator.clipboard.writeText(code); toast.success("Kode disalin ke clipboard!"); };
     return (
         <div className="bg-slate-900/70 rounded-md my-2 border border-slate-700">
             <div className="flex justify-between items-center px-4 py-1 bg-slate-800/50 rounded-t-md">
                 <span className="text-xs font-sans text-slate-400">{language}</span>
-                <button onClick={handleCopy} className="text-xs text-slate-400 hover:text-white flex items-center gap-1">
-                    <Copy size={14}/> Salin
-                </button>
+                <button onClick={handleCopy} className="text-xs text-slate-400 hover:text-white flex items-center gap-1"><Copy size={14}/> Salin</button>
             </div>
-            <pre className="p-4 text-sm overflow-x-auto">
-                <code>{code}</code>
-            </pre>
+            <pre className="p-4 text-sm overflow-x-auto"><code>{code}</code></pre>
         </div>
     );
 };
 
-// --- Komponen ChatBox (DIKEMBALIKAN SEMUA FITURNYA + SYNTAX HIGHLIGHTING) ---
 const ChatBox = ({ onPromptFromChat }: { onPromptFromChat: (prompt: string) => void }) => {
     const [messages, setMessages] = useState<ChatMessage[]>([{ id: 'init', role: 'assistant', content: 'Halo! Anda bisa mengirim teks atau gambar untuk dianalisa.' }]);
     const [input, setInput] = useState('');
@@ -83,17 +73,14 @@ const ChatBox = ({ onPromptFromChat }: { onPromptFromChat: (prompt: string) => v
     }, []);
 
     const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
+        const file = event.target.files?.[0]; if (!file) return;
+        const reader = new FileReader(); reader.readAsDataURL(file);
         reader.onload = async () => {
             const base64Image = (reader.result as string);
             const base64Data = base64Image.split(',')[1];
             const userMessage: ChatMessage = { id: `user-${Date.now()}`, role: 'user', content: "Tolong analisa gambar ini.", imageUrl: base64Image };
             const newMessages = [...messages, userMessage];
-            setMessages(newMessages);
-            setIsThinking(true);
+            setMessages(newMessages); setIsThinking(true);
             const assistantMessageId = `assistant-${Date.now()}`;
             setMessages(prev => [...prev, { id: assistantMessageId, role: 'assistant', content: "..." }]);
             try {
@@ -104,7 +91,6 @@ const ChatBox = ({ onPromptFromChat }: { onPromptFromChat: (prompt: string) => v
             } catch (error: any) { toast.error(error.message); setMessages(prev => prev.filter(msg => msg.id !== assistantMessageId)); } 
             finally { setIsThinking(false); }
         };
-        // Reset input file agar bisa upload gambar yang sama lagi
         if (event.target) event.target.value = '';
     };
 
@@ -113,11 +99,9 @@ const ChatBox = ({ onPromptFromChat }: { onPromptFromChat: (prompt: string) => v
         const userMessage: ChatMessage = { id: `user-${Date.now()}`, role: 'user', content: input };
         const newMessages = [...messages, userMessage];
         setMessages(newMessages);
-        setInput('');
-        setIsThinking(true);
+        setInput(''); setIsThinking(true);
         const assistantMessageId = `assistant-${Date.now()}`;
         setMessages(prev => [...prev, { id: assistantMessageId, role: 'assistant', content: "..." }]);
-
         try {
             const response = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: newMessages, model: selectedModel }) });
             if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.error || 'Gagal mendapatkan balasan dari AI.'); }
@@ -129,28 +113,18 @@ const ChatBox = ({ onPromptFromChat }: { onPromptFromChat: (prompt: string) => v
         } finally { setIsThinking(false); }
     };
     
-    // Fungsi untuk mem-parsing dan me-render pesan
     const renderMessageContent = (content: string) => {
         const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
-        let lastIndex = 0;
-        const parts = [];
-        let match;
-
+        let lastIndex = 0; const parts = []; let match;
         while ((match = codeBlockRegex.exec(content)) !== null) {
             const [fullMatch, language, code] = match;
             const textBefore = content.substring(lastIndex, match.index);
-            if (textBefore) {
-                parts.push(<p key={lastIndex} className="whitespace-pre-wrap">{textBefore}</p>);
-            }
+            if (textBefore) { parts.push(<p key={lastIndex} className="whitespace-pre-wrap">{textBefore}</p>); }
             parts.push(<CodeBlock key={match.index} language={language || 'bash'} code={code.trim()} />);
             lastIndex = match.index + fullMatch.length;
         }
-
         const textAfter = content.substring(lastIndex);
-        if (textAfter) {
-            parts.push(<p key={lastIndex + 1} className="whitespace-pre-wrap">{textAfter}</p>);
-        }
-        
+        if (textAfter) { parts.push(<p key={lastIndex + 1} className="whitespace-pre-wrap">{textAfter}</p>); }
         return parts.length > 0 ? parts : <p className="whitespace-pre-wrap">{content}</p>;
     };
 
@@ -186,22 +160,24 @@ const ChatBox = ({ onPromptFromChat }: { onPromptFromChat: (prompt: string) => v
     );
 };
 
-
 // --- Komponen TextToAudioConverter ---
 const TextToAudioConverter = () => {
     const [text, setText] = useState('');
     const [voice, setVoice] = useState('alloy');
-    const [model, setModel] = useState('tts-1');
     const [isLoading, setIsLoading] = useState(false);
     const [audioUrl, setAudioUrl] = useState<string | null>(null);
-
     const handleGenerateAudio = async () => {
         if (!text.trim()) return toast.error("Teks tidak boleh kosong.");
         setIsLoading(true); setAudioUrl(null);
         const toastId = toast.loading("Membuat audio...");
         try {
-            const response = await fetch('/api/text-to-audio', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text, model, voice }), });
-            if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.error || "Gagal membuat audio."); }
+            const response = await fetch('/api/text-to-audio', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text, voice }), });
+            if (!response.ok) {
+                try {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || "Gagal membuat audio.");
+                } catch { throw new Error(await response.text()); }
+            }
             const blob = await response.blob();
             const url = URL.createObjectURL(blob);
             setAudioUrl(url);
@@ -212,9 +188,12 @@ const TextToAudioConverter = () => {
     return (
         <div className="space-y-4">
             <textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="Masukkan teks yang ingin diubah menjadi suara..." rows={5} className="w-full text-sm bg-slate-800 border-slate-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-cyan-500" />
-            <div className="grid grid-cols-2 gap-4">
-                <ParameterInput label="Model Suara"><select value={model} onChange={e => setModel(e.target.value)} className="w-full text-xs bg-slate-800 border-slate-600 rounded-md p-2"><option value="tts-1">TTS-1</option><option value="tts-1-hd">TTS-1-HD</option></select></ParameterInput>
-                <ParameterInput label="Jenis Suara"><select value={voice} onChange={e => setVoice(e.target.value)} className="w-full text-xs bg-slate-800 border-slate-600 rounded-md p-2"><option value="alloy">Alloy</option><option value="echo">Echo</option><option value="fable">Fable</option><option value="onyx">Onyx</option><option value="nova">Nova</option><option value="shimmer">Shimmer</option></select></ParameterInput>
+            <div className="grid grid-cols-1 gap-4">
+                <ParameterInput label="Jenis Suara">
+                    <select value={voice} onChange={e => setVoice(e.target.value)} className="w-full text-xs bg-slate-800 border-slate-600 rounded-md p-2">
+                        <option value="alloy">Alloy</option><option value="echo">Echo</option><option value="fable">Fable</option><option value="onyx">Onyx</option><option value="nova">Nova</option><option value="shimmer">Shimmer</option>
+                    </select>
+                </ParameterInput>
             </div>
             <button onClick={handleGenerateAudio} disabled={isLoading || !text.trim()} className="w-full bg-emerald-600 text-white py-2 rounded-lg font-semibold text-sm hover:bg-emerald-700 transition disabled:opacity-50 flex justify-center items-center">{isLoading ? "Membuat..." : "Buat Audio"}</button>
             {audioUrl && ( <div className="border-t border-slate-700 pt-4"><audio controls src={audioUrl} className="w-full">Your browser does not support the audio element.</audio></div> )}
@@ -287,20 +266,40 @@ function AISuitePageContent() {
 
     const handleGenerateImage = useCallback(async () => {
         if (!prompt.trim()) return toast.error('Prompt tidak boleh kosong.');
-        setIsLoading(true); setGeneratedImages([]);
-        toast.loading(`Proses Menghasilkan ${batchSize} gambar...`, { id: 'generating', duration: Infinity });
-        const styleSuffix = artStyle !== 'realistic' ? `, in the style of ${artStyle.replace('-', ' ')}` : '';
-        const qualitySuffix = quality === 'hd' ? ', hd' : quality === 'ultra' ? ', 4k, photorealistic' : '';
-        const finalPrompt = `${prompt}${styleSuffix}${qualitySuffix}`;
-        const promises = Array.from({ length: batchSize }, () => {
-            const seed = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
-            const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(finalPrompt)}?width=${imageWidth}&height=${imageHeight}&nologo=true&safe=true&model=${imageGenModel}&seed=${seed}`;
-            return fetch(imageUrl).then(res => res.ok ? res.blob().then(URL.createObjectURL) : Promise.resolve(null)).then(blobUrl => blobUrl ? ({ url: blobUrl, prompt: finalPrompt, model: imageGenModel, artStyle: artStyle, quality: quality, width: imageWidth, height: imageHeight, seed: seed }) : null).catch(() => null);
-        });
-        const results = await Promise.all(promises);
-        const validImages = results.filter((img): img is GeneratedImageData => img !== null);
-        if (validImages.length > 0) { setGeneratedImages(validImages); toast.success(`${validImages.length} gambar berhasil dibuat!`, { id: 'generating' }); } else { toast.error('Gagal membuat gambar. Coba lagi.', { id: 'generating' }); }
-        setIsLoading(false);
+        setIsLoading(true);
+        setGeneratedImages([]);
+        const toastId = toast.loading(`Menghasilkan ${batchSize} gambar...`);
+        try {
+            const styleSuffix = artStyle !== 'realistic' ? `, in the style of ${artStyle.replace('-', ' ')}` : '';
+            const qualitySuffix = quality === 'hd' ? ', hd' : quality === 'ultrahd' ? ', 4k, photorealistic' : '';
+            const finalPrompt = `${prompt}${styleSuffix}${qualitySuffix}`;
+            
+            const promises = Array.from({ length: batchSize }, () => {
+                const seed = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
+                // === PERBAIKAN DI SINI: Menambahkan referrer ke URL ===
+                const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(finalPrompt)}?width=${imageWidth}&height=${imageHeight}&nologo=true&safe=true&model=${imageGenModel}&seed=${seed}&referrer=ariftirtana.my.id`;
+                
+                return fetch(imageUrl)
+                    .then(res => res.ok ? res.blob().then(URL.createObjectURL) : Promise.resolve(null))
+                    .then(blobUrl => blobUrl ? ({ url: blobUrl, prompt: finalPrompt, model: imageGenModel, artStyle: artStyle, quality: quality, width: imageWidth, height: imageHeight, seed: seed }) : null)
+                    .catch(() => null);
+            });
+        
+            const results = await Promise.all(promises);
+            const validImages = results.filter((img): img is GeneratedImageData => img !== null);
+        
+            if (validImages.length > 0) {
+                setGeneratedImages(validImages);
+                // === PERBAIKAN BUG NOTIFIKASI DI SINI ===
+                toast.success(`${validImages.length} gambar berhasil dibuat!`, { id: toastId }); 
+            } else {
+                toast.error('Gagal membuat gambar. Coba lagi.', { id: toastId }); 
+            }
+        } catch (error) {
+            toast.error('Terjadi kesalahan tak terduga.', { id: toastId });
+        } finally {
+            setIsLoading(false);
+        }
     }, [prompt, imageGenModel, artStyle, quality, imageWidth, imageHeight, batchSize]);
 
     const handleOpenModal = (imageData: GeneratedImageData) => { setSelectedImageData(imageData); setIsModalOpen(true); };
