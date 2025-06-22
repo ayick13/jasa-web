@@ -15,7 +15,6 @@ const inter = Inter({
 const siteUrl = 'https://ariftirtana.my.id/';
 
 export const metadata: Metadata = {
-  // --- Metadata Dasar & SEO ---
   metadataBase: new URL(siteUrl),
   title: {
     default: 'Ayick.dev | Web Developer & Digital Accelerator',
@@ -31,7 +30,6 @@ export const metadata: Metadata = {
     follow: true,
   },
 
-  // --- Open Graph (untuk Facebook, LinkedIn, dll.) ---
   openGraph: {
     title: 'Ayick.dev | Web Developer & Digital Accelerator',
     description: 'Solusi web modern, cepat, dan fungsional untuk bisnis Anda.',
@@ -39,7 +37,7 @@ export const metadata: Metadata = {
     siteName: 'Ayick.dev',
     images: [
       {
-        url: '/picture/og.png', // Path ke gambar pratinjau Anda
+        url: '/picture/og.png',
         width: 1200,
         height: 630,
         alt: 'Ayick.dev - Web Developer',
@@ -49,12 +47,11 @@ export const metadata: Metadata = {
     type: 'website',
   },
 
-  // --- Twitter Card ---
   twitter: {
     card: 'summary_large_image',
     title: 'Ayick.dev | Web Developer & Digital Accelerator',
     description: 'Bangun kehadiran online Anda dengan solusi web dari Ayick.dev.',
-    images: ['/picture/og.png'], // Path ke gambar pratinjau Anda
+    images: ['/picture/og.png'],
   },
 };
 
@@ -69,7 +66,8 @@ export default function RootLayout({
         <Providers>
           {children}
           <Analytics />
-          <Toaster /> {/* Tambahkan Toaster di sini */}
+          {/* PERBAIKAN: Ubah posisi toaster agar tidak menutupi tombol close modal */}
+          <Toaster position="bottom-center" /> 
         </Providers>
       </body>
     </html>
