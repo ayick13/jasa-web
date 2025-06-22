@@ -3,10 +3,11 @@ export interface Project {
   title: string;
   category: string;
   summary: string;
-  description: string;
+  description: string; // Ini adalah konten utama proyek
   technologies: string[];
   imageUrl: string;
-  liveUrl: string;
+  liveUrl: string; // Ini adalah URL proyek live
+  githubUrl?: string; // PERBAIKAN: Tambahkan properti githubUrl sebagai opsional
 }
 
 export const portfolioProjects: Project[] = [
@@ -22,6 +23,7 @@ export const portfolioProjects: Project[] = [
     technologies: ['Next.js', 'React', 'Tailwind CSS', 'E-Commerce'],
     imageUrl: '/images/blog/waffledan.png',
     liveUrl: 'https://waffledan.co.id',
+    // githubUrl: 'https://github.com/your-repo-link', // Contoh jika ada GitHub link
   },
   {
     slug: 'ruangriung-ai-image-generator',
@@ -35,6 +37,7 @@ export const portfolioProjects: Project[] = [
     technologies: ['HTML', 'JavaScript', 'API Integration', 'AI', 'Pollinations'],
     imageUrl: '/images/blog/ruangriung.png',
     liveUrl: 'https://ruangriung.my.id',
+    // githubUrl: 'https://github.com/your-repo-link',
   },
   {
     slug: 'rasyifa-nusantara-group',
@@ -74,5 +77,6 @@ export const portfolioProjects: Project[] = [
     technologies: ['HTML', 'JavaScript', 'API Integration', 'AI', 'Translator'],
     imageUrl: 'https://placehold.co/1200x800/1e293b/14b8a6/png?text=AI+Image+Generator',
     liveUrl: 'https://sicba.my.id',
+    // githubUrl: 'https://github.com/your-repo-link',
   },
 ];
