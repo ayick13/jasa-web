@@ -1,73 +1,152 @@
-import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-import './globals.css';
-import { Analytics } from "@vercel/analytics/react";
-import { Providers } from './providers';
-import { Toaster } from 'react-hot-toast'; // Import Toaster
+// app/layout.tsx
 
-const inter = Inter({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-inter',
-});
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import "./globals.css";
+import { Providers } from "./providers";
 
-// URL dasar situs Anda
-const siteUrl = 'https://ariftirtana.my.id/';
+const inter = Inter({ subsets: ["latin"] });
+
+// --- KONFIGURASI METADATA FINAL UNTUK ARIF TIRTANA ---
+
+const businessName = "Jasa Pembuatan Web Arif Tirtana";
+const authorName = "Arif Tirtana";
+const businessDescription = "Kami menyediakan jasa pembuatan website modern dan cepat, serta AI Suite untuk membantu optimasi bisnis Anda. Hubungi kami untuk konsultasi gratis!";
+const businessUrl = "https://ariftirtana.my.id"; 
 
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
+  // --- Informasi Fundamental & SEO ---
+  metadataBase: new URL(businessUrl),
   title: {
-    default: 'Ayick.dev | Web Developer & Digital Accelerator',
-    template: '%s | Ayick.dev',
+    default: `${businessName} | Jasa Pembuatan Website & AI Suite`,
+    template: `%s | ${businessName}`,
   },
-  description: 'Membangun kehadiran online yang kuat dan efektif melalui solusi web yang modern, cepat, dan fungsional di Gresik, Indonesia.',
-  keywords: ['Web Developer', 'Jasa Pembuatan Website', 'Next.js', 'React Developer', 'Gresik', 'Digital Accelerator', 'Portfolio'],
-  authors: [{ name: 'Ayick', url: siteUrl }],
-  creator: 'Ayick',
-  publisher: 'Ayick.dev',
+  description: businessDescription,
+  keywords: [
+    'jasa pembuatan website', 'pembuatan website', 'web developer', 'AI suite', 
+    'jasa SEO', 'website murah', 'konsultan IT', 'Arif Tirtana'
+  ],
+  
+  // --- Informasi Kepemilikan & Branding ---
+  creator: authorName,
+  publisher: authorName,
+  authors: [{ name: authorName, url: businessUrl }],
+  
+  // --- Kontrol Indexing Mesin Pencari ---
   robots: {
     index: true,
     follow: true,
   },
 
+  // --- Verifikasi Layanan Pihak Ketiga ---
+  verification: {
+    google: 'mIxjYjzBb9Y_wduYCvaTHseHQqsa21brXNS0JOX02n4',
+  },
+
+  // --- Pengaturan Tampilan & Tema Browser ---
+  themeColor: '#1a73e8',
+  colorScheme: 'light',
+
+  // --- URL Kanonikal & Bahasa ---
+  alternates: {
+    canonical: '/',
+    languages: {
+      'id-ID': '/',
+    },
+  },
+
+  // --- Optimalisasi untuk Media Sosial (Open Graph) ---
   openGraph: {
-    title: 'Ayick.dev | Web Developer & Digital Accelerator',
-    description: 'Solusi web modern, cepat, dan fungsional untuk bisnis Anda.',
-    url: siteUrl,
-    siteName: 'Ayick.dev',
+    title: {
+      default: `${businessName} | Jasa Pembuatan Website & AI Suite`,
+      template: `%s | ${businessName}`,
+    },
+    description: businessDescription,
+    url: businessUrl,
+    siteName: businessName,
     images: [
       {
-        url: '/picture/og.png',
+        // Path gambar diperbarui sesuai permintaan Anda
+        url: '/images/picture/og.png', 
         width: 1200,
         height: 630,
-        alt: 'Ayick.dev - Web Developer',
+        alt: `Banner promosi untuk ${businessName}`,
       },
     ],
     locale: 'id_ID',
     type: 'website',
   },
-
+  
+  // --- Optimalisasi untuk Twitter (Twitter Card) ---
   twitter: {
     card: 'summary_large_image',
-    title: 'Ayick.dev | Web Developer & Digital Accelerator',
-    description: 'Bangun kehadiran online Anda dengan solusi web dari Ayick.dev.',
-    images: ['/picture/og.png'],
+    title: {
+      default: `${businessName} | Jasa Pembuatan Website & AI Suite`,
+      template: `%s | ${businessName}`,
+    },
+    description: businessDescription,
+    creator: '@arif_tirtana_dev',
+    images: {
+      // Path gambar diperbarui sesuai permintaan Anda
+      url: '/images/picture/og.png', 
+      alt: `Twitter card promosi untuk ${businessName}`,
+    },
   },
+
+  // --- Ikon & PWA ---
+  icons: {
+    icon: '/favicon.ico',
+    shortcut: '/favicon-16x16.png',
+    apple: '/apple-touch-icon.png',
+  },
+  manifest: '/manifest.json',
 };
 
+// --- Komponen Layout Utama ---
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Data Terstruktur JSON-LD untuk Layanan Profesional
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'ProfessionalService',
+    'name': businessName,
+    'image': `${businessUrl}/images/picture/og.png`, // Path gambar diperbarui juga di sini
+    '@id': businessUrl,
+    'url': businessUrl,
+    'telephone': '+62-NOMOR-TELEPON-ANDA',
+    'description': businessDescription,
+    'address': {
+      '@type': 'PostalAddress',
+      'streetAddress': 'Lokasi Anda (misal: Jl. Pahlawan No. 10)',
+      'addressLocality': 'Kota Anda',
+      'addressRegion': 'Provinsi Anda',
+      'postalCode': 'Kode Pos',
+      'addressCountry': 'ID'
+    },
+    'sameAs': [
+      'https://www.linkedin.com/in/arif-tirtana',
+      'https://github.com/ayick13',
+    ],
+    'provider': {
+      '@type': 'Person',
+      'name': authorName
+    }
+  };
+
   return (
     <html lang="id" suppressHydrationWarning>
-      <body className="font-sans bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 leading-relaxed antialiased transition-colors duration-300">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
+      <body className={inter.className}>
         <Providers>
           {children}
-          <Analytics />
-          {/* PERBAIKAN: Ubah posisi toaster agar tidak menutupi tombol close modal */}
-          <Toaster position="bottom-center" /> 
         </Providers>
       </body>
     </html>
