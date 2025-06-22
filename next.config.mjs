@@ -8,6 +8,12 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'placehold.co',
       },
+      // === TAMBAHKAN BLOK BARU INI ===
+      {
+        protocol: 'https',
+        hostname: 'image.pollinations.ai',
+      },
+      // ==============================
     ],
   },
 };

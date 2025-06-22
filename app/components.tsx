@@ -279,7 +279,7 @@ export const BlogSection: React.FC<{ sectionRef: React.RefObject<HTMLElement> }>
                 <p className="text-slate-500 dark:text-slate-400 mt-3 max-w-2xl mx-auto">Berbagi pemikiran, wawasan, dan tutorial seputar teknologi.</p>
             </div>
             <div className="max-w-4xl mx-auto grid gap-10">
-                {blogArticles.slice(0, 3).map((article) => (
+                {blogArticles.slice(0, 4).map((article) => (
                     <div key={article.slug} className="bg-white dark:bg-slate-800 p-8 rounded-xl shadow-lg group border border-slate-200 dark:border-slate-700 hover:border-cyan-500 dark:hover:border-cyan-400 transition-all duration-300">
                         <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-3 group-hover:text-cyan-500 dark:group-hover:text-cyan-400 transition-colors duration-300">{article.title}</h3>
                         <p className="text-slate-500 dark:text-slate-400 mb-5">{article.summary}</p>
