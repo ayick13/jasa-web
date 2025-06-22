@@ -1,10 +1,12 @@
 'use client';
 
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useCallback, useEffect, useRef, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { toast, Toaster } from 'react-hot-toast';
 import { 
-    Download, Zap, Eraser, Sparkles, Wand2, MessageSquare, Bot, Send, Plus, Save, Settings, ChevronDown, ImageIcon, BrainCircuit
+    Download, Zap, Eraser, Sparkles, Wand2, MessageSquare, Bot, Send, Plus, Save, Settings, 
+    ChevronDown, ImageIcon, BrainCircuit, Upload, CheckCircle
 } from 'lucide-react';
 
 // --- Tipe Data & Konstanta ---
@@ -26,15 +28,12 @@ const ParameterInput = ({ label, children }: { label: string, children: React.Re
     </div>
 );
 
-const Accordion = ({ title, icon, children }: { title: string; icon: React.ReactNode; children: React.ReactNode }) => {
-    const [isOpen, setIsOpen] = useState(false);
+const Accordion = ({ title, icon, children, defaultOpen = false }: { title: string; icon: React.ReactNode; children: React.ReactNode, defaultOpen?: boolean }) => {
+    const [isOpen, setIsOpen] = useState(defaultOpen);
     return (
         <div className="w-full">
             <button onClick={() => setIsOpen(!isOpen)} className="w-full flex items-center justify-between gap-2 p-3 bg-slate-700/50 border border-slate-600 rounded-lg hover:bg-slate-700 transition-colors text-sm font-semibold">
-                <div className="flex items-center gap-2">
-                    {icon}
-                    {title}
-                </div>
+                <div className="flex items-center gap-2">{icon}{title}</div>
                 <ChevronDown className={`w-5 h-5 text-slate-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
             </button>
             {isOpen && <div className="mt-3 p-4 bg-slate-900/50 border border-slate-700 rounded-lg">{children}</div>}
@@ -42,15 +41,15 @@ const Accordion = ({ title, icon, children }: { title: string; icon: React.React
     );
 };
 
+// --- Komponen ChatBox (Logika Demo Klien) ---
+// Catatan: Tidak ada API backend untuk Chat di repo Anda, jadi ini tetap simulasi.
 const ChatBox = ({ onPromptFromChat }: { onPromptFromChat: (prompt: string) => void }) => {
-    const [messages, setMessages] = useState<ChatMessage[]>([{ id: 'init', role: 'assistant', content: 'Halo! Saya AI Assistant. Ada yang bisa saya bantu?' }]);
+    const [messages, setMessages] = useState<ChatMessage[]>([{ id: 'init', role: 'assistant', content: 'Halo! Fitur chat ini adalah demo. Untuk fungsionalitas penuh, API backend perlu dibuat.' }]);
     const [input, setInput] = useState('');
     const [isThinking, setIsThinking] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
-    const handleNewChat = () => { setMessages([{ id: 'init-new', role: 'assistant', content: 'Percakapan baru dimulai.' }]); toast.success('Percakapan baru dimulai.'); };
-    const handleSaveChat = () => toast.success('Fitur "Simpan Chat" sedang dalam pengembangan.');
 
     const handleSendMessage = async () => {
         if (!input.trim() || isThinking) return;
@@ -59,23 +58,19 @@ const ChatBox = ({ onPromptFromChat }: { onPromptFromChat: (prompt: string) => v
         const currentInput = input;
         setInput('');
         setIsThinking(true);
-        const assistantMessageId = `assistant-${Date.now()}`;
-        setMessages(prev => [...prev, { id: assistantMessageId, role: 'assistant', content: "..." }]);
+        
+        // Simulasi karena tidak ada /api/chat/route.ts
         setTimeout(() => {
-            const reply = `Ini adalah respons demonstrasi untuk: "${currentInput}". Fungsi chat sesungguhnya belum terhubung.`;
-            setMessages(prev => prev.map(msg => msg.id === assistantMessageId ? { ...msg, content: reply } : msg));
+            const reply = `Ini adalah respons demo untuk: "${currentInput}".`;
+            setMessages(prev => [...prev, { id: `assistant-${Date.now()}`, role: 'assistant', content: reply }]);
             setIsThinking(false);
-        }, 1500);
+        }, 1000);
     };
 
     return (
         <div className="flex flex-col h-[500px] bg-slate-900/50 rounded-lg">
             <div className="p-4 border-b border-slate-700 flex items-center justify-between flex-shrink-0">
-                <h3 className="text-sm font-bold text-white flex items-center">AI Assistant</h3>
-                <div className="flex items-center gap-2">
-                    <button onClick={handleNewChat} title="Mulai Chat Baru" className="p-1 rounded-full text-slate-400 hover:bg-slate-700 hover:text-white"><Plus size={16}/></button>
-                    <button onClick={handleSaveChat} title="Simpan Percakapan" className="p-1 rounded-full text-slate-400 hover:bg-slate-700 hover:text-white"><Save size={16}/></button>
-                </div>
+                <h3 className="text-sm font-bold text-white flex items-center">AI Assistant (Demo)</h3>
             </div>
             <div ref={messagesEndRef} className="flex-grow p-4 space-y-4 overflow-y-auto">
                 {messages.map(msg => (
@@ -83,11 +78,11 @@ const ChatBox = ({ onPromptFromChat }: { onPromptFromChat: (prompt: string) => v
                         {msg.role === 'assistant' && <div className="w-7 h-7 rounded-full bg-cyan-900 flex items-center justify-center flex-shrink-0"><Bot size={16} className="text-cyan-400"/></div>}
                         <div className={`p-2.5 rounded-lg max-w-[85%] ${msg.role === 'user' ? 'bg-sky-600 text-white rounded-br-none' : 'bg-slate-700 text-slate-300 rounded-bl-none'}`}>
                             <p className="whitespace-pre-wrap">{msg.content}</p>
-                            {msg.role === 'assistant' && !msg.content.includes("demonstrasi") && <button onClick={() => onPromptFromChat(msg.content)} className="mt-2 text-xs font-semibold text-cyan-400 hover:underline">Gunakan sebagai Prompt</button>}
+                            {msg.role === 'assistant' && msg.content && <button onClick={() => onPromptFromChat(msg.content)} className="mt-2 text-xs font-semibold text-cyan-400 hover:underline">Gunakan sebagai Prompt</button>}
                         </div>
                     </div>
                 ))}
-                {isThinking && <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse self-start ml-9"></div>}
+                {isThinking && <div className="flex justify-start ml-9 mt-2"><div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div></div>}
             </div>
             <div className="p-4 border-t border-slate-700">
                 <div className="flex items-center gap-2">
@@ -99,9 +94,101 @@ const ChatBox = ({ onPromptFromChat }: { onPromptFromChat: (prompt: string) => v
     );
 };
 
-// --- Halaman Utama AI Suite ---
-export default function AISuitePage() {
-    const [prompt, setPrompt] = useState('');
+
+// --- Komponen ImageAnalyzer (diperbaiki) ---
+const ImageAnalyzer = ({ onPromptFromAnalysis }: { onPromptFromAnalysis: (prompt: string) => void }) => {
+    const [imageFile, setImageFile] = useState<File | null>(null);
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [analysisResult, setAnalysisResult] = useState<string | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            setImageFile(file);
+            setAnalysisResult(null);
+            const reader = new FileReader();
+            reader.onloadend = () => setImagePreview(reader.result as string);
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleAnalyze = async () => {
+        if (!imageFile) return toast.error('Silakan unggah gambar terlebih dahulu.');
+        setIsAnalyzing(true);
+        setAnalysisResult(null);
+        const toastId = toast.loading('Menganalisis gambar...');
+
+        const reader = new FileReader();
+        reader.readAsDataURL(imageFile);
+        reader.onload = async () => {
+            try {
+                const base64Image = (reader.result as string).split(',')[1];
+                
+                // Memanggil endpoint API yang BENAR
+                const response = await fetch('/api/analyze-image', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ image: base64Image }),
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Analisis gambar gagal.');
+                }
+                
+                const data = await response.json();
+                setAnalysisResult(data.description);
+                toast.success('Analisis berhasil!', { id: toastId });
+
+            } catch (error: any) {
+                toast.error(error.message || 'Gagal menganalisis gambar.', { id: toastId });
+            } finally {
+                setIsAnalyzing(false);
+            }
+        };
+    };
+
+    const handleUseAsPrompt = () => {
+        if (analysisResult) {
+            onPromptFromAnalysis(analysisResult);
+            toast.success('Hasil analisis digunakan sebagai prompt!');
+        }
+    };
+    
+    return (
+        <div className="space-y-4">
+            <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/png, image/jpeg, image/webp" className="hidden" />
+            <button onClick={() => fileInputRef.current?.click()} className="w-full flex items-center justify-center gap-2 bg-slate-700 text-white py-3 rounded-lg font-semibold hover:bg-slate-600 transition">
+                <Upload size={18} /> Pilih Gambar
+            </button>
+            {imagePreview && (
+                <div className="mt-4 space-y-4">
+                    <div className="relative w-full aspect-video rounded-lg overflow-hidden border-2 border-slate-600">
+                        <Image src={imagePreview} alt="Pratinjau Gambar" layout="fill" objectFit="contain" />
+                    </div>
+                    <button onClick={handleAnalyze} disabled={isAnalyzing} className="w-full bg-indigo-600 text-white py-2 rounded-lg font-semibold hover:bg-indigo-700 transition disabled:opacity-50 flex items-center justify-center gap-2">
+                        {isAnalyzing ? "Menganalisis..." : 'Analisis Gambar Ini'}
+                    </button>
+                </div>
+            )}
+            {analysisResult && (
+                <div className="mt-4 p-4 bg-slate-900 rounded-lg border border-slate-600 space-y-3">
+                    <p className="text-sm text-slate-300">{analysisResult}</p>
+                    <button onClick={handleUseAsPrompt} className="w-full bg-teal-600 text-white py-2 rounded-lg font-semibold hover:bg-teal-700 transition text-sm flex items-center justify-center gap-2">
+                        <CheckCircle size={16}/> Gunakan sebagai Prompt
+                    </button>
+                </div>
+            )}
+        </div>
+    );
+};
+
+// --- Komponen Utama Halaman ---
+function AISuitePageContent() {
+    const searchParams = useSearchParams();
+    const [prompt, setPrompt] = useState(searchParams.get('prompt') || '');
     const [model, setModel] = useState<Model>('flux');
     const [artStyle, setArtStyle] = useState<ArtStyle>('realistic');
     const [quality, setQuality] = useState<QualityOption>('standar');
@@ -110,37 +197,68 @@ export default function AISuitePage() {
     const [batchSize, setBatchSize] = useState<BatchSize>(1);
     const [generatedImages, setGeneratedImages] = useState<string[]>([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [isCreatorLoading, setIsCreatorLoading] = useState(false);
     const [creatorSubject, setCreatorSubject] = useState('');
     const [creatorDetails, setCreatorDetails] = useState('');
+
+    useEffect(() => {
+        const urlPrompt = searchParams.get('prompt');
+        if (urlPrompt && urlPrompt !== prompt) {
+            setPrompt(urlPrompt);
+            toast.success('Prompt dari halaman utama dimuat!');
+        }
+    }, [searchParams, prompt]);
     
     const handleClearPrompt = useCallback(() => { setPrompt(''); toast.success('Prompt dibersihkan.'); }, []);
     
-    const handleUseCreatedPrompt = () => {
+    const handleUseCreatedPrompt = async () => {
         if (!creatorSubject.trim()) return toast.error('Subjek di Prompt Creator tidak boleh kosong.');
-        const finalPrompt = `${creatorSubject.trim()}${creatorDetails.trim() ? `, ${creatorDetails.trim()}` : ''}`;
-        setPrompt(finalPrompt);
-        toast.success('Prompt dari Creator digunakan.');
-    };
+        
+        setIsCreatorLoading(true);
+        const toastId = toast.loading('AI sedang membuat prompt...');
 
+        try {
+            // Memanggil endpoint API yang BENAR
+            const response = await fetch('/api/enhance-prompt', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    subject: creatorSubject,
+                    details: creatorDetails 
+                }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || "Gagal membuat prompt dari AI.");
+            }
+
+            const data = await response.json();
+            setPrompt(data.prompt);
+            toast.success('Prompt dari AI berhasil digunakan!', { id: toastId });
+
+        } catch (error: any) {
+            toast.error(error.message || "Gagal menghubungi AI.", { id: toastId });
+        } finally {
+            setIsCreatorLoading(false);
+        }
+    };
+    
     const handleGenerateImage = useCallback(async () => {
         if (!prompt.trim()) return toast.error('Prompt tidak boleh kosong.');
         setIsLoading(true);
         setGeneratedImages([]);
         toast.loading(`Menghasilkan ${batchSize} gambar...`, { id: 'generating', duration: Infinity });
-        
         const styleSuffix = artStyle !== 'realistic' ? `, in the style of ${artStyle.replace('-', ' ')}` : '';
         const qualitySuffix = quality === 'hd' ? ', hd' : quality === 'ultrahd' ? ', 4k, photorealistic' : '';
         const finalPrompt = `${prompt}${styleSuffix}${qualitySuffix}`;
-    
         const promises = Array.from({ length: batchSize }, () => {
             const seed = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
             const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(finalPrompt)}?width=${imageWidth}&height=${imageHeight}&nologo=true&safe=true&model=${model}&seed=${seed}`;
             return fetch(imageUrl).then(res => res.ok ? res.blob().then(URL.createObjectURL) : Promise.resolve('')).catch(() => '');
         });
-    
         const results = await Promise.all(promises);
         const validImages = results.filter(Boolean);
-    
         if (validImages.length > 0) {
             setGeneratedImages(validImages);
             toast.success(`${validImages.length} gambar berhasil dibuat!`, { id: 'generating' }); 
@@ -148,27 +266,21 @@ export default function AISuitePage() {
             toast.error('Gagal membuat gambar. Coba lagi.', { id: 'generating' }); 
         }
         setIsLoading(false);
-    }, [prompt, model, artStyle, quality, imageWidth, imageHeight, batchSize]); 
-    
-    const handlePromptFromChat = useCallback((chatPrompt: string) => { setPrompt(chatPrompt); toast.success('Pesan dari asisten digunakan!'); }, []);
+    }, [prompt, model, artStyle, quality, imageWidth, imageHeight, batchSize]);
 
+    const handlePromptFromChat = useCallback((chatPrompt: string) => { setPrompt(chatPrompt); toast.success('Pesan dari asisten digunakan!'); }, []);
+    const handlePromptFromAnalysis = useCallback((analysisPrompt: string) => { setPrompt(analysisPrompt); }, []);
+    
     return (
         <div className="font-sans text-slate-200">
             <Toaster position="top-center" toastOptions={{ style: { background: '#1e293b', color: '#e2e8f0', border: '1px solid #334155' }}} />
             <main className="container mx-auto py-12 px-4 sm:px-6 lg:px-8">
-                {/* --- HEADING DAN TAGLINE DIKEMBALIKAN DI SINI --- */}
                 <div className="text-center mb-12">
-                    <h1 className="text-5xl md:text-6xl font-extrabold mb-4 text-white">
-                        AI <span className="bg-clip-text text-transparent bg-gradient-to-r from-sky-400 to-cyan-300">Image Suite</span>
-                    </h1>
-                    <p className="text-lg text-slate-400 max-w-2xl mx-auto">
-                        Sebuah command center untuk mengubah imajinasi Anda menjadi kenyataan visual.
-                    </p>
+                    <h1 className="text-5xl md:text-6xl font-extrabold mb-4 text-white">AI <span className="bg-clip-text text-transparent bg-gradient-to-r from-sky-400 to-cyan-300">Image Suite</span></h1>
+                    <p className="text-lg text-slate-400 max-w-2xl mx-auto">Sebuah command center untuk mengubah imajinasi Anda menjadi kenyataan visual.</p>
                 </div>
-
                 <div className="max-w-4xl mx-auto">
                     <div className="bg-slate-800/40 backdrop-blur-md p-6 md:p-8 rounded-2xl shadow-2xl shadow-black/20 border border-slate-700 h-full flex flex-col space-y-6">
-                        
                         <div>
                             <label htmlFor="prompt" className="block text-slate-300 mb-3 font-bold text-xl flex items-center"><Zap className="w-7 h-7 mr-3 text-cyan-400"/>Image Generation</label>
                             <div className="relative w-full">
@@ -176,66 +288,41 @@ export default function AISuitePage() {
                                 {prompt && <button onClick={handleClearPrompt} className="absolute top-3 right-3 text-slate-500 hover:text-white transition"><Eraser size={20}/></button>}
                             </div>
                         </div>
-                        
                         <div className="mt-2">
                             <button onClick={handleGenerateImage} disabled={isLoading || !prompt.trim()} className="w-full font-bold py-4 px-8 rounded-full bg-gradient-to-r from-sky-500 to-cyan-400 text-white hover:opacity-90 transition-all duration-300 flex items-center justify-center text-xl disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-cyan-500/20">
-                                {isLoading ? <><svg className="animate-spin h-6 w-6 text-current mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Generating...</> : <><Zap className="mr-2"/> Generate Image</>}
+                                {isLoading ? (<> <svg className="animate-spin h-6 w-6 text-current mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Generating...</>) : (<><Zap className="mr-2"/> Generate Image</>)}
                             </button>
                         </div>
-                        
                         <div className="space-y-4 pt-6 border-t border-slate-700">
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <Accordion title="Prompt Creator" icon={<Wand2 size={16}/>}>
                                     <div className="space-y-3">
                                         <input type="text" value={creatorSubject} onChange={e => setCreatorSubject(e.target.value)} placeholder="Subjek Utama..." className="w-full text-sm bg-slate-800 border-slate-600 rounded-md p-2" />
                                         <textarea value={creatorDetails} onChange={e => setCreatorDetails(e.target.value)} placeholder="Detail Tambahan..." rows={2} className="w-full text-sm bg-slate-800 border-slate-600 rounded-md p-2" />
-                                        <button onClick={handleUseCreatedPrompt} disabled={isLoading || !creatorSubject.trim()} className="w-full bg-purple-600 text-white py-2 rounded-lg font-semibold text-sm hover:bg-purple-700 transition disabled:opacity-50">Gunakan & Ganti Prompt</button>
+                                        <button onClick={handleUseCreatedPrompt} disabled={isCreatorLoading || !creatorSubject.trim()} className="w-full bg-purple-600 text-white py-2 rounded-lg font-semibold text-sm hover:bg-purple-700 transition disabled:opacity-50 flex justify-center items-center">
+                                          {isCreatorLoading ? "Meningkatkan..." : 'Tingkatkan Prompt'}
+                                        </button>
                                     </div>
                                 </Accordion>
                                 <Accordion title="Parameter" icon={<Settings size={16}/>}>
                                     <div className="grid grid-cols-2 gap-4">
-                                        <ParameterInput label="Model">
-                                            <select className="w-full text-xs bg-slate-800 border-slate-600 rounded-md p-2" value={model} onChange={(e) => setModel(e.target.value as Model)}>
-                                                {models.map(m => <option key={m} value={m}>{m.charAt(0).toUpperCase() + m.slice(1)}</option>)}
-                                            </select>
-                                        </ParameterInput>
-                                        <ParameterInput label="Gaya Seni">
-                                            <select className="w-full text-xs bg-slate-800 border-slate-600 rounded-md p-2" value={artStyle} onChange={(e) => setArtStyle(e.target.value as ArtStyle)}>
-                                                {artStyles.map(s => <option key={s} value={s}>{s.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</option>)}
-                                            </select>
-                                        </ParameterInput>
-                                        <ParameterInput label="Kualitas">
-                                            <select className="w-full text-xs bg-slate-800 border-slate-600 rounded-md p-2" value={quality} onChange={(e) => setQuality(e.target.value as QualityOption)}>
-                                                {qualityOptions.map(q => <option key={q} value={q}>{q.charAt(0).toUpperCase() + q.slice(1)}</option>)}
-                                            </select>
-                                        </ParameterInput>
-                                        <ParameterInput label="Jumlah">
-                                            <select className="w-full text-xs bg-slate-800 border-slate-600 rounded-md p-2" value={batchSize} onChange={(e) => setBatchSize(Number(e.target.value) as BatchSize)}>
-                                                {batchSizes.map(s => <option key={s} value={s}>{s}</option>)}
-                                            </select>
-                                        </ParameterInput>
+                                        <ParameterInput label="Model"><select className="w-full text-xs bg-slate-800 border-slate-600 rounded-md p-2" value={model} onChange={(e) => setModel(e.target.value as Model)}>{models.map(m => <option key={m} value={m}>{m.charAt(0).toUpperCase() + m.slice(1)}</option>)}</select></ParameterInput>
+                                        <ParameterInput label="Gaya Seni"><select className="w-full text-xs bg-slate-800 border-slate-600 rounded-md p-2" value={artStyle} onChange={(e) => setArtStyle(e.target.value as ArtStyle)}>{artStyles.map(s => <option key={s} value={s}>{s.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</option>)}</select></ParameterInput>
+                                        <ParameterInput label="Kualitas"><select className="w-full text-xs bg-slate-800 border-slate-600 rounded-md p-2" value={quality} onChange={(e) => setQuality(e.target.value as QualityOption)}>{qualityOptions.map(q => <option key={q} value={q}>{q.charAt(0).toUpperCase() + q.slice(1)}</option>)}</select></ParameterInput>
+                                        <ParameterInput label="Jumlah"><select className="w-full text-xs bg-slate-800 border-slate-600 rounded-md p-2" value={batchSize} onChange={(e) => setBatchSize(Number(e.target.value) as BatchSize)}>{batchSizes.map(s => <option key={s} value={s}>{s}</option>)}</select></ParameterInput>
                                         <div className="col-span-2 grid grid-cols-2 gap-2">
-                                            <ParameterInput label="Width">
-                                                <input type="number" className="w-full text-xs bg-slate-800 border-slate-600 rounded-md p-2" value={imageWidth} onChange={e => setImageWidth(parseInt(e.target.value))}/>
-                                            </ParameterInput>
-                                            <ParameterInput label="Height">
-                                                <input type="number" className="w-full text-xs bg-slate-800 border-slate-600 rounded-md p-2" value={imageHeight} onChange={e => setImageHeight(parseInt(e.target.value))}/>
-                                            </ParameterInput>
+                                            <ParameterInput label="Width"><input type="number" className="w-full text-xs bg-slate-800 border-slate-600 rounded-md p-2" value={imageWidth} onChange={e => setImageWidth(parseInt(e.target.value))}/></ParameterInput>
+                                            <ParameterInput label="Height"><input type="number" className="w-full text-xs bg-slate-800 border-slate-600 rounded-md p-2" value={imageHeight} onChange={e => setImageHeight(parseInt(e.target.value))}/></ParameterInput>
                                         </div>
                                     </div>
                                 </Accordion>
                             </div>
-                            <Accordion title="AI Assistant" icon={<MessageSquare size={16}/>}>
-                                <ChatBox onPromptFromChat={handlePromptFromChat} />
-                            </Accordion>
-                            <Accordion title="Image Analyze" icon={<ImageIcon size={16}/>}>
-                                <div className="text-center p-4">
-                                    <p className="text-slate-400 text-sm">Fitur untuk mengubah gambar menjadi prompt sedang dalam pengembangan dan akan segera hadir.</p>
-                                </div>
+                            <Accordion title="AI Assistant" icon={<MessageSquare size={16}/>}><ChatBox onPromptFromChat={handlePromptFromChat} /></Accordion>
+                            <Accordion title="Image Analyze" icon={<ImageIcon size={16}/>} defaultOpen={false}>
+                                <ImageAnalyzer onPromptFromAnalysis={handlePromptFromAnalysis} />
                             </Accordion>
                         </div>
                     </div>
-
                     {generatedImages.length > 0 && (
                         <div className="mt-16">
                             <h2 className="text-3xl font-bold text-center mb-8 text-white">Hasil Generasi</h2>
@@ -254,5 +341,14 @@ export default function AISuitePage() {
                 </div>
             </main>
         </div>
+    );
+}
+
+// --- Wrapper & Ekspor Halaman ---
+export default function AISuitePage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-slate-900 text-white text-xl">Memuat AI Suite...</div>}>
+            <AISuitePageContent />
+        </Suspense>
     );
 }
