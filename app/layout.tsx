@@ -116,14 +116,14 @@ export default function RootLayout({
     'image': `${businessUrl}/images/picture/og.png`, // Path gambar diperbarui juga di sini
     '@id': businessUrl,
     'url': businessUrl,
-    'telephone': '+62-NOMOR-TELEPON-ANDA',
+    'telephone': '+62-81330763633',
     'description': businessDescription,
     'address': {
       '@type': 'PostalAddress',
-      'streetAddress': 'Lokasi Anda (misal: Jl. Pahlawan No. 10)',
-      'addressLocality': 'Kota Anda',
-      'addressRegion': 'Provinsi Anda',
-      'postalCode': 'Kode Pos',
+      'streetAddress': 'Jl. Usman Sadar No 8/15',
+      'addressLocality': 'Gresik',
+      'addressRegion': 'Jawa Timur',
+      'postalCode': '61118',
       'addressCountry': 'ID'
     },
     'sameAs': [
