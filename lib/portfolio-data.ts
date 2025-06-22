@@ -49,7 +49,7 @@ export const portfolioProjects: Project[] = [
       <p class="mt-4">Website ini dirancang dengan palet warna korporat dan tata letak yang bersih untuk memancarkan citra elegan dan terpercaya. Setiap layanan dan unit bisnis dijelaskan secara detail. Desain yang responsif memastikan pengalaman yang optimal bagi pengguna desktop maupun mobile yang mengakses informasi perusahaan.</p>
     `,
     technologies: ['Next.js', 'React', 'Tailwind CSS', 'Corporate Design'],
-    imageUrl: 'https://placehold.co/1200x800/1e293b/a855f7/png?text=Rasyifa+Group',
+    imageUrl: '/images/blog/logo-rasyifa.png',
     liveUrl: 'https://rasyifanusantaragroup.com',
   },
   {
