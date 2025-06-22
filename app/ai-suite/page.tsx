@@ -15,7 +15,7 @@ const imageGenModels = ['flux', 'turbo'] as const;
 type ImageGenModel = (typeof imageGenModels)[number];
 const artStyles = ['realistic', 'photographic', 'anime', 'manga', 'pixel-art', 'fantasy', 'sci-fi', 'steampunk', 'cyberpunk', 'cinematic'] as const;
 type ArtStyle = (typeof artStyles)[number];
-const qualityOptions = ['standar', 'hd', 'ultrahd'] as const;
+const qualityOptions = ['standar', 'hd', 'ultra'] as const;
 type QualityOption = (typeof qualityOptions)[number];
 const batchSizes = [1, 2, 3, 4] as const;
 type BatchSize = (typeof batchSizes)[number];
@@ -288,9 +288,9 @@ function AISuitePageContent() {
     const handleGenerateImage = useCallback(async () => {
         if (!prompt.trim()) return toast.error('Prompt tidak boleh kosong.');
         setIsLoading(true); setGeneratedImages([]);
-        toast.loading(`Menghasilkan ${batchSize} gambar...`, { id: 'generating', duration: Infinity });
+        toast.loading(`Proses Menghasilkan ${batchSize} gambar...`, { id: 'generating', duration: Infinity });
         const styleSuffix = artStyle !== 'realistic' ? `, in the style of ${artStyle.replace('-', ' ')}` : '';
-        const qualitySuffix = quality === 'hd' ? ', hd' : quality === 'ultrahd' ? ', 4k, photorealistic' : '';
+        const qualitySuffix = quality === 'hd' ? ', hd' : quality === 'ultra' ? ', 4k, photorealistic' : '';
         const finalPrompt = `${prompt}${styleSuffix}${qualitySuffix}`;
         const promises = Array.from({ length: batchSize }, () => {
             const seed = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
