@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { toast, Toaster } from 'react-hot-toast';
 import { 
     Download, Zap, Eraser, Sparkles, Wand2, MessageSquare, Bot, Send, Plus, Save, Settings, 
-    ChevronDown, ImageIcon, BrainCircuit, Upload, CheckCircle
+    ChevronDown, ImageIcon, BrainCircuit, Upload, CheckCircle, Copy, CornerDownLeft
 } from 'lucide-react';
 
 // --- Tipe Data & Konstanta ---
@@ -37,18 +37,19 @@ const Accordion = ({ title, icon, children, defaultOpen = false }: { title: stri
     );
 };
 
-// --- Komponen ChatBox (DIPERBARUI DENGAN STREAMING & MODEL DINAMIS) ---
+// --- Komponen ChatBox (DENGAN PERBAIKAN ERROR) ---
 const ChatBox = ({ onPromptFromChat }: { onPromptFromChat: (prompt: string) => void }) => {
-    const [messages, setMessages] = useState<ChatMessage[]>([{ id: 'init', role: 'assistant', content: 'Halo! Pilih model di atas dan mari kita mulai.' }]);
+    const [messages, setMessages] = useState<ChatMessage[]>([{ id: 'init', role: 'assistant', content: 'Halo! Silakan pilih model di atas dan ajukan pertanyaan.' }]);
     const [input, setInput] = useState('');
     const [isThinking, setIsThinking] = useState(false);
     const [availableModels, setAvailableModels] = useState<Record<string, any>>({});
     const [selectedModel, setSelectedModel] = useState('openai');
+    // === PERBAIKAN 1: State untuk melacak ID pesan yang sedang di-stream ===
+    const [streamingMessageId, setStreamingMessageId] = useState<string | null>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
 
-    // Ambil daftar model saat komponen dimuat
     useEffect(() => {
         const fetchModels = async () => {
             try {
@@ -74,6 +75,8 @@ const ChatBox = ({ onPromptFromChat }: { onPromptFromChat: (prompt: string) => v
         setIsThinking(true);
 
         const assistantMessageId = `assistant-${Date.now()}`;
+        // === PERBAIKAN 2: Set ID pesan yang sedang streaming ke state ===
+        setStreamingMessageId(assistantMessageId); 
         setMessages(prev => [...prev, { id: assistantMessageId, role: 'assistant', content: "" }]);
 
         try {
@@ -84,46 +87,40 @@ const ChatBox = ({ onPromptFromChat }: { onPromptFromChat: (prompt: string) => v
             });
 
             if (!response.ok || !response.body) {
-                throw new Error('Gagal melakukan streaming.');
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Gagal memulai koneksi streaming.');
             }
 
             const reader = response.body.getReader();
             const decoder = new TextDecoder();
-            let done = false;
-
-            while (!done) {
-                const { value, done: streamDone } = await reader.read();
-                done = streamDone;
-                const chunk = decoder.decode(value, { stream: true });
+            
+            while (true) {
+                const { value, done } = await reader.read();
+                if (done) break;
                 
-                // Proses data SSE
-                const lines = chunk.split('\n').filter(line => line.trim() !== '');
+                const chunk = decoder.decode(value);
+                const lines = chunk.split('\n').filter(line => line.startsWith('data:'));
+                
                 for (const line of lines) {
-                    if (line.startsWith('data:')) {
-                        const dataStr = line.substring(5).trim();
-                        if (dataStr === '[DONE]') {
-                            break;
+                    const dataStr = line.substring(5).trim();
+                    if (dataStr === '[DONE]') break;
+                    try {
+                        const parsed = JSON.parse(dataStr);
+                        const content = parsed.choices?.[0]?.delta?.content || "";
+                        if (content) {
+                            setMessages(prev => prev.map(msg => 
+                                msg.id === assistantMessageId 
+                                    ? { ...msg, content: msg.content + content }
+                                    : msg
+                            ));
                         }
-                        try {
-                            const parsed = JSON.parse(dataStr);
-                            const content = parsed.choices?.[0]?.delta?.content || "";
-                            if (content) {
-                                setMessages(prev => prev.map(msg => 
-                                    msg.id === assistantMessageId 
-                                        ? { ...msg, content: msg.content + content }
-                                        : msg
-                                ));
-                            }
-                        } catch (e) {
-                            console.error('Error parsing stream data:', dataStr);
-                        }
+                    } catch (e) {
+                        console.error('Error parsing stream data chunk:', dataStr);
                     }
                 }
             }
-
-        } catch (error) {
-            console.error("Chat streaming error:", error);
-            toast.error("Terjadi kesalahan saat streaming.");
+        } catch (error: any) {
+            toast.error(error.message || "Terjadi kesalahan saat streaming.");
             setMessages(prev => prev.map(msg => 
                 msg.id === assistantMessageId 
                     ? { ...msg, content: "Maaf, terjadi kesalahan." }
@@ -131,6 +128,8 @@ const ChatBox = ({ onPromptFromChat }: { onPromptFromChat: (prompt: string) => v
             ));
         } finally {
             setIsThinking(false);
+            // === PERBAIKAN 3: Reset ID setelah streaming selesai/gagal ===
+            setStreamingMessageId(null); 
         }
     };
 
@@ -141,14 +140,14 @@ const ChatBox = ({ onPromptFromChat }: { onPromptFromChat: (prompt: string) => v
                 <select 
                     value={selectedModel}
                     onChange={(e) => setSelectedModel(e.target.value)}
-                    className="bg-slate-700 text-xs text-white rounded p-1 border border-slate-600 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    className="bg-slate-700 text-xs text-white rounded p-1 border border-slate-600 focus:outline-none focus:ring-2 focus:ring-cyan-500 max-w-[150px]"
                 >
                     {Object.keys(availableModels).length > 0 ? (
                         Object.entries(availableModels).map(([key, modelInfo]) => (
                             <option key={key} value={key}>{modelInfo.name || key}</option>
                         ))
                     ) : (
-                        <option value="openai">Loading...</option>
+                        <option value="openai">Memuat model...</option>
                     )}
                 </select>
             </div>
@@ -157,8 +156,9 @@ const ChatBox = ({ onPromptFromChat }: { onPromptFromChat: (prompt: string) => v
                     <div key={msg.id} className={`flex gap-2 text-sm ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                         {msg.role === 'assistant' && <div className="w-7 h-7 rounded-full bg-cyan-900 flex items-center justify-center flex-shrink-0"><Bot size={16} className="text-cyan-400"/></div>}
                         <div className={`p-2.5 rounded-lg max-w-[85%] ${msg.role === 'user' ? 'bg-sky-600 text-white rounded-br-none' : 'bg-slate-700 text-slate-300 rounded-bl-none'}`}>
-                            <p className="whitespace-pre-wrap">{msg.content}{msg.id.startsWith('assistant') && isThinking && msg.content === "" && <span className="animate-pulse">...</span>}</p>
-                            {msg.role === 'assistant' && msg.content && <button onClick={() => onPromptFromChat(msg.content)} className="mt-2 text-xs font-semibold text-cyan-400 hover:underline">Gunakan sebagai Prompt</button>}
+                            {/* === PERBAIKAN 4: Gunakan state untuk menampilkan animasi "thinking" === */}
+                            <p className="whitespace-pre-wrap">{msg.content}{msg.id === streamingMessageId && isThinking && <span className="animate-pulse">▍</span>}</p>
+                            {msg.role === 'assistant' && msg.content && !msg.content.includes("kesalahan") && <button onClick={() => onPromptFromChat(msg.content)} className="mt-2 text-xs font-semibold text-cyan-400 hover:underline">Gunakan sebagai Prompt</button>}
                         </div>
                     </div>
                 ))}
@@ -174,7 +174,7 @@ const ChatBox = ({ onPromptFromChat }: { onPromptFromChat: (prompt: string) => v
 };
 
 
-// --- Komponen ImageAnalyzer (diperbaiki sebelumnya) ---
+// --- Komponen ImageAnalyzer ---
 const ImageAnalyzer = ({ onPromptFromAnalysis }: { onPromptFromAnalysis: (prompt: string) => void }) => {
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -259,6 +259,7 @@ function AISuitePageContent() {
     const [isCreatorLoading, setIsCreatorLoading] = useState(false);
     const [creatorSubject, setCreatorSubject] = useState('');
     const [creatorDetails, setCreatorDetails] = useState('');
+    const [createdPrompt, setCreatedPrompt] = useState<string | null>(null);
 
     useEffect(() => {
         const urlPrompt = searchParams.get('prompt');
@@ -270,9 +271,10 @@ function AISuitePageContent() {
     
     const handleClearPrompt = useCallback(() => { setPrompt(''); toast.success('Prompt dibersihkan.'); }, []);
     
-    const handleUseCreatedPrompt = async () => {
+    const handleCreatePrompt = async () => {
         if (!creatorSubject.trim()) return toast.error('Subjek di Prompt Creator tidak boleh kosong.');
         setIsCreatorLoading(true);
+        setCreatedPrompt(null);
         const toastId = toast.loading('AI sedang membuat prompt...');
         try {
             const response = await fetch('/api/enhance-prompt', {
@@ -285,13 +287,13 @@ function AISuitePageContent() {
                 throw new Error(errorData.message || "Gagal membuat prompt dari AI.");
             }
             const data = await response.json();
-            setPrompt(data.prompt);
-            toast.success('Prompt dari AI berhasil digunakan!', { id: toastId });
+            setCreatedPrompt(data.prompt); 
+            toast.success('Prompt berhasil ditingkatkan!', { id: toastId });
         } catch (error: any) {
             toast.error(error.message || "Gagal menghubungi AI.", { id: toastId });
         } finally { setIsCreatorLoading(false); }
     };
-    
+
     const handleGenerateImage = useCallback(async () => {
         if (!prompt.trim()) return toast.error('Prompt tidak boleh kosong.');
         setIsLoading(true);
@@ -337,10 +339,36 @@ function AISuitePageContent() {
                         <div className="space-y-4 pt-6 border-t border-slate-700">
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <Accordion title="Prompt Creator" icon={<Wand2 size={16}/>}>
-                                    <div className="space-y-3">
-                                        <input type="text" value={creatorSubject} onChange={e => setCreatorSubject(e.target.value)} placeholder="Subjek Utama..." className="w-full text-sm bg-slate-800 border-slate-600 rounded-md p-2" />
-                                        <textarea value={creatorDetails} onChange={e => setCreatorDetails(e.target.value)} placeholder="Detail Tambahan..." rows={2} className="w-full text-sm bg-slate-800 border-slate-600 rounded-md p-2" />
-                                        <button onClick={handleUseCreatedPrompt} disabled={isCreatorLoading || !creatorSubject.trim()} className="w-full bg-purple-600 text-white py-2 rounded-lg font-semibold text-sm hover:bg-purple-700 transition disabled:opacity-50 flex justify-center items-center">{isCreatorLoading ? "Meningkatkan..." : 'Tingkatkan Prompt'}</button>
+                                    <div className="space-y-4">
+                                        <div className="space-y-3">
+                                            <input type="text" value={creatorSubject} onChange={e => setCreatorSubject(e.target.value)} placeholder="Subjek Utama..." className="w-full text-sm bg-slate-800 border-slate-600 rounded-md p-2" />
+                                            <textarea value={creatorDetails} onChange={e => setCreatorDetails(e.target.value)} placeholder="Detail Tambahan..." rows={2} className="w-full text-sm bg-slate-800 border-slate-600 rounded-md p-2" />
+                                            <button onClick={handleCreatePrompt} disabled={isCreatorLoading || !creatorSubject.trim()} className="w-full bg-purple-600 text-white py-2 rounded-lg font-semibold text-sm hover:bg-purple-700 transition disabled:opacity-50 flex justify-center items-center">{isCreatorLoading ? "Meningkatkan..." : 'Tingkatkan Prompt'}</button>
+                                        </div>
+                                        {createdPrompt && (
+                                            <div className="border-t border-slate-700 pt-4 space-y-3">
+                                                <p className="text-xs font-semibold text-slate-400">Hasil dari AI:</p>
+                                                <p className="text-sm bg-slate-900 p-3 rounded-md border border-slate-600">{createdPrompt}</p>
+                                                <div className="flex gap-2">
+                                                    <button 
+                                                        onClick={() => {
+                                                            setPrompt(createdPrompt);
+                                                            toast.success('Prompt digunakan!');
+                                                        }}
+                                                        className="flex-1 bg-sky-600 text-white py-2 rounded-lg font-semibold text-xs hover:bg-sky-700 transition flex items-center justify-center gap-2">
+                                                        <CornerDownLeft size={14}/> Gunakan
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => {
+                                                            navigator.clipboard.writeText(createdPrompt);
+                                                            toast.success('Prompt disalin!');
+                                                        }}
+                                                        className="flex-1 bg-slate-600 text-white py-2 rounded-lg font-semibold text-xs hover:bg-slate-700 transition flex items-center justify-center gap-2">
+                                                        <Copy size={14} /> Salin
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
                                 </Accordion>
                                 <Accordion title="Parameter" icon={<Settings size={16}/>}>
