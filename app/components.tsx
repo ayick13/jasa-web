@@ -402,4 +402,4 @@ export const Footer: React.FC = () => (
     </footer>
 );
 
-}
+// Kurung kurawal penutup tambahan yang menyebabkan error telah dihapus dari sini.
