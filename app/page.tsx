@@ -1,5 +1,3 @@
-// app/page.tsx
-
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo } from 'react'; 
@@ -15,11 +13,11 @@ import {
   Footer
 } from './components';
 
-// Mengembalikan definisi tipe Section seperti semula
-type Section = 'home' | 'about' | 'services' | 'portfolio' | 'pricing' | 'blog' | 'contact' | 'ai-suite'; 
+// Tipe didefinisikan secara lokal agar sesuai dengan yang dibutuhkan halaman ini
+type HomeSection = 'home' | 'about' | 'services' | 'portfolio' | 'pricing' | 'blog' | 'contact'; 
 
 export default function Home() {
-  const [currentSection, setCurrentSection] = useState<Section>('home');
+  const [currentSection, setCurrentSection] = useState<HomeSection>('home');
 
   const homeRef = useRef<HTMLElement>(null);
   const aboutRef = useRef<HTMLElement>(null);
@@ -29,7 +27,8 @@ export default function Home() {
   const blogRef = useRef<HTMLElement>(null);
   const contactRef = useRef<HTMLElement>(null);
 
-  const sectionRefs = useMemo(() => ({
+  // sectionRefs sekarang hanya berisi seksi yang ada di halaman utama
+  const sectionRefs: Record<HomeSection, React.RefObject<HTMLElement>> = useMemo(() => ({
     home: homeRef,
     about: aboutRef,
     services: servicesRef,
@@ -39,16 +38,9 @@ export default function Home() {
     contact: contactRef,
   }), []);
 
-  const handleNavClick = (section: Section) => {
-    if (section === 'ai-suite') {
-      window.location.href = '/ai-suite';
-    } else {
-      // Pastikan section yang di-scroll ada di dalam sectionRefs
-      if (section in sectionRefs) {
-          const key = section as keyof typeof sectionRefs;
-          sectionRefs[key].current?.scrollIntoView({ behavior: 'smooth' });
-      }
-    }
+  // handleNavClick disederhanakan karena navigasi halaman ditangani oleh <Link> di Header
+  const handleNavClick = (section: HomeSection) => {
+    sectionRefs[section]?.current?.scrollIntoView({ behavior: 'smooth' });
     setCurrentSection(section);
   };
 
@@ -62,7 +54,7 @@ export default function Home() {
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
-          const sectionId = entry.target.id as Section;
+          const sectionId = entry.target.id as HomeSection;
           setCurrentSection(sectionId);
         }
       });
@@ -85,6 +77,7 @@ export default function Home() {
 
   return (
     <>
+      {/* Sekarang props yang dikirimkan sudah sesuai dengan yang diharapkan Header */}
       <Header currentSection={currentSection} onNavClick={handleNavClick} />
       <main>
         <HeroSection onNavClick={handleNavClick} sectionRef={sectionRefs.home} />
