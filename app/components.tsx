@@ -5,13 +5,13 @@ import Image from 'next/image';
 import Link from 'next/link';
 import Script from 'next/script';
 // Ganti MagicWand dengan Zap
-import { Home, User, Rss, Layers, Mail, Menu, X, Github, Linkedin, Instagram, Code, CheckCircle, Smartphone, BarChart2, ArrowRight, Tag, Star, Settings, PenTool, Share2, Briefcase, Eye, Zap } from 'lucide-react'; 
+import { Home, User, Rss, Layers, Mail, Menu, X, Github, Linkedin, Instagram, Code, CheckCircle, Smartphone, BarChart2, ArrowRight, Tag, Star, Settings, PenTool, Share2, Briefcase, Eye, Zap, Video } from 'lucide-react'; 
 import { blogArticles } from '@/lib/blog-data';
 import { portfolioProjects } from '@/lib/portfolio-data';
 import { ThemeSwitcher } from './theme-switcher';
 
 // --- Data & Tipe ---
-type Section = 'home' | 'about' | 'services' | 'portfolio' | 'pricing' | 'blog' | 'contact' | 'ai-suite'; 
+type Section = 'home' | 'about' | 'services' | 'portfolio' | 'pricing' | 'blog' | 'contact' | 'ai-suite' | 'battle-video'; 
 
 const navLinks = [
     { section: 'home', label: 'Beranda', icon: Home }, 
@@ -20,8 +20,10 @@ const navLinks = [
     { section: 'portfolio', label: 'Proyek', icon: Briefcase },
     { section: 'pricing', label: 'Harga', icon: Tag },
     { section: 'blog', label: 'Blog', icon: Rss }, 
-    { section: 'contact', label: 'Kontak', icon: Mail },
-    { section: 'ai-suite', label: 'AI Suite', icon: Zap } // Gunakan Zap di sini
+    // Link baru ditambahkan di sini
+    { section: 'battle-video', label: 'Battle Video', icon: Video },
+    { section: 'ai-suite', label: 'AI Suite', icon: Zap },
+    { section: 'contact', label: 'Kontak', icon: Mail }
 ] as const;
 
 const servicesData = [
@@ -98,14 +100,15 @@ interface NavLinkProps {
 }
 
 const NavLink: React.FC<NavLinkProps> = ({ section, label, icon: Icon, currentSection, onClick, isMobile = false }) => {
-  if (section === 'ai-suite') {
+  const isPageLink = section === 'ai-suite' || section === 'battle-video';
+
+  if (isPageLink) {
     return (
       <Link href={`/${section}`} className={`flex items-center space-x-2 p-2 rounded-md transition-all duration-300 ${
         currentSection === section 
           ? 'bg-cyan-500 text-white shadow-lg' 
           : 'text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white'
       } ${isMobile ? 'text-lg w-full' : 'text-sm'}`}>
-        {/* Pastikan Icon adalah komponen yang valid */}
         {Icon && <Icon className="w-5 h-5" />} <span>{label}</span>
       </Link>
     );
@@ -118,7 +121,6 @@ const NavLink: React.FC<NavLinkProps> = ({ section, label, icon: Icon, currentSe
           ? 'bg-cyan-500 text-white shadow-lg' 
           : 'text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white'
       } ${isMobile ? 'text-lg w-full' : 'text-sm'}`}>
-      {/* Pastikan Icon adalah komponen yang valid */}
       {Icon && <Icon className="w-5 h-5" />} <span>{label}</span>
     </a>
   );
@@ -182,7 +184,7 @@ export const AboutSection: React.FC<{ sectionRef: React.RefObject<HTMLElement> }
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
              <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center md:items-start gap-12 md:gap-16">
                 <div className="w-full md:w-1/3 flex-shrink-0 flex justify-center">
-                    <Image src="/images/profil.webp" alt="Foto profil Ayick" width={256} height={256} className="rounded-full shadow-2xl shadow-cyan-500/20 border-4 border-slate-200 dark:border-slate-700" />
+                    <Image src="/picture/saya.webp" alt="Foto profil Ayick" width={256} height={256} className="rounded-full shadow-2xl shadow-cyan-500/20 border-4 border-slate-200 dark:border-slate-700" />
                 </div>
                 <div className="w-full md:w-2/3 text-center md:text-left">
                     <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-4">Tentang Saya</h2>
@@ -399,3 +401,5 @@ export const Footer: React.FC = () => (
         </div>
     </footer>
 );
+
+}
