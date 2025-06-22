@@ -1,7 +1,8 @@
 // app/battle-video/page.tsx
 
-import { Award, Calendar, CheckCircle, Gift, Target, Users, Video } from 'lucide-react';
+import { Award, Calendar, CheckCircle, Gift, Target, Home, ArrowLeft } from 'lucide-react';
 import type { Metadata } from 'next';
+import Link from 'next/link'; // Jangan lupa import Link
 
 // Metadata untuk SEO halaman ini
 export const metadata: Metadata = {
@@ -102,9 +103,17 @@ export default function BattleVideoPage() {
                 <li><strong>Juara 5:</strong> Rp 100.000,-</li>
              </ul>
           </Section>
+          
+          {/* === TOMBOL KEMBALI DITAMBAHKAN DI SINI === */}
+          <div className="text-center mt-20">
+            <Link href="/" className="inline-flex items-center gap-2 bg-indigo-600 text-white font-bold py-3 px-8 rounded-full shadow-lg shadow-indigo-500/30 hover:bg-indigo-700 transition-all duration-300 transform hover:scale-105">
+                <ArrowLeft className="w-5 h-5" />
+                Kembali ke Beranda
+            </Link>
+          </div>
 
           {/* Penutup */}
-          <div className="text-center mt-16">
+          <div className="text-center mt-12">
             <p className="text-2xl font-bold mb-4">Yuk kawan semua.... kita gaskeun, tunjukkan imajinasi kreatifitasmu disini!</p>
             <p>Terima kasih atas partisipasinya,</p>
             <p className="font-semibold mt-2">Salam dari Team Work RAI (Ruangriung AI Image)</p>
