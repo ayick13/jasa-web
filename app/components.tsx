@@ -182,7 +182,7 @@ export const AboutSection: React.FC<{ sectionRef: React.RefObject<HTMLElement> }
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
              <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center md:items-start gap-12 md:gap-16">
                 <div className="w-full md:w-1/3 flex-shrink-0 flex justify-center">
-                    <Image src="/picture/saya.webp" alt="Foto profil Ayick" width={256} height={256} className="rounded-full shadow-2xl shadow-cyan-500/20 border-4 border-slate-200 dark:border-slate-700" />
+                    <Image src="/image/profil.webp" alt="Foto profil Ayick" width={256} height={256} className="rounded-full shadow-2xl shadow-cyan-500/20 border-4 border-slate-200 dark:border-slate-700" />
                 </div>
                 <div className="w-full md:w-2/3 text-center md:text-left">
                     <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-4">Tentang Saya</h2>
