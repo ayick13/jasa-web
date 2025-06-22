@@ -1,55 +1,55 @@
-// web-app/app/blog/[slug]/page.tsx
-// Halaman ini adalah Komponen Server karena mengekspor generateStaticParams dan generateMetadata.
-// OLEH KARENA ITU, JANGAN ADA "use client" DI SINI.
-
 import { Metadata } from 'next';
-import { blogArticles } from '@/lib/blog-data'; 
 import { notFound } from 'next/navigation';
-import BlogPostContent from './blog-post-content'; 
+import { blogArticles, Article } from '@/lib/blog-data';
+import BlogPostContent from './blog-post-content';
 
-// PERBAIKAN: Gunakan 'any' untuk params untuk melewati error build yang persisten
-type BlogPostPageProps = {
-    params: any; // Menggunakan 'any' sebagai workaround
-    // Jika Anda menggunakan searchParams, tambahkan di sini juga:
-    // searchParams?: { [key: string]: string | string[] | undefined };
-};
+// Interface props tetap sama
+interface BlogPostPageProps {
+  params: {
+    slug: string;
+  };
+}
 
+// Fungsi generateMetadata sudah async dan benar, tidak perlu diubah
 export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
-    // Di sini, kita akan secara aman menganggap params.slug sebagai string
-    const slug = params.slug as string; 
-    const article = blogArticles.find((a) => a.slug === slug);
-    if (!article) { return { title: 'Artikel Tidak Ditemukan' }; }
+  const slug = params.slug;
+  const article = blogArticles.find((a) => a.slug === slug);
+
+  if (!article) {
     return {
+      title: 'Artikel Tidak Ditemukan',
+    };
+  }
+
+  return {
+    title: article.title,
+    description: article.summary,
+    openGraph: {
         title: article.title,
         description: article.summary,
-        openGraph: {
-            title: article.title,
-            description: article.summary,
-            type: 'article',
-            publishedTime: new Date(article.publishedDate).toISOString(),
-            images: [article.imageUrl],
-        },
-        twitter: {
-            card: 'summary_large_image',
-            title: article.title,
-            description: article.summary,
-            images: [article.imageUrl],
-        }
-    };
+        images: [
+            {
+                url: article.imageUrl,
+                width: 1200,
+                height: 630,
+                alt: article.title,
+            },
+        ],
+    },
+  };
 }
 
-export async function generateStaticParams() {
-    return blogArticles.map((article) => ({ slug: article.slug }));
-}
+// === PERBAIKAN UTAMA DI SINI ===
+// Komponen disederhanakan dan prop yang dikirim sudah benar
+export default async function BlogPostPage({ params }: BlogPostPageProps) {
+  const slug = params.slug;
+  const article: Article | undefined = blogArticles.find((a) => a.slug === slug);
 
-export default function BlogPostPage({ params }: BlogPostPageProps) {
-    // Di sini juga, kita akan secara aman menganggap params.slug sebagai string
-    const slug = params.slug as string; 
-    const article = blogArticles.find((a) => a.slug === slug);
-    if (!article) { notFound(); }
+  // Jika artikel tidak ditemukan, panggil notFound()
+  if (!article) {
+    notFound();
+  }
 
-    return (
-        // Merender komponen klien yang berisi konten blog
-        <BlogPostContent article={article} />
-    );
+  // Cukup render komponen BlogPostContent dan kirimkan seluruh objek artikel
+  return <BlogPostContent article={article} />;
 }
