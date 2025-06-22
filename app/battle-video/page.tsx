@@ -1,8 +1,71 @@
 // app/battle-video/page.tsx
 
-import { Award, Calendar, CheckCircle, Gift, Target, Home, ArrowLeft } from 'lucide-react';
+'use client';
+
+import React from 'react';
+import { Award, Calendar, CheckCircle, Gift, Target, ArrowLeft, Home, User, Rss, Layers, Mail, Menu, X, Github, Linkedin, Instagram, Code, Zap, Video } from 'lucide-react';
 import type { Metadata } from 'next';
-import Link from 'next/link'; // Jangan lupa import Link
+import Link from 'next/link';
+import { ThemeSwitcher } from '../theme-switcher'; // Pastikan path import benar
+import { Footer } from '../components'; // Import Footer dari components.tsx
+
+// --- Tipe dan Data Navigasi (disederhanakan untuk halaman ini) ---
+const navLinks = [
+    { href: '/#home', label: 'Beranda' }, 
+    { href: '/#about', label: 'Tentang' },
+    { href: '/#services', label: 'Layanan' }, 
+    { href: '/#portfolio', label: 'Proyek' },
+    { href: '/#pricing', label: 'Harga' },
+    { href: '/#blog', label: 'Blog' }, 
+    { href: '/battle-video', label: 'Battle Video' },
+    { href: '/ai-suite', label: 'AI Suite' },
+    { href: '/#contact', label: 'Kontak' }
+];
+
+// --- Komponen Header Khusus untuk Halaman Ini ---
+const BattlePageHeader = () => {
+    const [isOpen, setIsOpen] = React.useState(false);
+
+    return (
+        <header className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg sticky top-0 z-50 shadow-sm dark:shadow-slate-950/10 transition-colors duration-300">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="flex items-center justify-between h-20">
+                    <Link href="/" className="text-2xl font-bold text-slate-800 dark:text-white cursor-pointer flex items-center gap-2">
+                        <Code className="w-8 h-8 text-cyan-500"/>
+                        <span className="bg-clip-text text-transparent bg-gradient-to-r from-cyan-500 to-blue-600">Ayick.dev</span>
+                    </Link>
+                    <div className="flex items-center gap-4">
+                        <nav className="hidden md:flex items-center space-x-2">
+                            {navLinks.map(link => (
+                                <Link key={link.href} href={link.href} className="flex items-center space-x-2 p-2 rounded-md text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white">
+                                    <span>{link.label}</span>
+                                </Link>
+                            ))}
+                        </nav>
+                        <ThemeSwitcher />
+                        <div className="md:hidden">
+                            <button onClick={() => setIsOpen(!isOpen)} className="text-slate-600 dark:text-slate-300 hover:text-black dark:hover:text-white focus:outline-none" aria-label="Buka menu">
+                                {isOpen ? <X className="w-7 h-7" /> : <Menu className="w-7 h-7" />}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {isOpen && (
+                <div className="md:hidden absolute top-20 left-0 w-full bg-white dark:bg-slate-800 shadow-xl pb-4">
+                    <nav className="flex flex-col items-start space-y-2 p-4">
+                        {navLinks.map(link => (
+                            <Link key={link.href} href={link.href} onClick={() => setIsOpen(false)} className="text-lg w-full p-2 rounded-md text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700">
+                                {link.label}
+                            </Link>
+                        ))}
+                    </nav>
+                </div>
+            )}
+        </header>
+    );
+};
+
 
 // Metadata untuk SEO halaman ini
 export const metadata: Metadata = {
@@ -26,6 +89,9 @@ const Section = ({ title, icon, children }: { title: string; icon: React.ReactNo
 export default function BattleVideoPage() {
   return (
     <div className="bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300">
+      {/* === HEADER DITAMBAHKAN DI SINI === */}
+      <BattlePageHeader />
+
       <main className="container mx-auto px-4 py-12 md:py-20">
         
         {/* Header Utama */}
@@ -104,7 +170,7 @@ export default function BattleVideoPage() {
              </ul>
           </Section>
           
-          {/* === TOMBOL KEMBALI DITAMBAHKAN DI SINI === */}
+          {/* Tombol Kembali */}
           <div className="text-center mt-20">
             <Link href="/" className="inline-flex items-center gap-2 bg-indigo-600 text-white font-bold py-3 px-8 rounded-full shadow-lg shadow-indigo-500/30 hover:bg-indigo-700 transition-all duration-300 transform hover:scale-105">
                 <ArrowLeft className="w-5 h-5" />
@@ -120,6 +186,9 @@ export default function BattleVideoPage() {
           </div>
         </div>
       </main>
+
+      {/* === FOOTER DITAMBAHKAN DI SINI === */}
+      <Footer />
     </div>
   );
 }
