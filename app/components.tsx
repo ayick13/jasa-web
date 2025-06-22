@@ -1,30 +1,33 @@
+// app/components.tsx
+
 'use client';
 
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import Script from 'next/script';
-// Ganti MagicWand dengan Zap
 import { Home, User, Rss, Layers, Mail, Menu, X, Github, Linkedin, Instagram, Code, CheckCircle, Smartphone, BarChart2, ArrowRight, Tag, Star, Settings, PenTool, Share2, Briefcase, Eye, Zap, Video } from 'lucide-react'; 
 import { blogArticles } from '@/lib/blog-data';
 import { portfolioProjects } from '@/lib/portfolio-data';
 import { ThemeSwitcher } from './theme-switcher';
+import { type Section } from '@/lib/types'; // <-- IMPOR TIPE DARI SINI
 
 // --- Data & Tipe ---
-type Section = 'home' | 'about' | 'services' | 'portfolio' | 'pricing' | 'blog' | 'contact' | 'ai-suite' | 'battle-video'; 
 
-const navLinks = [
+const navLinks: { section: Section; label: string; icon: React.ElementType }[] = [
     { section: 'home', label: 'Beranda', icon: Home }, 
     { section: 'about', label: 'Tentang', icon: User },
     { section: 'services', label: 'Layanan', icon: Layers }, 
     { section: 'portfolio', label: 'Proyek', icon: Briefcase },
     { section: 'pricing', label: 'Harga', icon: Tag },
     { section: 'blog', label: 'Blog', icon: Rss }, 
-    // Link baru ditambahkan di sini
     { section: 'battle-video', label: 'Battle Video', icon: Video },
     { section: 'ai-suite', label: 'AI Suite', icon: Zap },
     { section: 'contact', label: 'Kontak', icon: Mail }
-] as const;
+];
+
+// ... (sisa kode Anda dari sini ke bawah tetap sama, tidak perlu diubah)
+
 
 const servicesData = [
     { icon: Code, title: "Pengembangan Web", description: "Membangun situs web kustom dari awal, memastikan fungsionalitas yang mulus." },
@@ -336,7 +339,6 @@ export const ContactSection: React.FC<{ sectionRef: React.RefObject<HTMLElement>
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault(); setIsSubmitting(true); setStatus('');
         const formData = new FormData(event.currentTarget);
-        // Dapatkan semua data formulir, termasuk token Turnstile
         const data = Object.fromEntries(formData.entries());
 
         try {
@@ -347,7 +349,7 @@ export const ContactSection: React.FC<{ sectionRef: React.RefObject<HTMLElement>
 
     return (
         <section ref={sectionRef} id="contact" className="py-16 md:py-24">
-            <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer /> {/* Tambahkan skrip Turnstile di sini */}
+            <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer />
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center mb-16">
                     <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white">Hubungi Saya</h2>
@@ -370,9 +372,8 @@ export const ContactSection: React.FC<{ sectionRef: React.RefObject<HTMLElement>
                             <textarea id="message" name="message" rows={5} required className="w-full bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg py-3 px-4 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-cyan-500" placeholder="Jelaskan kebutuhan Anda..."></textarea>
                         </div>
                         
-                        {/* Tambahkan widget Cloudflare Turnstile di sini */}
                         <div className="mb-6 flex justify-center">
-                            <div className="cf-turnstile" data-sitekey="0x4AAAAAABh0uR4HC9nKVVTQ"></div> {/* Ganti dengan Site Key Anda */}
+                            <div className="cf-turnstile" data-sitekey="0x4AAAAAABh0uR4HC9nKVVTQ"></div>
                         </div>
 
                         <div className="text-center">
@@ -401,5 +402,3 @@ export const Footer: React.FC = () => (
         </div>
     </footer>
 );
-
-// Kurung kurawal penutup tambahan yang menyebabkan error telah dihapus dari sini.
