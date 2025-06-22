@@ -7,24 +7,25 @@ import { Providers } from "./providers";
 
 const inter = Inter({ subsets: ["latin"] });
 
-// --- KONFIGURASI METADATA FINAL UNTUK ARIF TIRTANA ---
+// --- KONFIGURASI METADATA FINAL UNTUK DUNIA DIGITAL AYICK ---
 
-const businessName = "Jasa Pembuatan Web Arif Tirtana";
+const businessName = "Dunia Digital Ayick";
 const authorName = "Arif Tirtana";
-const businessDescription = "Kami menyediakan jasa pembuatan website modern dan cepat, serta AI Suite untuk membantu optimasi bisnis Anda. Hubungi kami untuk konsultasi gratis!";
+const businessDescription = "Selamat datang di Dunia Digital Ayick. Sebagai Web Developer & Akselerator Digital, saya membantu bisnis Anda melesat di dunia online melalui kehadiran digital yang kuat, efektif, dan modern.";
 const businessUrl = "https://ariftirtana.my.id"; 
+const imagePath = "/picture/og.png";
 
 export const metadata: Metadata = {
   // --- Informasi Fundamental & SEO ---
   metadataBase: new URL(businessUrl),
   title: {
-    default: `${businessName} | Jasa Pembuatan Website & AI Suite`,
+    default: `${businessName} | Web Developer & Akselerator Digital`,
     template: `%s | ${businessName}`,
   },
   description: businessDescription,
   keywords: [
-    'jasa pembuatan website', 'pembuatan website', 'web developer', 'AI suite', 
-    'jasa SEO', 'website murah', 'konsultan IT', 'Arif Tirtana'
+    'Dunia Digital Ayick', 'Arif Tirtana', 'akselerator digital', 'web developer profesional', 
+    'konsultan digital', 'strategi online', 'pembuatan website', 'optimasi website'
   ],
   
   // --- Informasi Kepemilikan & Branding ---
@@ -58,7 +59,7 @@ export const metadata: Metadata = {
   // --- Optimalisasi untuk Media Sosial (Open Graph) ---
   openGraph: {
     title: {
-      default: `${businessName} | Jasa Pembuatan Website & AI Suite`,
+      default: `${businessName} | Web Developer & Akselerator Digital`,
       template: `%s | ${businessName}`,
     },
     description: businessDescription,
@@ -66,8 +67,7 @@ export const metadata: Metadata = {
     siteName: businessName,
     images: [
       {
-        // Path gambar diperbarui sesuai permintaan Anda
-        url: '/picture/og.png', 
+        url: imagePath,
         width: 1200,
         height: 630,
         alt: `Banner promosi untuk ${businessName}`,
@@ -81,14 +81,13 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: {
-      default: `${businessName} | Jasa Pembuatan Website & AI Suite`,
+      default: `${businessName} | Web Developer & Akselerator Digital`,
       template: `%s | ${businessName}`,
     },
     description: businessDescription,
     creator: '@arif_tirtana_dev',
     images: {
-      // Path gambar diperbarui sesuai permintaan Anda
-      url: '/picture/og.png', 
+      url: imagePath,
       alt: `Twitter card promosi untuk ${businessName}`,
     },
   },
@@ -108,19 +107,19 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Data Terstruktur JSON-LD untuk Layanan Profesional
+  // Data Terstruktur JSON-LD dengan informasi kontak yang sudah terisi
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'ProfessionalService',
     'name': businessName,
-    'image': `${businessUrl}/images/picture/og.png`, // Path gambar diperbarui juga di sini
+    'image': `${businessUrl}${imagePath}`,
     '@id': businessUrl,
     'url': businessUrl,
-    'telephone': '+62-81330763633',
+    'telephone': '+6281330763633', // Nomor telepon sudah terisi
     'description': businessDescription,
     'address': {
       '@type': 'PostalAddress',
-      'streetAddress': 'Jl. Usman Sadar No 8/15',
+      'streetAddress': 'Jl. Usman Sadar No 8/15', // Alamat sudah terisi
       'addressLocality': 'Gresik',
       'addressRegion': 'Jawa Timur',
       'postalCode': '61118',
