@@ -14,7 +14,9 @@ import {
   ContactSection,
   Footer
 } from './components';
-import { type Section } from '@/lib/types'; // <-- IMPOR TIPE DARI SINI
+
+// Mengembalikan definisi tipe Section seperti semula
+type Section = 'home' | 'about' | 'services' | 'portfolio' | 'pricing' | 'blog' | 'contact' | 'ai-suite'; 
 
 export default function Home() {
   const [currentSection, setCurrentSection] = useState<Section>('home');
@@ -27,8 +29,7 @@ export default function Home() {
   const blogRef = useRef<HTMLElement>(null);
   const contactRef = useRef<HTMLElement>(null);
 
-  // Kita tidak perlu ref untuk halaman, jadi kita hapus
-  const sectionRefs: Record<Exclude<Section, 'ai-suite' | 'battle-video'>, React.RefObject<HTMLElement>> = useMemo(() => ({
+  const sectionRefs = useMemo(() => ({
     home: homeRef,
     about: aboutRef,
     services: servicesRef,
@@ -39,12 +40,14 @@ export default function Home() {
   }), []);
 
   const handleNavClick = (section: Section) => {
-    // Navigasi ke halaman jika itu adalah link halaman
-    if (section === 'ai-suite' || section === 'battle-video') {
-      window.location.href = `/${section}`;
+    if (section === 'ai-suite') {
+      window.location.href = '/ai-suite';
     } else {
-      // Scroll ke seksi jika itu adalah link seksi
-      sectionRefs[section]?.current?.scrollIntoView({ behavior: 'smooth' });
+      // Pastikan section yang di-scroll ada di dalam sectionRefs
+      if (section in sectionRefs) {
+          const key = section as keyof typeof sectionRefs;
+          sectionRefs[key].current?.scrollIntoView({ behavior: 'smooth' });
+      }
     }
     setCurrentSection(section);
   };
