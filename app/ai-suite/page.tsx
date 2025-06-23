@@ -309,7 +309,7 @@ const imagePresets = [
 ];
 
 // --- Konstanta Koin ---
-const DEFAULT_DAILY_COINS = 100; // Koin harian default diubah menjadi 100
+const DEFAULT_DAILY_COINS = 500; // Koin harian default diubah menjadi 500
 const MAX_ADMIN_COINS_DISPLAY = 1000; // Batas maksimum untuk refill admin (untuk display)
 const COIN_RESET_INTERVAL_MS = 24 * 60 * 60 * 1000; // 24 jam dalam milidetik
 
@@ -319,7 +319,7 @@ const ADMIN_REFILL_PRESETS = [100, 200, 300, 500, 1000];
 // --- Komponen UI ---
 const ParameterInput = ({ label, children }: { label: string, children: React.ReactNode }) => ( <div><label className="block text-xs font-semibold text-slate-400 mb-1">{label}</label>{children}</div> );
 const Accordion = ({ title, icon, children, defaultOpen = false }: { title: string; icon: React.ReactNode; children: React.ReactNode, defaultOpen?: boolean }) => { const [isOpen, setIsOpen] = useState(defaultOpen); return ( <div className="w-full"> <button onClick={() => setIsOpen(!isOpen)} className="w-full flex items-center justify-between gap-2 p-3 bg-slate-700/50 border border-slate-600 rounded-lg hover:bg-slate-700 transition-colors text-sm font-semibold"> <div className="flex items-center gap-2">{icon}{title}</div> <ChevronDown className={`w-5 h-5 text-slate-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} /> </button> {isOpen && <div className="mt-3 p-4 bg-slate-900/50 border border-slate-700 rounded-lg">{children}</div>} </div> ); };
-const CodeBlock = ({ language, code }: { language: string, code: string }) => { const handleCopy = () => { navigator.clipboard.writeText(code); toast.success("Kode disalin ke clipboard!"); }; return ( <div className="bg-slate-900/70 rounded-md my-2 border border-slate-700"> <div className="flex justify-between items-center px-4 py-1 bg-slate-800/50 rounded-t-md"> <span className="text-xs font-sans text-slate-400">{language}</span> <button onClick={handleCopy} className="text-xs text-slate-400 hover:text-white flex items-center gap-1"><Copy size={14}/> Salin</button> </div> <pre className="p-4 text-sm overflow-x-auto"><code>{code}</code></pre> </div> ); };
+const CodeBlock = ({ language, code }: { language: string, code: string }) => { const handleCopy = () => { navigator.clipboard.clipboard.writeText(code); toast.success("Kode disalin ke clipboard!"); }; return ( <div className="bg-slate-900/70 rounded-md my-2 border border-slate-700"> <div className="flex justify-between items-center px-4 py-1 bg-slate-800/50 rounded-t-md"> <span className="text-xs font-sans text-slate-400">{language}</span> <button onClick={handleCopy} className="text-xs text-slate-400 hover:text-white flex items-center gap-1"><Copy size={14}/> Salin</button> </div> <pre className="p-4 text-sm overflow-x-auto"><code>{code}</code></pre> </div> ); };
 
 // --- Komponen Modal untuk Reset Admin (hanya password) ---
 const AdminResetModal = ({ isOpen, onClose, onConfirm }: { isOpen: boolean; onClose: () => void; onConfirm: (password: string) => void; }) => {
@@ -785,7 +785,7 @@ function AISuitePageContent() {
                                 <span className="flex items-center gap-2"><DollarSign className="w-5 h-5 text-yellow-400"/>Koin Anda:</span>
                                 <span className="text-yellow-300 text-lg font-bold">{userCoins}</span>
                                 {/* Tampilkan countdown jika koin belum MAX dan sudah pernah digunakan */}
-                                {userCoins < MAX_ADMIN_COINS_DISPLAY && ( 
+                                {userCoins < MAX_ADMIN_COINS_DISPLAY && ( // MAX_ADMIN_COINS_DISPLAY adalah 1000, jika userCoins 500, maka akan tampil
                                     <span className="text-xs text-slate-400 ml-4">{remainingTime}</span>
                                 )}
                             </div>
@@ -863,7 +863,11 @@ function AISuitePageContent() {
                                         >
                                             <KeyRound size={16}/> Isi Ulang Koin Admin
                                         </button>
-                                                                </div>
+                                        <p className="text-xs text-red-400">
+                                            ⚠️ Peringatan: Fitur admin refill/reset ini berinteraksi dengan API Route.
+                                            Pastikan `ADMIN_PASSWORD` telah diatur di environment variable Vercel Anda.
+                                        </p>
+                                    </div>
                                 </Accordion>
 
                                 <Accordion title="Prompt Creator" icon={<Wand2 size={16}/>}><div className="space-y-4"><div className="space-y-3"><input type="text" value={creatorSubject} onChange={e => setCreatorSubject(e.target.value)} placeholder="Subjek Utama..." className="w-full text-sm bg-slate-800 border-slate-600 rounded-md p-2" /><textarea value={creatorDetails} onChange={e => setCreatorDetails(e.target.value)} placeholder="Detail Tambahan..." rows={2} className="w-full text-sm bg-slate-800 border-slate-600 rounded-md p-2" /><button onClick={handleCreatePrompt} disabled={isCreatorLoading || !creatorSubject.trim()} className="w-full bg-purple-600 text-white py-2 rounded-lg font-semibold text-sm hover:bg-purple-700 transition disabled:opacity-50 flex justify-center items-center">{isCreatorLoading ? "Meningkatkan..." : 'Tingkatkan Prompt'}</button></div>{createdPrompt && ( <div className="border-t border-slate-700 pt-4 space-y-3"> <p className="text-xs font-semibold text-slate-400">Hasil dari AI:</p> <p className="text-sm bg-slate-900 p-3 rounded-md border border-slate-600">{createdPrompt}</p> <div className="flex gap-2"><button onClick={() => { setPrompt(createdPrompt); toast.success('Prompt digunakan!'); }} className="flex-1 bg-sky-600 text-white py-2 rounded-lg font-semibold text-xs hover:bg-sky-700 transition flex items-center justify-center gap-2"><CornerDownLeft size={14}/> Gunakan</button><button onClick={() => { navigator.clipboard.writeText(createdPrompt); toast.success('Prompt disalin!'); }} className="flex-1 bg-slate-600 text-white py-2 rounded-lg font-semibold text-xs hover:bg-slate-700 transition flex items-center justify-center gap-2"><Copy size={14} /> Salin</button></div> </div> )}</div></Accordion>
