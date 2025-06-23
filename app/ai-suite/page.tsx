@@ -1,13 +1,13 @@
 'use client';
 
 import React, { useState, useCallback, useEffect, useRef, Suspense, Fragment } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation'; // Import useRouter
+import { useSearchParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { toast, Toaster } from 'react-hot-toast';
 import {
     Download, Zap, Eraser, Sparkles, Wand2, MessageSquare, Bot, Send, Settings,
     ChevronDown, ImageIcon, BrainCircuit, Upload, CheckCircle, Copy, CornerDownLeft, X,
-    Volume2, Paperclip, History, KeyRound, ExternalLink, Trash2
+    Volume2, Paperclip, History, KeyRound, ExternalLink, Trash2, DollarSign, RefreshCw
 } from 'lucide-react';
 
 // --- Tipe Data & Konstanta ---
@@ -16,7 +16,7 @@ type ImageGenModel = (typeof imageGenModels)[number];
 
 // Definisi artStyles yang diperbarui (gabungan semua gaya unik)
 const artStyles = [
-    'realistic', 'photographic', 'anime', 'manga', 'pixel-art', 'fantasy', 'sci-fi', 'steampunk', 'cyberpunk', 'cinematic',
+    'realistic', 'photorealistic', 'anime', 'manga', 'pixel-art', 'fantasy', 'sci-fi', 'steampunk', 'cyberpunk', 'cinematic',
     'hyper realistic', 'cinematic realism', 'hyperdetailed', 'sci-fi realism', 'medical illustration',
     'airbrush', 'scratchboard', 'linocut print', 'woodblock print', 'silkscreen', 'engraving', 'mezzotint', 'lithography', 'etching', 'drypoint',
     'street art', 'graffiti', 'stencil art', 'pop surrealism', 'lowbrow art', 'urban contemporary', 'outsider art', 'naive art', 'folk art', 'visionary art',
@@ -308,6 +308,11 @@ const imagePresets = [
     { label: 'Landscape (1792x1024)', width: 1792, height: 1024 },
 ];
 
+// --- Konstanta Koin ---
+const DEFAULT_DAILY_COINS = 5;
+const MAX_ADMIN_COINS = 100;
+const COIN_RESET_INTERVAL_MS = 24 * 60 * 60 * 1000; // 24 jam dalam milidetik
+
 // --- Komponen UI ---
 const ParameterInput = ({ label, children }: { label: string, children: React.ReactNode }) => ( <div><label className="block text-xs font-semibold text-slate-400 mb-1">{label}</label>{children}</div> );
 const Accordion = ({ title, icon, children, defaultOpen = false }: { title: string; icon: React.ReactNode; children: React.ReactNode, defaultOpen?: boolean }) => { const [isOpen, setIsOpen] = useState(defaultOpen); return ( <div className="w-full"> <button onClick={() => setIsOpen(!isOpen)} className="w-full flex items-center justify-between gap-2 p-3 bg-slate-700/50 border border-slate-600 rounded-lg hover:bg-slate-700 transition-colors text-sm font-semibold"> <div className="flex items-center gap-2">{icon}{title}</div> <ChevronDown className={`w-5 h-5 text-slate-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} /> </button> {isOpen && <div className="mt-3 p-4 bg-slate-900/50 border border-slate-700 rounded-lg">{children}</div>} </div> ); };
@@ -404,8 +409,12 @@ function AISuitePageContent() {
     const [selectedImageData, setSelectedImageData] = useState<GeneratedImageData | null>(null);
     const [isDalleModalOpen, setIsDalleModalOpen] = useState(false);
     const [activeTab, setActiveTab] = useState<'current' | 'history'>('current');
+
+    // State untuk koin
+    const [userCoins, setUserCoins] = useState(DEFAULT_DAILY_COINS);
+    const [lastUsageTimestamp, setLastUsageTimestamp] = useState<number>(0);
     
-    // Muat riwayat dari localStorage saat komponen pertama kali dimuat
+    // Muat riwayat dan koin dari localStorage saat komponen pertama kali dimuat
     useEffect(() => {
         const savedHistory = localStorage.getItem('ai_image_history');
         if (savedHistory) {
@@ -417,7 +426,39 @@ function AISuitePageContent() {
                 setHistoryImages([]);
             }
         }
+
+        const savedCoins = localStorage.getItem('user_ai_coins');
+        const savedTimestamp = localStorage.getItem('last_coin_usage_timestamp');
+        
+        let initialCoins = DEFAULT_DAILY_COINS;
+        let initialTimestamp = Date.now();
+
+        if (savedCoins && savedTimestamp) {
+            const parsedCoins = parseInt(savedCoins);
+            const parsedTimestamp = parseInt(savedTimestamp);
+
+            if (!isNaN(parsedCoins) && !isNaN(parsedTimestamp)) {
+                initialCoins = parsedCoins;
+                initialTimestamp = parsedTimestamp;
+
+                // Cek apakah sudah 24 jam sejak penggunaan terakhir untuk reset otomatis
+                if (Date.now() - parsedTimestamp > COIN_RESET_INTERVAL_MS) {
+                    initialCoins = DEFAULT_DAILY_COINS; // Reset koin
+                    initialTimestamp = Date.now(); // Perbarui timestamp reset
+                    toast.success('Koin harian Anda telah direset!');
+                }
+            }
+        }
+        setUserCoins(initialCoins);
+        setLastUsageTimestamp(initialTimestamp);
+
     }, []);
+
+    // Simpan koin dan timestamp ke localStorage setiap kali berubah
+    useEffect(() => {
+        localStorage.setItem('user_ai_coins', userCoins.toString());
+        localStorage.setItem('last_coin_usage_timestamp', lastUsageTimestamp.toString());
+    }, [userCoins, lastUsageTimestamp]);
     
     const handleModelChange = (newModel: ImageGenModel) => { if (newModel === 'dall-e-3') { const savedKey = localStorage.getItem('openai_api_key'); if (!savedKey) { setIsDalleModalOpen(true); } else { setImageGenModel('dall-e-3'); } } else { setImageGenModel(newModel); } };
     const handleSaveDalleKey = (key: string) => { localStorage.setItem('openai_api_key', key); setIsDalleModalOpen(false); setImageGenModel('dall-e-3'); toast.success("API Key DALL-E 3 disimpan untuk sesi ini."); };
@@ -425,6 +466,13 @@ function AISuitePageContent() {
     
     const handleGenerateImage = useCallback(async () => {
         if (!prompt.trim()) return toast.error('Prompt tidak boleh kosong.');
+
+        // Cek koin sebelum generasi
+        if (userCoins <= 0) {
+            toast.error('Koin tidak cukup! Silakan reset koin atau minta admin untuk mengisi ulang.');
+            return;
+        }
+
         const finalPrompt = imageGenModel === 'dall-e-3' ? prompt : `${prompt}${artStyle !== 'realistic' ? `, in the style of ${artStyle.replace('-', ' ')}` : ''}${quality === 'hd' ? ', hd' : quality === 'ultrahd' ? ', 4k, photorealistic' : ''}`;
         setIsLoading(true); setGeneratedImages([]);
         setActiveTab('current');
@@ -461,13 +509,15 @@ function AISuitePageContent() {
                     localStorage.setItem('ai_image_history', JSON.stringify(newHistory));
                     return newHistory;
                 });
-                toast.success(`${images.length} gambar berhasil dibuat!`, { id: toastId });
+                setUserCoins(prevCoins => prevCoins - 1); // Kurangi koin
+                setLastUsageTimestamp(Date.now()); // Perbarui timestamp penggunaan terakhir
+                toast.success(`${images.length} gambar berhasil dibuat! Koin Anda sisa ${userCoins - 1}.`, { id: toastId });
             } else { throw new Error("Tidak ada gambar yang dihasilkan."); }
 
         } catch (error: any) {
             toast.error(error.message || 'Terjadi kesalahan tak terduga.', { id: toastId });
         } finally { setIsLoading(false); }
-    }, [prompt, imageGenModel, artStyle, quality, imageWidth, imageHeight, batchSize]);
+    }, [prompt, imageGenModel, artStyle, quality, imageWidth, imageHeight, batchSize, userCoins]); // Tambah userCoins ke dependencies
 
     useEffect(() => { const urlPrompt = searchParams.get('prompt'); if (urlPrompt && urlPrompt !== prompt) { setPrompt(urlPrompt); toast.success('Prompt dari halaman utama dimuat!'); } }, [searchParams, prompt]);
     
@@ -476,9 +526,9 @@ function AISuitePageContent() {
         setPrompt('');
         const newSearchParams = new URLSearchParams(searchParams.toString());
         newSearchParams.delete('prompt');
-        router.replace(`?${newSearchParams.toString()}`, { scroll: false }); // Update URL tanpa memuat ulang
+        router.replace(`?${newSearchParams.toString()}`, { scroll: false });
         toast.success('Prompt dibersihkan.');
-    }, [searchParams, router]); // Tambahkan searchParams dan router ke dependencies useCallback
+    }, [searchParams, router]);
     
     const handleCreatePrompt = async () => { if (!creatorSubject.trim()) return toast.error('Subjek di Prompt Creator tidak boleh kosong.'); setIsCreatorLoading(true); setCreatedPrompt(null); const toastId = toast.loading('AI sedang membuat prompt...'); try { const response = await fetch('/api/enhance-prompt', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ subject: creatorSubject, details: creatorDetails }) }); if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.message || "Gagal membuat prompt dari AI."); } const data = await response.json(); setCreatedPrompt(data.prompt); toast.success('Prompt berhasil ditingkatkan!', { id: toastId }); } catch (error: any) { toast.error(error.message || "Gagal menghubungi AI.", { id: toastId }); } finally { setIsCreatorLoading(false); } };
     const handleOpenModal = (imageData: GeneratedImageData) => { setSelectedImageData(imageData); setIsModalOpen(true); };
@@ -489,6 +539,44 @@ function AISuitePageContent() {
         localStorage.removeItem('ai_image_history');
         setHistoryImages([]);
         toast.success('Riwayat dihapus.');
+    }, []);
+
+    // Fungsi untuk reset koin manual pengguna
+    const handleManualCoinReset = useCallback(() => {
+        setUserCoins(DEFAULT_DAILY_COINS);
+        setLastUsageTimestamp(Date.now());
+        toast.success(`Koin Anda telah direset menjadi ${DEFAULT_DAILY_COINS}!`);
+    }, []);
+
+    // Fungsi untuk admin refill koin - SEKARANG BERINTERAKSI DENGAN API ROUTE
+    const handleAdminRefill = useCallback(async () => {
+        const password = prompt('Masukkan password admin untuk mengisi ulang koin:');
+        if (password === null) { // Jika pengguna menekan 'Batal'
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/admin/refill-coins', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ password }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                setUserCoins(data.newCoins);
+                setLastUsageTimestamp(Date.now());
+                toast.success(`Koin telah diisi ulang menjadi ${data.newCoins}!`);
+            } else {
+                toast.error(data.error || 'Gagal mengisi ulang koin.');
+            }
+        } catch (error) {
+            console.error('Error during admin refill fetch:', error);
+            toast.error('Terjadi kesalahan saat menghubungi server.');
+        }
     }, []);
     
     return (
@@ -501,8 +589,14 @@ function AISuitePageContent() {
                 <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
                     <div className="lg:col-span-2 flex flex-col gap-6">
                         <div className="bg-slate-800/40 backdrop-blur-md p-6 rounded-2xl shadow-2xl shadow-black/20 border border-slate-700 h-full flex flex-col space-y-6">
+                            {/* Display Koin */}
+                            <div className="flex items-center justify-between p-3 bg-slate-700/50 border border-slate-600 rounded-lg text-sm font-semibold text-white">
+                                <span className="flex items-center gap-2"><DollarSign className="w-5 h-5 text-yellow-400"/>Koin Anda:</span>
+                                <span className="text-yellow-300 text-lg font-bold">{userCoins}</span>
+                            </div>
+
                             <div><label htmlFor="prompt" className="block text-slate-300 mb-3 font-bold text-xl items-center"><Zap className="w-7 h-7 mr-3 text-cyan-400"/>Image Generation</label><div className="relative w-full"><textarea id="prompt" className="w-full bg-slate-900 border-2 border-slate-700 rounded-lg p-4 pr-10 text-slate-100 text-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 transition" rows={4} placeholder="Tuliskan imajinasi Anda di sini..." value={prompt} onChange={(e) => setPrompt(e.target.value)} disabled={isLoading} />{prompt && <button onClick={handleClearPrompt} className="absolute top-3 right-3 text-slate-500 hover:text-white transition"><Eraser size={20}/></button>}</div></div>
-                            <div className="mt-2"><button onClick={handleGenerateImage} disabled={isLoading || !prompt.trim()} className="w-full font-bold py-4 px-8 rounded-full bg-gradient-to-r from-sky-500 to-cyan-400 text-white hover:opacity-90 transition-all duration-300 flex items-center justify-center text-xl disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-cyan-500/20">{isLoading ? (<> <svg className="animate-spin h-6 w-6 text-current mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Generating...</>) : (<><Zap className="mr-2"/> Generate Image</>)}</button></div>
+                            <div className="mt-2"><button onClick={handleGenerateImage} disabled={isLoading || !prompt.trim() || userCoins <= 0} className="w-full font-bold py-4 px-8 rounded-full bg-gradient-to-r from-sky-500 to-cyan-400 text-white hover:opacity-90 transition-all duration-300 flex items-center justify-center text-xl disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-cyan-500/20">{isLoading ? (<> <svg className="animate-spin h-6 w-6 text-current mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Generating...</>) : (<><Zap className="mr-2"/> Generate Image</>)}</button></div>
                             <div className="space-y-4 pt-6 border-t border-slate-700">
                                 <Accordion title="Parameter" icon={<Settings size={16}/>}><div className="grid grid-cols-2 gap-4"><ParameterInput label="Model"><select className="w-full text-xs bg-slate-800 border-slate-600 rounded-md p-2" value={imageGenModel} onChange={(e) => handleModelChange(e.target.value as ImageGenModel)}>{imageGenModels.map(m => <option key={m} value={m}>{m}</option>)}</select></ParameterInput><ParameterInput label="Gaya Seni">
                                     {/* Perbarui renderisasi select Gaya Seni */}
@@ -555,6 +649,30 @@ function AISuitePageContent() {
                                         <input type="number" className="w-full text-xs bg-slate-800 border-slate-600 rounded-md p-2" value={imageHeight} onChange={e => setImageHeight(parseInt(e.target.value))} disabled={imageGenModel === 'dall-e-3'}/></ParameterInput>
                                 </div>
                                 </div></Accordion>
+
+                                {/* Accordion untuk Manajemen Koin */}
+                                <Accordion title="Manajemen Koin" icon={<DollarSign size={16}/>}>
+                                    <div className="space-y-3">
+                                        <p className="text-sm text-slate-400">Anda memiliki <span className="text-yellow-300 font-bold">{userCoins}</span> koin tersisa.</p>
+                                        <button
+                                            onClick={handleManualCoinReset}
+                                            className="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold text-sm hover:bg-blue-700 transition flex justify-center items-center gap-2"
+                                        >
+                                            <RefreshCw size={16}/> Reset Koin Harian ({DEFAULT_DAILY_COINS})
+                                        </button>
+                                        <button
+                                            onClick={handleAdminRefill}
+                                            className="w-full bg-purple-600 text-white py-2 rounded-lg font-semibold text-sm hover:bg-purple-700 transition flex justify-center items-center gap-2"
+                                        >
+                                            <KeyRound size={16}/> Admin Refill (MAX {MAX_ADMIN_COINS})
+                                        </button>
+                                        <p className="text-xs text-red-400">
+                                            ⚠️ Peringatan: Fitur admin refill ini sekarang berinteraksi dengan API Route.
+                                            Pastikan `ADMIN_PASSWORD` telah diatur di environment variable Vercel Anda.
+                                        </p>
+                                    </div>
+                                </Accordion>
+
                                 <Accordion title="Prompt Creator" icon={<Wand2 size={16}/>}><div className="space-y-4"><div className="space-y-3"><input type="text" value={creatorSubject} onChange={e => setCreatorSubject(e.target.value)} placeholder="Subjek Utama..." className="w-full text-sm bg-slate-800 border-slate-600 rounded-md p-2" /><textarea value={creatorDetails} onChange={e => setCreatorDetails(e.target.value)} placeholder="Detail Tambahan..." rows={2} className="w-full text-sm bg-slate-800 border-slate-600 rounded-md p-2" /><button onClick={handleCreatePrompt} disabled={isCreatorLoading || !creatorSubject.trim()} className="w-full bg-purple-600 text-white py-2 rounded-lg font-semibold text-sm hover:bg-purple-700 transition disabled:opacity-50 flex justify-center items-center">{isCreatorLoading ? "Meningkatkan..." : 'Tingkatkan Prompt'}</button></div>{createdPrompt && ( <div className="border-t border-slate-700 pt-4 space-y-3"> <p className="text-xs font-semibold text-slate-400">Hasil dari AI:</p> <p className="text-sm bg-slate-900 p-3 rounded-md border border-slate-600">{createdPrompt}</p> <div className="flex gap-2"><button onClick={() => { setPrompt(createdPrompt); toast.success('Prompt digunakan!'); }} className="flex-1 bg-sky-600 text-white py-2 rounded-lg font-semibold text-xs hover:bg-sky-700 transition flex items-center justify-center gap-2"><CornerDownLeft size={14}/> Gunakan</button><button onClick={() => { navigator.clipboard.writeText(createdPrompt); toast.success('Prompt disalin!'); }} className="flex-1 bg-slate-600 text-white py-2 rounded-lg font-semibold text-xs hover:bg-slate-700 transition flex items-center justify-center gap-2"><Copy size={14} /> Salin</button></div> </div> )}</div></Accordion>
                                 <Accordion title="AI Assistant" icon={<MessageSquare size={16}/>}><ChatBox onPromptFromChat={handlePromptFromChat} /></Accordion>
                                 <Accordion title="Image Analyze" icon={<ImageIcon size={16}/>} defaultOpen={false}><ImageAnalyzer onPromptFromAnalysis={handlePromptFromAnalysis} /></Accordion>
@@ -563,7 +681,7 @@ function AISuitePageContent() {
                         </div>
                     </div>
                     <div className="lg:col-span-3">
-                        <div className="bg-slate-800/20 backdrop-blur-sm p-4 rounded-2xl shadow-inner shadow-black/20 border border-slate-700 h-full min-h-[400px] lg:min-h-[600px] flex flex-col">
+                        <div className="bg-slate-800/20 backdrop-blur-sm p-4 rounded-2xl shadow-inner shadow-black/20 install border border-slate-700 h-full min-h-[400px] lg:min-h-[600px] flex flex-col">
                             {/* Tab untuk Hasil Generasi dan Riwayat */}
                             <div className="flex border-b border-slate-700 mb-4 flex-shrink-0">
                                 <button onClick={() => setActiveTab('current')} className={`py-2 px-4 text-sm font-semibold ${activeTab === 'current' ? 'text-white border-b-2 border-cyan-500' : 'text-slate-400 hover:text-white'}`}>Hasil Generasi</button>
