@@ -301,8 +301,14 @@ interface ChatMessage { id: string; role: 'user' | 'assistant'; content: string;
 interface GeneratedImageData { url: string; prompt: string; model: ImageGenModel; artStyle: ArtStyle; quality: QualityOption; width: number; height: number; seed: string; isDalle?: boolean; timestamp: number; }
 interface HistoryItem { id: string; prompt: string; timestamp: string; }
 
+// --- Preset Ukuran Gambar Baru ---
+const imagePresets = [
+    { label: 'Square (1024x1024)', width: 1024, height: 1024 },
+    { label: 'Portrait (1024x1792)', width: 1024, height: 1792 },
+    { label: 'Landscape (1792x1024)', width: 1792, height: 1024 },
+];
+
 // --- Komponen UI ---
-// Pastikan definisi komponen-komponen ini ada di sini (di luar fungsi AISuitePageContent)
 const ParameterInput = ({ label, children }: { label: string, children: React.ReactNode }) => ( <div><label className="block text-xs font-semibold text-slate-400 mb-1">{label}</label>{children}</div> );
 const Accordion = ({ title, icon, children, defaultOpen = false }: { title: string; icon: React.ReactNode; children: React.ReactNode, defaultOpen?: boolean }) => { const [isOpen, setIsOpen] = useState(defaultOpen); return ( <div className="w-full"> <button onClick={() => setIsOpen(!isOpen)} className="w-full flex items-center justify-between gap-2 p-3 bg-slate-700/50 border border-slate-600 rounded-lg hover:bg-slate-700 transition-colors text-sm font-semibold"> <div className="flex items-center gap-2">{icon}{title}</div> <ChevronDown className={`w-5 h-5 text-slate-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} /> </button> {isOpen && <div className="mt-3 p-4 bg-slate-900/50 border border-slate-700 rounded-lg">{children}</div>} </div> ); };
 const CodeBlock = ({ language, code }: { language: string, code: string }) => { const handleCopy = () => { navigator.clipboard.writeText(code); toast.success("Kode disalin ke clipboard!"); }; return ( <div className="bg-slate-900/70 rounded-md my-2 border border-slate-700"> <div className="flex justify-between items-center px-4 py-1 bg-slate-800/50 rounded-t-md"> <span className="text-xs font-sans text-slate-400">{language}</span> <button onClick={handleCopy} className="text-xs text-slate-400 hover:text-white flex items-center gap-1"><Copy size={14}/> Salin</button> </div> <pre className="p-4 text-sm overflow-x-auto"><code>{code}</code></pre> </div> ); };
@@ -498,7 +504,7 @@ function AISuitePageContent() {
                                     >
                                         {/* Mapping melalui artStylesGrouped untuk membuat optgroup dan option */}
                                         {artStylesGrouped.map((group, groupIndex) => (
-                                            <optgroup key={groupIndex} label={group.label}>
+                                            <optgroup key={group.label} label={group.label}>
                                                 {group.options.map((option, optionIndex) => (
                                                     <option key={`${groupIndex}-${optionIndex}`} value={option.value}>
                                                         {option.text}
@@ -507,7 +513,39 @@ function AISuitePageContent() {
                                             </optgroup>
                                         ))}
                                     </select>
-                                </ParameterInput><ParameterInput label="Kualitas"><select className="w-full text-xs bg-slate-800 border-slate-600 rounded-md p-2" value={quality} onChange={(e) => setQuality(e.target.value as QualityOption)} disabled={imageGenModel === 'dall-e-3'}>{qualityOptions.map(q => <option key={q} value={q}>{q.charAt(0).toUpperCase() + q.slice(1)}</option>)}</select></ParameterInput><ParameterInput label="Jumlah"><select className="w-full text-xs bg-slate-800 border-slate-600 rounded-md p-2" value={batchSize} onChange={(e) => setBatchSize(Number(e.target.value) as BatchSize)} disabled={imageGenModel === 'dall-e-3'}>{batchSizes.map(s => <option key={s} value={s}>{s}</option>)}</select></ParameterInput><div className="col-span-2 grid grid-cols-2 gap-2"><ParameterInput label="Width"><input type="number" className="w-full text-xs bg-slate-800 border-slate-600 rounded-md p-2" value={imageWidth} onChange={e => setImageWidth(parseInt(e.target.value))} disabled={imageGenModel === 'dall-e-3'}/></ParameterInput><ParameterInput label="Height"><input type="number" className="w-full text-xs bg-slate-800 border-slate-600 rounded-md p-2" value={imageHeight} onChange={e => setImageHeight(parseInt(e.target.value))} disabled={imageGenModel === 'dall-e-3'}/></ParameterInput></div></div></Accordion>
+                                </ParameterInput><ParameterInput label="Kualitas"><select className="w-full text-xs bg-slate-800 border-slate-600 rounded-md p-2" value={quality} onChange={(e) => setQuality(e.target.value as QualityOption)} disabled={imageGenModel === 'dall-e-3'}>{qualityOptions.map(q => <option key={q} value={q}>{q.charAt(0).toUpperCase() + q.slice(1)}</option>)}</select></ParameterInput><ParameterInput label="Jumlah"><select className="w-full text-xs bg-slate-800 border-slate-600 rounded-md p-2" value={batchSize} onChange={(e) => setBatchSize(Number(e.target.value) as BatchSize)} disabled={imageGenModel === 'dall-e-3'}>{batchSizes.map(s => <option key={s} value={s}>{s}</option>)}</select></ParameterInput>
+                                
+                                {/* New Preset Size Selector */}
+                                <div className="col-span-2"> {/* This div makes it span two columns */}
+                                    <ParameterInput label="Ukuran Preset">
+                                        <select
+                                            className="w-full text-xs bg-slate-800 border-slate-600 rounded-md p-2"
+                                            value={`${imageWidth}x${imageHeight}`} // Derive selected value from current width/height
+                                            onChange={(e) => {
+                                                const [widthStr, heightStr] = e.target.value.split('x');
+                                                setImageWidth(parseInt(widthStr));
+                                                setImageHeight(parseInt(heightStr));
+                                            }}
+                                            disabled={imageGenModel === 'dall-e-3'}
+                                        >
+                                            {imagePresets.map(preset => (
+                                                <option key={`${preset.width}x${preset.height}`} value={`${preset.width}x${preset.height}`}>
+                                                    {preset.label}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </ParameterInput>
+                                </div>
+
+                                {/* Existing Width and Height inputs */}
+                                <div className="col-span-2 grid grid-cols-2 gap-2">
+                                    <ParameterInput label="Width">
+                                        <input type="number" className="w-full text-xs bg-slate-800 border-slate-600 rounded-md p-2" value={imageWidth} onChange={e => setImageWidth(parseInt(e.target.value))} disabled={imageGenModel === 'dall-e-3'}/>
+                                    </ParameterInput>
+                                    <ParameterInput label="Height">
+                                        <input type="number" className="w-full text-xs bg-slate-800 border-slate-600 rounded-md p-2" value={imageHeight} onChange={e => setImageHeight(parseInt(e.target.value))} disabled={imageGenModel === 'dall-e-3'}/></ParameterInput>
+                                </div>
+                                </div></Accordion>
                                 <Accordion title="Prompt Creator" icon={<Wand2 size={16}/>}><div className="space-y-4"><div className="space-y-3"><input type="text" value={creatorSubject} onChange={e => setCreatorSubject(e.target.value)} placeholder="Subjek Utama..." className="w-full text-sm bg-slate-800 border-slate-600 rounded-md p-2" /><textarea value={creatorDetails} onChange={e => setCreatorDetails(e.target.value)} placeholder="Detail Tambahan..." rows={2} className="w-full text-sm bg-slate-800 border-slate-600 rounded-md p-2" /><button onClick={handleCreatePrompt} disabled={isCreatorLoading || !creatorSubject.trim()} className="w-full bg-purple-600 text-white py-2 rounded-lg font-semibold text-sm hover:bg-purple-700 transition disabled:opacity-50 flex justify-center items-center">{isCreatorLoading ? "Meningkatkan..." : 'Tingkatkan Prompt'}</button></div>{createdPrompt && ( <div className="border-t border-slate-700 pt-4 space-y-3"> <p className="text-xs font-semibold text-slate-400">Hasil dari AI:</p> <p className="text-sm bg-slate-900 p-3 rounded-md border border-slate-600">{createdPrompt}</p> <div className="flex gap-2"><button onClick={() => { setPrompt(createdPrompt); toast.success('Prompt digunakan!'); }} className="flex-1 bg-sky-600 text-white py-2 rounded-lg font-semibold text-xs hover:bg-sky-700 transition flex items-center justify-center gap-2"><CornerDownLeft size={14}/> Gunakan</button><button onClick={() => { navigator.clipboard.writeText(createdPrompt); toast.success('Prompt disalin!'); }} className="flex-1 bg-slate-600 text-white py-2 rounded-lg font-semibold text-xs hover:bg-slate-700 transition flex items-center justify-center gap-2"><Copy size={14} /> Salin</button></div> </div> )}</div></Accordion>
                                 <Accordion title="AI Assistant" icon={<MessageSquare size={16}/>}><ChatBox onPromptFromChat={handlePromptFromChat} /></Accordion>
                                 <Accordion title="Image Analyze" icon={<ImageIcon size={16}/>} defaultOpen={false}><ImageAnalyzer onPromptFromAnalysis={handlePromptFromAnalysis} /></Accordion>
