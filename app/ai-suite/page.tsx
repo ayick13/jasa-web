@@ -646,7 +646,7 @@ function AISuitePageContent() {
                 if (!apiKey) { throw new Error("API Key DALL-E 3 tidak ditemukan."); }
                 
                 const response = await fetch('/api/dalle', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ prompt: finalPrompt, apiKey }) });
-                if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.error || "Gagal membuat gambar DALL-E 3."); }
+                if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.error); }
                 
                 const data = await response.json();
                 images = [{ url: data.imageUrl, prompt: finalPrompt, model: 'dall-e-3', artStyle, quality, width: 1024, height: 1024, seed: 'N/A', isDalle: true, timestamp }];
@@ -721,7 +721,12 @@ function AISuitePageContent() {
                 setLastUsageTimestamp(Date.now());
                 toast.success(`Koin telah direset menjadi ${data.newCoins} oleh admin!`);
             } else {
-                toast.error(data.error || 'Gagal mereset koin admin.');
+                // Pesan error yang lebih ramah pengguna
+                if (data.error === 'Konfigurasi server tidak lengkap.') {
+                    toast.error('Gagal mengelola koin. Mohon konfirmasi ke admin melalui halaman kontak.');
+                } else {
+                    toast.error(data.error || 'Gagal mengelola koin.'); // Generic error atau 'Password admin salah.'
+                }
             }
         } catch (error) {
             console.error('Error during admin reset fetch:', error);
@@ -750,7 +755,12 @@ function AISuitePageContent() {
                 setLastUsageTimestamp(Date.now());
                 toast.success(`Koin telah diisi ulang menjadi ${data.newCoins} oleh admin!`);
             } else {
-                toast.error(data.error || 'Gagal mengisi ulang koin admin.');
+                // Pesan error yang lebih ramah pengguna
+                if (data.error === 'Konfigurasi server tidak lengkap.') {
+                    toast.error('Gagal mengelola koin. Mohon konfirmasi ke admin melalui halaman kontak.');
+                } else {
+                    toast.error(data.error || 'Gagal mengelola koin.'); // Generic error atau 'Password admin salah.'
+                }
             }
         } catch (error) {
             console.error('Error during admin refill fetch:', error);
@@ -864,8 +874,7 @@ function AISuitePageContent() {
                                             <KeyRound size={16}/> Isi Ulang Koin Admin
                                         </button>
                                         <p className="text-xs text-red-400">
-                                            ⚠️ Peringatan: Fitur admin refill/reset ini berinteraksi dengan API Route.
-                                            Pastikan `ADMIN_PASSWORD` telah diatur di environment variable Vercel Anda.
+                                            ⚠️ **Penting:** Fitur admin refill/reset ini mengandalkan validasi aman melalui API Route. Pastikan `ADMIN_PASSWORD` **telah diatur dengan benar** sebagai *environment variable* di Vercel Anda. Jika tidak, fitur ini **tidak akan berfungsi**.
                                         </p>
                                     </div>
                                 </Accordion>
