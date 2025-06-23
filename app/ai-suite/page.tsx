@@ -7,11 +7,11 @@ import { toast, Toaster } from 'react-hot-toast';
 import {
     Download, Zap, Eraser, Sparkles, Wand2, MessageSquare, Bot, Send, Settings,
     ChevronDown, ImageIcon, BrainCircuit, Upload, CheckCircle, Copy, CornerDownLeft, X,
-    Volume2, Paperclip, History, KeyRound, ExternalLink, Trash2 // Tambah Trash2 untuk ikon hapus
+    Volume2, Paperclip, History, KeyRound, ExternalLink, Trash2
 } from 'lucide-react';
 
 // --- Tipe Data & Konstanta ---
-const imageGenModels = ['flux', 'turbo', 'dall-e-3'] as const;
+const imageGenModels = ['flux', 'turbo', 'dall-e-3', 'gptimage'] as const; // Tambahkan 'gptimage' di sini
 type ImageGenModel = (typeof imageGenModels)[number];
 const artStyles = ['realistic', 'photographic', 'anime', 'manga', 'pixel-art', 'fantasy', 'sci-fi', 'steampunk', 'cyberpunk', 'cinematic'] as const;
 type ArtStyle = (typeof artStyles)[number];
@@ -20,9 +20,8 @@ type QualityOption = (typeof qualityOptions)[number];
 const batchSizes = [1, 2, 3, 4] as const;
 type BatchSize = (typeof batchSizes)[number];
 interface ChatMessage { id: string; role: 'user' | 'assistant'; content: string; imageUrl?: string; }
-// Perbarui GeneratedImageData untuk menyertakan timestamp
-interface GeneratedImageData { url: string; prompt: string; model: ImageGenModel; artStyle: ArtStyle; quality: QualityOption; width: number; height: number; seed: string; isDalle?: boolean; timestamp: number; } // Tambah timestamp
-interface HistoryItem { id: string; prompt: string; timestamp: string; } // Ini tidak lagi digunakan, GeneratedImageData akan dipakai
+interface GeneratedImageData { url: string; prompt: string; model: ImageGenModel; artStyle: ArtStyle; quality: QualityOption; width: number; height: number; seed: string; isDalle?: boolean; timestamp: number; }
+interface HistoryItem { id: string; prompt: string; timestamp: string; }
 
 // --- Komponen UI ---
 const ParameterInput = ({ label, children }: { label: string, children: React.ReactNode }) => ( <div><label className="block text-xs font-semibold text-slate-400 mb-1">{label}</label>{children}</div> );
@@ -75,7 +74,7 @@ const ChatBox = ({ onPromptFromChat }: { onPromptFromChat: (prompt: string) => v
 };
 const TextToAudioConverter = () => { const [text, setText] = useState(''); const [voice, setVoice] = useState('alloy'); const [isLoading, setIsLoading] = useState(false); const [audioUrl, setAudioUrl] = useState<string | null>(null); const handleGenerateAudio = async () => { if (!text.trim()) return toast.error("Teks tidak boleh kosong."); setIsLoading(true); setAudioUrl(null); const toastId = toast.loading("Membuat audio..."); try { const response = await fetch('/api/text-to-audio', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text, voice }), }); if (!response.ok) { try { const errorData = await response.json(); throw new Error(errorData.error || "Gagal membuat audio."); } catch { throw new Error(await response.text()); } } const blob = await response.blob(); const url = URL.createObjectURL(blob); setAudioUrl(url); toast.success("Audio berhasil dibuat!", { id: toastId }); } catch (error: any) { toast.error(error.message, { id: toastId }); } finally { setIsLoading(false); } }; return ( <div className="space-y-4"> <textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="Masukkan teks yang ingin diubah menjadi suara..." rows={5} className="w-full text-sm bg-slate-800 border-slate-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-cyan-500" /> <div className="grid grid-cols-1 gap-4"> <ParameterInput label="Jenis Suara"><select value={voice} onChange={e => setVoice(e.target.value)} className="w-full text-xs bg-slate-800 border-slate-600 rounded-md p-2"><option value="alloy">Alloy</option><option value="echo">Echo</option><option value="fable">Fable</option><option value="onyx">Onyx</option><option value="nova">Nova</option><option value="shimmer">Shimmer</option></select></ParameterInput> </div> <button onClick={handleGenerateAudio} disabled={isLoading || !text.trim()} className="w-full bg-emerald-600 text-white py-2 rounded-lg font-semibold text-sm hover:bg-emerald-700 transition disabled:opacity-50 flex justify-center items-center">{isLoading ? "Membuat..." : "Buat Audio"}</button> {audioUrl && ( <div className="border-t border-slate-700 pt-4"><audio controls src={audioUrl} className="w-full">Your browser does not support the audio element.</audio></div> )} </div> ); };
 const ImageAnalyzer = ({ onPromptFromAnalysis }: { onPromptFromAnalysis: (prompt: string) => void }) => { const [imageFile, setImageFile] = useState<File | null>(null); const [imagePreview, setImagePreview] = useState<string | null>(null); const [isAnalyzing, setIsAnalyzing] = useState(false); const [analysisResult, setAnalysisResult] = useState<string | null>(null); const fileInputRef = useRef<HTMLInputElement>(null); const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => { const file = event.target.files?.[0]; if (file) { setImageFile(file); setAnalysisResult(null); const reader = new FileReader(); reader.onloadend = () => setImagePreview(reader.result as string); reader.readAsDataURL(file); } }; const handleAnalyze = async () => { if (!imageFile) return toast.error('Silakan unggah gambar terlebih dahulu.'); setIsAnalyzing(true); setAnalysisResult(null); const toastId = toast.loading('Menganalisis gambar...'); const reader = new FileReader(); reader.readAsDataURL(imageFile); reader.onload = async () => { try { const base64Image = (reader.result as string).split(',')[1]; const response = await fetch('/api/analyze-image', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ image: base64Image }) }); if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.message || 'Analisis gambar gagal.'); } const data = await response.json(); setAnalysisResult(data.description); toast.success('Analisis berhasil!', { id: toastId }); } catch (error: any) { toast.error(error.message || 'Gagal menganalisis gambar.', { id: toastId }); } finally { setIsAnalyzing(false); } }; }; const handleUseAsPrompt = () => { if (analysisResult) { onPromptFromAnalysis(analysisResult); toast.success('Hasil analisis digunakan sebagai prompt!'); } }; return ( <div className="space-y-4"> <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" /> <button onClick={() => fileInputRef.current?.click()} className="w-full flex items-center justify-center gap-2 bg-slate-700 text-white py-3 rounded-lg font-semibold hover:bg-slate-600 transition"><Upload size={18} /> Pilih Gambar</button> {imagePreview && ( <div className="mt-4 space-y-4"> <div className="relative w-full aspect-video rounded-lg overflow-hidden border-2 border-slate-600"><Image src={imagePreview} alt="Pratinjau Gambar" layout="fill" objectFit="contain" /></div> <button onClick={handleAnalyze} disabled={isAnalyzing} className="w-full bg-indigo-600 text-white py-2 rounded-lg font-semibold hover:bg-indigo-700 transition disabled:opacity-50 flex items-center justify-center gap-2">{isAnalyzing ? "Menganalisis..." : 'Analisis Gambar Ini'}</button> </div> )} {analysisResult && ( <div className="mt-4 p-4 bg-slate-900 rounded-lg border border-slate-600 space-y-3"> <p className="text-sm text-slate-300">{analysisResult}</p> <button onClick={handleUseAsPrompt} className="w-full bg-teal-600 text-white py-2 rounded-lg font-semibold hover:bg-teal-700 transition text-sm flex items-center justify-center gap-2"><CheckCircle size={16}/> Gunakan sebagai Prompt</button> </div> )} </div> ); };
-const ImageDetailModal = ({ isOpen, onClose, imageData }: { isOpen: boolean, onClose: () => void, imageData: GeneratedImageData | null }) => { if (!isOpen || !imageData) return null; return ( <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose}> <div className="bg-slate-800 border border-slate-700 rounded-lg max-w-4xl w-full max-h-[90vh] flex flex-col lg:flex-row gap-6 p-6 relative" onClick={(e) => e.stopPropagation()}> <button onClick={onClose} className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors z-10"><X size={24} /></button> <div className="flex-shrink-0 lg:w-1/2"><div className="relative aspect-square w-full bg-slate-900 rounded-md overflow-hidden"><Image src={imageData.url} alt={imageData.prompt} layout="fill" className="object-contain" /></div></div> <div className="flex-grow lg:w-1/2 overflow-y-auto pr-2 space-y-4"> <h3 className="text-2xl font-bold text-white">Detail Generasi</h3> <div><label className="text-sm font-semibold text-slate-400">Prompt</label><p className="mt-1 text-base text-slate-200 bg-slate-700/50 p-3 rounded-md">{imageData.prompt}</p></div> <div className="grid grid-cols-2 gap-4 text-sm"> <div><label className="font-semibold text-slate-400">Model</label><p className="text-slate-200">{imageData.model}</p></div> <div><label className="font-semibold text-slate-400">Gaya Seni</label><p className="text-slate-200">{imageData.isDalle ? 'N/A' : imageData.artStyle}</p></div> <div><label className="font-semibold text-slate-400">Kualitas</label><p className="text-slate-200">{imageData.isDalle ? 'N/A' : imageData.quality}</p></div> <div><label className="font-semibold text-slate-400">Resolusi</label><p className="text-slate-200">{imageData.width} x {imageData.height}</p></div> <div><label className="font-semibold text-slate-400">Seed</label><p className="text-slate-200 break-all">{imageData.seed}</p></div> <div><label className="font-semibold text-slate-400">Waktu Generasi</label><p className="text-slate-200">{new Date(imageData.timestamp).toLocaleString()}</p></div> {/* Tambahkan tampilan timestamp */} </div> <div className="pt-4 flex flex-col sm:flex-row gap-2"> <a href={imageData.url} download={`ayick-ai-${imageData.seed}.png`} className="w-full sm:w-auto flex-1 bg-cyan-600 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center gap-2 hover:bg-cyan-700 transition"><Download size={16}/> Unduh</a> <button onClick={() => { navigator.clipboard.writeText(imageData.prompt); toast.success('Prompt disalin!'); }} className="w-full sm:w-auto flex-1 bg-slate-600 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center gap-2 hover:bg-slate-700 transition"><Copy size={16}/> Salin Prompt</button> </div> </div> </div> </div> ); };
+const ImageDetailModal = ({ isOpen, onClose, imageData }: { isOpen: boolean, onClose: () => void, imageData: GeneratedImageData | null }) => { if (!isOpen || !imageData) return null; return ( <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose}> <div className="bg-slate-800 border border-slate-700 rounded-lg max-w-4xl w-full max-h-[90vh] flex flex-col lg:flex-row gap-6 p-6 relative" onClick={(e) => e.stopPropagation()}> <button onClick={onClose} className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors z-10"><X size={24} /></button> <div className="flex-shrink-0 lg:w-1/2"><div className="relative aspect-square w-full bg-slate-900 rounded-md overflow-hidden"><Image src={imageData.url} alt={imageData.prompt} layout="fill" className="object-contain" /></div></div> <div className="flex-grow lg:w-1/2 overflow-y-auto pr-2 space-y-4"> <h3 className="text-2xl font-bold text-white">Detail Generasi</h3> <div><label className="text-sm font-semibold text-slate-400">Prompt</label><p className="mt-1 text-base text-slate-200 bg-slate-700/50 p-3 rounded-md">{imageData.prompt}</p></div> <div className="grid grid-cols-2 gap-4 text-sm"> <div><label className="font-semibold text-slate-400">Model</label><p className="text-slate-200">{imageData.model}</p></div> <div><label className="font-semibold text-slate-400">Gaya Seni</label><p className="text-slate-200">{imageData.isDalle ? 'N/A' : imageData.artStyle}</p></div> <div><label className="font-semibold text-slate-400">Kualitas</label><p className="text-slate-200">{imageData.isDalle ? 'N/A' : imageData.quality}</p></div> <div><label className="font-semibold text-slate-400">Resolusi</label><p className="text-slate-200">{imageData.width} x {imageData.height}</p></div> <div><label className="font-semibold text-slate-400">Seed</label><p className="text-slate-200 break-all">{imageData.seed}</p></div> <div><label className="font-semibold text-slate-400">Waktu Generasi</label><p className="text-slate-200">{new Date(imageData.timestamp).toLocaleString()}</p></div> </div> <div className="pt-4 flex flex-col sm:flex-row gap-2"> <a href={imageData.url} download={`ayick-ai-${imageData.seed}.png`} className="w-full sm:w-auto flex-1 bg-cyan-600 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center gap-2 hover:bg-cyan-700 transition"><Download size={16}/> Unduh</a> <button onClick={() => { navigator.clipboard.writeText(imageData.prompt); toast.success('Prompt disalin!'); }} className="w-full sm:w-auto flex-1 bg-slate-600 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center gap-2 hover:bg-slate-700 transition"><Copy size={16}/> Salin Prompt</button> </div> </div> </div> </div> ); };
 
 const DalleApiKeyModal = ({ isOpen, onClose, onSave }: { isOpen: boolean, onClose: () => void, onSave: (key: string) => void }) => {
     const [apiKey, setApiKey] = useState('');
@@ -109,7 +108,7 @@ function AISuitePageContent() {
     const [imageHeight, setImageHeight] = useState(1024);
     const [batchSize, setBatchSize] = useState<BatchSize>(1);
     const [generatedImages, setGeneratedImages] = useState<GeneratedImageData[]>([]);
-    const [historyImages, setHistoryImages] = useState<GeneratedImageData[]>([]); // State baru untuk riwayat
+    const [historyImages, setHistoryImages] = useState<GeneratedImageData[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [isCreatorLoading, setIsCreatorLoading] = useState(false);
     const [creatorSubject, setCreatorSubject] = useState('');
@@ -118,14 +117,13 @@ function AISuitePageContent() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedImageData, setSelectedImageData] = useState<GeneratedImageData | null>(null);
     const [isDalleModalOpen, setIsDalleModalOpen] = useState(false);
-    const [activeTab, setActiveTab] = useState<'current' | 'history'>('current'); // State untuk tab aktif
+    const [activeTab, setActiveTab] = useState<'current' | 'history'>('current');
     
     // Muat riwayat dari localStorage saat komponen pertama kali dimuat
     useEffect(() => {
         const savedHistory = localStorage.getItem('ai_image_history');
         if (savedHistory) {
             try {
-                // Filter out any invalid items if necessary
                 const parsedHistory: GeneratedImageData[] = JSON.parse(savedHistory);
                 setHistoryImages(parsedHistory.filter(item => item && item.url && item.prompt));
             } catch (e) {
@@ -142,13 +140,13 @@ function AISuitePageContent() {
     const handleGenerateImage = useCallback(async () => {
         if (!prompt.trim()) return toast.error('Prompt tidak boleh kosong.');
         const finalPrompt = imageGenModel === 'dall-e-3' ? prompt : `${prompt}${artStyle !== 'realistic' ? `, in the style of ${artStyle.replace('-', ' ')}` : ''}${quality === 'hd' ? ', hd' : quality === 'ultrahd' ? ', 4k, photorealistic' : ''}`;
-        setIsLoading(true); setGeneratedImages([]); // Bersihkan hasil generasi saat ini
-        setActiveTab('current'); // Pindah ke tab "Hasil Generasi"
+        setIsLoading(true); setGeneratedImages([]);
+        setActiveTab('current');
         const toastId = toast.loading(`Menghasilkan gambar dengan ${imageGenModel}...`);
         
         try {
             let images: GeneratedImageData[] = [];
-            const timestamp = Date.now(); // Ambil timestamp saat ini
+            const timestamp = Date.now();
             
             if (imageGenModel === 'dall-e-3') {
                 const apiKey = localStorage.getItem('openai_api_key');
@@ -160,10 +158,11 @@ function AISuitePageContent() {
                 const data = await response.json();
                 images = [{ url: data.imageUrl, prompt: finalPrompt, model: 'dall-e-3', artStyle, quality, width: 1024, height: 1024, seed: 'N/A', isDalle: true, timestamp }];
             
-            } else {
+            } else { // Ini akan menangani 'flux', 'turbo', dan 'gptimage'
                 const promises = Array.from({ length: batchSize }, () => {
                     const seed = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
-                    const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(finalPrompt)}?width=${imageWidth}&height=${imageHeight}&nologo=true&safe=true&model=${imageGenModel}&seed=${seed}&referrer=ariftirtana.my.id`;
+                    // URL endpoint yang sama untuk 'flux', 'turbo', dan 'gptimage'
+                    const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(finalPrompt)}?width=${imageWidth}&height=${imageHeight}&nologo=true&safe=true&model=${imageGenModel === 'gptimage' ? 'gpt3' : imageGenModel}&seed=${seed}&referrer=ariftirtana.my.id`; // Menggunakan 'gpt3' jika modelnya 'gptimage'
                     return fetch(imageUrl).then(res => res.ok ? res.blob().then(URL.createObjectURL) : Promise.resolve(null)).then(blobUrl => { if (!blobUrl) return null; const imageData: GeneratedImageData = { url: blobUrl, prompt: finalPrompt, model: imageGenModel, artStyle, quality, width: imageWidth, height: imageHeight, seed, timestamp }; return imageData; }).catch(() => null);
                 });
                 const results = await Promise.all(promises);
@@ -172,7 +171,6 @@ function AISuitePageContent() {
 
             if (images.length > 0) {
                 setGeneratedImages(images);
-                // Tambahkan gambar yang baru dibuat ke riwayat dan simpan di localStorage
                 setHistoryImages(prevHistory => {
                     const newHistory = [...prevHistory, ...images];
                     localStorage.setItem('ai_image_history', JSON.stringify(newHistory));
@@ -193,7 +191,7 @@ function AISuitePageContent() {
     const handlePromptFromChat = useCallback((chatPrompt: string) => { setPrompt(chatPrompt); toast.success('Pesan dari asisten digunakan!'); }, []);
     const handlePromptFromAnalysis = useCallback((analysisPrompt: string) => { setPrompt(analysisPrompt); }, []);
 
-    const handleClearHistory = useCallback(() => { // Fungsi untuk menghapus riwayat
+    const handleClearHistory = useCallback(() => {
         localStorage.removeItem('ai_image_history');
         setHistoryImages([]);
         toast.success('Riwayat dihapus.');
@@ -202,7 +200,7 @@ function AISuitePageContent() {
     return (
         <Fragment>
             <DalleApiKeyModal isOpen={isDalleModalOpen} onClose={handleCloseDalleModal} onSave={handleSaveDalleKey} />
-            <ImageDetailModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} imageData={selectedImageData} />
+             <ImageDetailModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} imageData={selectedImageData} />
             <Toaster position="top-center" toastOptions={{ style: { background: '#1e293b', color: '#e2e8f0', border: '1px solid #334155' }}} />
             <main className="container mx-auto py-12 px-4 sm:px-6 lg:px-8">
                 <div className="text-center mb-12"><h1 className="text-5xl md:text-6xl font-extrabold mb-4 text-white">AI <span className="bg-clip-text text-transparent bg-gradient-to-r from-sky-400 to-cyan-300">Image Suite</span></h1><p className="text-lg text-slate-400 max-w-2xl mx-auto">Sebuah command center untuk mengubah imajinasi Anda menjadi kenyataan visual.</p></div>
@@ -241,7 +239,7 @@ function AISuitePageContent() {
                                             <p className="mt-4 font-semibold">Menciptakan keajaiban...</p>
                                         </div>
                                     </div>
-                                ) : activeTab === 'current' ? ( // Tampilkan hasil generasi saat ini
+                                ) : activeTab === 'current' ? (
                                     generatedImages.length > 0 ? (
                                         <div className="flex-grow">
                                             <h2 className="text-2xl font-bold mb-4 text-white">Hasil Generasi Terbaru</h2>
@@ -265,19 +263,17 @@ function AISuitePageContent() {
                                             </div>
                                         </div>
                                     )
-                                ) : ( // Tampilkan riwayat
+                                ) : (
                                     historyImages.length > 0 ? (
                                         <div className="flex-grow">
                                             <h2 className="text-2xl font-bold mb-4 text-white">Riwayat Generasi</h2>
                                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                                {/* Urutkan riwayat dari yang terbaru */}
                                                 {[...historyImages].sort((a, b) => b.timestamp - a.timestamp).map((imageData, index) => (
                                                     <div key={imageData.url + index} className="relative rounded-lg overflow-hidden group aspect-square border-2 border-slate-700 cursor-pointer" onClick={() => handleOpenModal(imageData)}>
                                                         <Image src={imageData.url} alt="Generated AI Image" layout="fill" className="object-cover" unoptimized/>
                                                         <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
                                                             <p className="text-white font-bold">Lihat Detail</p>
                                                         </div>
-                                                        {/* Opsional: Tampilkan timestamp di riwayat */}
                                                         <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs p-1 text-center">
                                                             {new Date(imageData.timestamp).toLocaleString()}
                                                         </div>
