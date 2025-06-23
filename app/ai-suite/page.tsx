@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useCallback, useEffect, useRef, Suspense, Fragment } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation'; // Import useRouter
 import Image from 'next/image';
 import { toast, Toaster } from 'react-hot-toast';
 import {
@@ -385,6 +385,7 @@ const DalleApiKeyModal = ({ isOpen, onClose, onSave }: { isOpen: boolean, onClos
 // --- Komponen Utama Halaman ---
 function AISuitePageContent() {
     const searchParams = useSearchParams();
+    const router = useRouter(); // Inisialisasi useRouter
     const [prompt, setPrompt] = useState(searchParams.get('prompt') || '');
     const [imageGenModel, setImageGenModel] = useState<ImageGenModel>('flux');
     const [artStyle, setArtStyle] = useState<ArtStyle>('realistic');
@@ -469,7 +470,16 @@ function AISuitePageContent() {
     }, [prompt, imageGenModel, artStyle, quality, imageWidth, imageHeight, batchSize]);
 
     useEffect(() => { const urlPrompt = searchParams.get('prompt'); if (urlPrompt && urlPrompt !== prompt) { setPrompt(urlPrompt); toast.success('Prompt dari halaman utama dimuat!'); } }, [searchParams, prompt]);
-    const handleClearPrompt = useCallback(() => { setPrompt(''); toast.success('Prompt dibersihkan.'); }, []);
+    
+    // Perbaikan bug: Menghapus prompt dari state dan juga dari URL
+    const handleClearPrompt = useCallback(() => {
+        setPrompt('');
+        const newSearchParams = new URLSearchParams(searchParams.toString());
+        newSearchParams.delete('prompt');
+        router.replace(`?${newSearchParams.toString()}`, { scroll: false }); // Update URL tanpa memuat ulang
+        toast.success('Prompt dibersihkan.');
+    }, [searchParams, router]); // Tambahkan searchParams dan router ke dependencies useCallback
+    
     const handleCreatePrompt = async () => { if (!creatorSubject.trim()) return toast.error('Subjek di Prompt Creator tidak boleh kosong.'); setIsCreatorLoading(true); setCreatedPrompt(null); const toastId = toast.loading('AI sedang membuat prompt...'); try { const response = await fetch('/api/enhance-prompt', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ subject: creatorSubject, details: creatorDetails }) }); if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.message || "Gagal membuat prompt dari AI."); } const data = await response.json(); setCreatedPrompt(data.prompt); toast.success('Prompt berhasil ditingkatkan!', { id: toastId }); } catch (error: any) { toast.error(error.message || "Gagal menghubungi AI.", { id: toastId }); } finally { setIsCreatorLoading(false); } };
     const handleOpenModal = (imageData: GeneratedImageData) => { setSelectedImageData(imageData); setIsModalOpen(true); };
     const handlePromptFromChat = useCallback((chatPrompt: string) => { setPrompt(chatPrompt); toast.success('Pesan dari asisten digunakan!'); }, []);
@@ -540,8 +550,7 @@ function AISuitePageContent() {
                                 {/* Existing Width and Height inputs */}
                                 <div className="col-span-2 grid grid-cols-2 gap-2">
                                     <ParameterInput label="Width">
-                                        <input type="number" className="w-full text-xs bg-slate-800 border-slate-600 rounded-md p-2" value={imageWidth} onChange={e => setImageWidth(parseInt(e.target.value))} disabled={imageGenModel === 'dall-e-3'}/>
-                                    </ParameterInput>
+                                        <input type="number" className="w-full text-xs bg-slate-800 border-slate-600 rounded-md p-2" value={imageWidth} onChange={e => setImageWidth(parseInt(e.target.value))} disabled={imageGenModel === 'dall-e-3'}/></ParameterInput>
                                     <ParameterInput label="Height">
                                         <input type="number" className="w-full text-xs bg-slate-800 border-slate-600 rounded-md p-2" value={imageHeight} onChange={e => setImageHeight(parseInt(e.target.value))} disabled={imageGenModel === 'dall-e-3'}/></ParameterInput>
                                 </div>
