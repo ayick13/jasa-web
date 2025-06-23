@@ -7,7 +7,7 @@ import { toast, Toaster } from 'react-hot-toast';
 import { 
     Download, Zap, Eraser, Sparkles, Wand2, MessageSquare, Bot, Send, Settings, 
     ChevronDown, ImageIcon, BrainCircuit, Upload, CheckCircle, Copy, CornerDownLeft, X,
-    Volume2, Paperclip, History, KeyRound, ExternalLink
+    Volume2, Paperclip, KeyRound, ExternalLink // Menghapus ikon History
 } from 'lucide-react';
 
 // --- Tipe Data & Konstanta ---
@@ -21,7 +21,6 @@ const batchSizes = [1, 2, 3, 4] as const;
 type BatchSize = (typeof batchSizes)[number];
 interface ChatMessage { id: string; role: 'user' | 'assistant'; content: string; imageUrl?: string; }
 interface GeneratedImageData { url: string; prompt: string; model: ImageGenModel; artStyle: ArtStyle; quality: QualityOption; width: number; height: number; seed: string; isDalle?: boolean; }
-interface HistoryItem { id: string; prompt: string; timestamp: string; }
 
 // --- Komponen UI ---
 const ParameterInput = ({ label, children }: { label: string, children: React.ReactNode }) => ( <div><label className="block text-xs font-semibold text-slate-400 mb-1">{label}</label>{children}</div> );
@@ -96,41 +95,32 @@ function AISuitePageContent() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedImageData, setSelectedImageData] = useState<GeneratedImageData | null>(null);
     const [isDalleModalOpen, setIsDalleModalOpen] = useState(false);
-    const [history, setHistory] = useState<HistoryItem[]>([]);
-    const [activeTab, setActiveTab] = useState<'results' | 'history'>('results');
-
-    useEffect(() => { try { const savedHistory = localStorage.getItem('generationHistory'); if (savedHistory) { setHistory(JSON.parse(savedHistory)); } } catch (e) { console.error("Failed to load history:", e); } }, []);
-    
-    // === PERBAIKAN BUG ESLINT DI SINI ===
-    const saveHistory = useCallback((newPrompt: string) => {
-        setHistory(prevHistory => {
-            const newItem: HistoryItem = { id: `hist-${Date.now()}`, prompt: newPrompt, timestamp: new Date().toLocaleString('id-ID') };
-            const updatedHistory = [newItem, ...prevHistory].slice(0, 50);
-            try { localStorage.setItem('generationHistory', JSON.stringify(updatedHistory)); } catch (e) { console.error("Failed to save history:", e); }
-            return updatedHistory;
-        });
-    }, []); // Fungsi ini sekarang stabil dan tidak perlu dependency 'history'
     
     const handleModelChange = (newModel: ImageGenModel) => { if (newModel === 'dall-e-3') { const savedKey = localStorage.getItem('openai_api_key'); if (!savedKey) { setIsDalleModalOpen(true); } else { setImageGenModel('dall-e-3'); } } else { setImageGenModel(newModel); } };
     const handleSaveDalleKey = (key: string) => { localStorage.setItem('openai_api_key', key); setIsDalleModalOpen(false); setImageGenModel('dall-e-3'); toast.success("API Key DALL-E 3 disimpan untuk sesi ini."); };
     const handleCloseDalleModal = () => { setIsDalleModalOpen(false); if (imageGenModel === 'dall-e-3') { setImageGenModel('flux'); } };
     
+    // PERBAIKAN: Fungsi generate gambar dibuat dengan useCallback
     const handleGenerateImage = useCallback(async () => {
         if (!prompt.trim()) return toast.error('Prompt tidak boleh kosong.');
+        
         const finalPrompt = imageGenModel === 'dall-e-3' ? prompt : `${prompt}${artStyle !== 'realistic' ? `, in the style of ${artStyle.replace('-', ' ')}` : ''}${quality === 'hd' ? ', hd' : quality === 'ultrahd' ? ', 4k, photorealistic' : ''}`;
+        
         setIsLoading(true); setGeneratedImages([]);
         const toastId = toast.loading(`Menghasilkan gambar dengan ${imageGenModel}...`);
-        saveHistory(finalPrompt);
-        setActiveTab('results');
+        
         try {
             let images: GeneratedImageData[] = [];
             if (imageGenModel === 'dall-e-3') {
                 const apiKey = localStorage.getItem('openai_api_key');
-                if (!apiKey) { throw new Error("API Key DALL-E 3 tidak ditemukan. Silakan pilih ulang model untuk memasukkan key."); }
+                if (!apiKey) { throw new Error("API Key DALL-E 3 tidak ditemukan."); }
+                
                 const response = await fetch('/api/dalle', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ prompt: finalPrompt, apiKey }) });
                 if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.error || "Gagal membuat gambar DALL-E 3."); }
+                
                 const data = await response.json();
                 images = [{ url: data.imageUrl, prompt: finalPrompt, model: 'dall-e-3', artStyle, quality, width: 1024, height: 1024, seed: 'N/A', isDalle: true }];
+            
             } else {
                 const promises = Array.from({ length: batchSize }, () => {
                     const seed = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
@@ -140,9 +130,13 @@ function AISuitePageContent() {
                 const results = await Promise.all(promises);
                 images = results.filter((img): img is GeneratedImageData => img !== null);
             }
+
             if (images.length > 0) { setGeneratedImages(images); toast.success(`${images.length} gambar berhasil dibuat!`, { id: toastId }); } else { throw new Error("Tidak ada gambar yang dihasilkan."); }
-        } catch (error: any) { toast.error(error.message || 'Terjadi kesalahan tak terduga.', { id: toastId }); } finally { setIsLoading(false); }
-    }, [prompt, imageGenModel, artStyle, quality, imageWidth, imageHeight, batchSize, saveHistory]);
+
+        } catch (error: any) {
+            toast.error(error.message || 'Terjadi kesalahan tak terduga.', { id: toastId });
+        } finally { setIsLoading(false); }
+    }, [prompt, imageGenModel, artStyle, quality, imageWidth, imageHeight, batchSize]);
 
     useEffect(() => { const urlPrompt = searchParams.get('prompt'); if (urlPrompt && urlPrompt !== prompt) { setPrompt(urlPrompt); toast.success('Prompt dari halaman utama dimuat!'); } }, [searchParams, prompt]);
     const handleClearPrompt = useCallback(() => { setPrompt(''); toast.success('Prompt dibersihkan.'); }, []);
@@ -174,12 +168,13 @@ function AISuitePageContent() {
                     </div>
                     <div className="lg:col-span-3">
                         <div className="bg-slate-800/20 backdrop-blur-sm p-4 rounded-2xl shadow-inner shadow-black/20 border border-slate-700 h-full min-h-[400px] lg:min-h-[600px] flex flex-col">
-                            <div className="flex border-b border-slate-700 mb-4"><button onClick={() => setActiveTab('results')} className={`px-4 py-2 text-sm font-semibold transition-colors ${activeTab === 'results' ? 'text-white border-b-2 border-cyan-400' : 'text-slate-400 hover:text-white'}`}>Hasil</button><button onClick={() => setActiveTab('history')} className={`px-4 py-2 text-sm font-semibold transition-colors ${activeTab === 'history' ? 'text-white border-b-2 border-cyan-400' : 'text-slate-400 hover:text-white'}`}>Riwayat</button></div>
                             <div className="flex-grow">
-                                {activeTab === 'results' && ( isLoading ? ( <div className="h-full flex items-center justify-center"><div className="m-auto text-center text-slate-400"><Sparkles className="mx-auto h-12 w-12 animate-pulse" /><p className="mt-4 font-semibold">Menciptakan keajaiban...</p></div></div> ) :  generatedImages.length > 0 ? (
-                                    <div className="flex-grow"><div className="grid grid-cols-1 sm:grid-cols-2 gap-4">{generatedImages.map((imageData) => ( <div key={imageData.url} className="relative rounded-lg overflow-hidden group aspect-square border-2 border-slate-700 cursor-pointer" onClick={() => handleOpenModal(imageData)}><Image src={imageData.url} alt="Generated AI Image" layout="fill" className="object-cover" unoptimized/><div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition"><p className="text-white font-bold">Lihat Detail</p></div></div> ))}</div></div>
-                                ) : ( <div className="h-full flex items-center justify-center"><div className="m-auto text-center text-slate-500"><ImageIcon size={64} className="mx-auto" /><p className="mt-4 font-semibold">Hasil gambar Anda akan muncul di sini</p><p className="text-sm">Tulis prompt dan klik "Generate Image"</p></div></div> ) )}
-                                {activeTab === 'history' && ( <div className="space-y-3 pr-2 overflow-y-auto max-h-[500px]"> {history.length > 0 ? history.map(item => ( <div key={item.id} className="bg-slate-800/50 p-3 rounded-lg border border-slate-700 hover:bg-slate-700/50 transition-colors cursor-pointer" onClick={() => { setPrompt(item.prompt); toast.success("Prompt dari riwayat digunakan!"); setActiveTab('results'); }}> <p className="text-sm text-slate-200 truncate">{item.prompt}</p> <p className="text-xs text-slate-500 mt-1">{item.timestamp}</p> </div> )) : ( <div className="h-full flex items-center justify-center pt-20"><div className="m-auto text-center text-slate-500"><History size={48} className="mx-auto" /><p className="mt-4 font-semibold">Riwayat masih kosong</p></div></div> )} </div> )}
+                                {isLoading ? ( <div className="h-full flex items-center justify-center"><div className="m-auto text-center text-slate-400"><Sparkles className="mx-auto h-12 w-12 animate-pulse" /><p className="mt-4 font-semibold">Menciptakan keajaiban...</p></div></div> ) :  generatedImages.length > 0 ? (
+                                    <div className="flex-grow">
+                                        <h2 className="text-2xl font-bold mb-4 text-white">Hasil Generasi</h2>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">{generatedImages.map((imageData) => ( <div key={imageData.url} className="relative rounded-lg overflow-hidden group aspect-square border-2 border-slate-700 cursor-pointer" onClick={() => handleOpenModal(imageData)}><Image src={imageData.url} alt="Generated AI Image" layout="fill" className="object-cover" unoptimized/><div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition"><p className="text-white font-bold">Lihat Detail</p></div></div> ))}</div>
+                                    </div>
+                                ) : ( <div className="h-full flex items-center justify-center"><div className="m-auto text-center text-slate-500"><ImageIcon size={64} className="mx-auto" /><p className="mt-4 font-semibold">Hasil gambar Anda akan muncul di sini</p><p className="text-sm">Tulis prompt dan klik "Generate Image"</p></div></div> ) }
                             </div>
                         </div>
                     </div>
