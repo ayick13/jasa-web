@@ -16,7 +16,7 @@ type ImageGenModel = (typeof imageGenModels)[number];
 
 // Definisi artStyles yang diperbarui (gabungan semua gaya unik)
 const artStyles = [
-    'realistic', 'photorealistic', 'anime', 'manga', 'pixel-art', 'fantasy', 'sci-fi', 'steampunk', 'cyberpunk', 'cinematic',
+    'realistic', 'photographic', 'anime', 'manga', 'pixel-art', 'fantasy', 'sci-fi', 'steampunk', 'cyberpunk', 'cinematic',
     'hyper realistic', 'cinematic realism', 'hyperdetailed', 'sci-fi realism', 'medical illustration',
     'airbrush', 'scratchboard', 'linocut print', 'woodblock print', 'silkscreen', 'engraving', 'mezzotint', 'lithography', 'etching', 'drypoint',
     'street art', 'graffiti', 'stencil art', 'pop surrealism', 'lowbrow art', 'urban contemporary', 'outsider art', 'naive art', 'folk art', 'visionary art',
@@ -318,6 +318,41 @@ const ParameterInput = ({ label, children }: { label: string, children: React.Re
 const Accordion = ({ title, icon, children, defaultOpen = false }: { title: string; icon: React.ReactNode; children: React.ReactNode, defaultOpen?: boolean }) => { const [isOpen, setIsOpen] = useState(defaultOpen); return ( <div className="w-full"> <button onClick={() => setIsOpen(!isOpen)} className="w-full flex items-center justify-between gap-2 p-3 bg-slate-700/50 border border-slate-600 rounded-lg hover:bg-slate-700 transition-colors text-sm font-semibold"> <div className="flex items-center gap-2">{icon}{title}</div> <ChevronDown className={`w-5 h-5 text-slate-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} /> </button> {isOpen && <div className="mt-3 p-4 bg-slate-900/50 border border-slate-700 rounded-lg">{children}</div>} </div> ); };
 const CodeBlock = ({ language, code }: { language: string, code: string }) => { const handleCopy = () => { navigator.clipboard.writeText(code); toast.success("Kode disalin ke clipboard!"); }; return ( <div className="bg-slate-900/70 rounded-md my-2 border border-slate-700"> <div className="flex justify-between items-center px-4 py-1 bg-slate-800/50 rounded-t-md"> <span className="text-xs font-sans text-slate-400">{language}</span> <button onClick={handleCopy} className="text-xs text-slate-400 hover:text-white flex items-center gap-1"><Copy size={14}/> Salin</button> </div> <pre className="p-4 text-sm overflow-x-auto"><code>{code}</code></pre> </div> ); };
 
+// --- Komponen Modal Baru untuk Password Admin ---
+const AdminPasswordModal = ({ isOpen, onClose, onConfirm }: { isOpen: boolean; onClose: () => void; onConfirm: (password: string) => void; }) => {
+    const [passwordInput, setPasswordInput] = useState('');
+
+    if (!isOpen) return null;
+
+    const handleSubmit = () => {
+        onConfirm(passwordInput);
+        setPasswordInput(''); // Bersihkan input setelah pengiriman
+        onClose();
+    };
+
+    return (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose}>
+            <div className="bg-slate-800 border border-slate-700 rounded-lg max-w-sm w-full p-6 relative space-y-4" onClick={(e) => e.stopPropagation()}>
+                <button onClick={onClose} className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors z-10"><X size={20} /></button>
+                <div className="flex items-center gap-3"><KeyRound className="text-yellow-400" size={24}/><h3 className="text-xl font-bold text-white">Masukkan Password Admin</h3></div>
+                <p className="text-sm text-slate-400">Untuk mengisi ulang koin, masukkan password admin.</p>
+                <input
+                    type="password"
+                    value={passwordInput}
+                    onChange={(e) => setPasswordInput(e.target.value)}
+                    onKeyPress={(e) => { if (e.key === 'Enter') handleSubmit(); }}
+                    placeholder="Password admin"
+                    className="w-full bg-slate-700 border-slate-600 rounded-md p-2 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                />
+                <div className="flex justify-end gap-2 pt-2">
+                    <button onClick={onClose} className="bg-slate-600 hover:bg-slate-700 text-white font-bold py-2 px-4 rounded-lg text-sm">Batal</button>
+                    <button onClick={handleSubmit} className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-lg text-sm">Konfirmasi</button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 // --- Komponen Fungsional ---
 const ChatBox = ({ onPromptFromChat }: { onPromptFromChat: (prompt: string) => void }) => {
     const [messages, setMessages] = useState<ChatMessage[]>([{ id: 'init', role: 'assistant', content: 'Halo! Anda bisa mengirim teks atau gambar untuk dianalisa.' }]);
@@ -413,6 +448,7 @@ function AISuitePageContent() {
     // State untuk koin
     const [userCoins, setUserCoins] = useState(DEFAULT_DAILY_COINS);
     const [lastUsageTimestamp, setLastUsageTimestamp] = useState<number>(0);
+    const [showAdminPasswordModal, setShowAdminPasswordModal] = useState(false); // State untuk modal password admin
     
     // Muat riwayat dan koin dari localStorage saat komponen pertama kali dimuat
     useEffect(() => {
@@ -548,13 +584,13 @@ function AISuitePageContent() {
         toast.success(`Koin Anda telah direset menjadi ${DEFAULT_DAILY_COINS}!`);
     }, []);
 
-    // Fungsi untuk admin refill koin - SEKARANG BERINTERAKSI DENGAN API ROUTE
-    const handleAdminRefill = useCallback(async () => {
-        const password = prompt('Masukkan password admin untuk mengisi ulang koin:');
-        if (password === null) { // Jika pengguna menekan 'Batal'
-            return;
-        }
+    // Fungsi untuk admin refill koin - SEKARANG MEMBUKA MODAL DAN BERINTERAKSI DENGAN API ROUTE
+    const handleAdminRefill = useCallback(() => {
+        setShowAdminPasswordModal(true); // Buka modal password admin
+    }, []);
 
+    // Fungsi yang dipanggil dari modal setelah password dikonfirmasi
+    const handleConfirmAdminPassword = useCallback(async (password: string) => {
         try {
             const response = await fetch('/api/admin/refill-coins', {
                 method: 'POST',
@@ -583,6 +619,12 @@ function AISuitePageContent() {
         <Fragment>
             <DalleApiKeyModal isOpen={isDalleModalOpen} onClose={handleCloseDalleModal} onSave={handleSaveDalleKey} />
             <ImageDetailModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} imageData={selectedImageData} />
+            {/* Render modal password admin */}
+            <AdminPasswordModal 
+                isOpen={showAdminPasswordModal} 
+                onClose={() => setShowAdminPasswordModal(false)} 
+                onConfirm={handleConfirmAdminPassword} 
+            />
             <Toaster position="top-center" toastOptions={{ style: { background: '#1e293b', color: '#e2e8f0', border: '1px solid #334155' }}} />
             <main className="container mx-auto py-12 px-4 sm:px-6 lg:px-8">
                 <div className="text-center mb-12"><h1 className="text-5xl md:text-6xl font-extrabold mb-4 text-white">AI <span className="bg-clip-text text-transparent bg-gradient-to-r from-sky-400 to-cyan-300">Image Suite</span></h1><p className="text-lg text-slate-400 max-w-2xl mx-auto">Sebuah command center untuk mengubah imajinasi Anda menjadi kenyataan visual.</p></div>
