@@ -4,8 +4,9 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
-import { Header, Footer } from "./components"; // <-- PATH DIPERBAIKI DI SINI
-import { SpeedInsights } from '@vercel/speed-insights/next'; // Import SpeedInsights
+import { Header, Footer } from "./components";
+import { SpeedInsights } from '@vercel/speed-insights/next';
+import { Analytics } from '@vercel/analytics/react'; // Import Analytics
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -114,7 +115,8 @@ export default function RootLayout({
         <Providers>
           {children}
         </Providers>
-        <SpeedInsights /> {/* Komponen SpeedInsights ditambahkan di sini */}
+        <SpeedInsights />
+        <Analytics /> {/* Komponen Analytics ditambahkan di sini */}
       </body>
     </html>
   );
