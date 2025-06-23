@@ -310,7 +310,7 @@ const imagePresets = [
 
 // --- Konstanta Koin ---
 const DEFAULT_DAILY_COINS = 100; // Koin harian default diubah menjadi 100
-const MAX_ADMIN_COINS_DISPLAY = 1000; // Untuk display di tombol admin
+const MAX_ADMIN_COINS_DISPLAY = 1000; // Batas maksimum untuk refill admin (untuk display)
 const COIN_RESET_INTERVAL_MS = 24 * 60 * 60 * 1000; // 24 jam dalam milidetik
 
 // Pilihan jumlah refill untuk admin
@@ -337,7 +337,7 @@ const AdminResetModal = ({ isOpen, onClose, onConfirm }: { isOpen: boolean; onCl
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose}>
             <div className="bg-slate-800 border border-slate-700 rounded-lg max-w-sm w-full p-6 relative space-y-4" onClick={(e) => e.stopPropagation()}>
                 <button onClick={onClose} className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors z-10"><X size={20} /></button>
-                <div className="flex items-center gap-3"><KeyRound className="text-yellow-400" size={24}/><h3 className="text-xl font-bold text-white">Reset Koin Admin</h3></div>
+                <div className="flex items-center gap-3"><RefreshCw className="text-red-400" size={24}/><h3 className="text-xl font-bold text-white">Reset Koin Admin</h3></div>
                 <p className="text-sm text-slate-400">Masukkan password admin untuk mereset koin pengguna ke default harian ({DEFAULT_DAILY_COINS}).</p>
                 <input
                     type="password"
@@ -700,13 +700,6 @@ function AISuitePageContent() {
         toast.success('Riwayat dihapus.');
     }, []);
 
-    // Fungsi untuk reset koin manual pengguna
-    const handleManualCoinReset = useCallback(() => {
-        setUserCoins(DEFAULT_DAILY_COINS);
-        setLastUsageTimestamp(Date.now());
-        toast.success(`Koin Anda telah direset menjadi ${DEFAULT_DAILY_COINS}!`);
-    }, []);
-
     // Fungsi untuk membuka modal reset admin
     const handleAdminResetClick = useCallback(() => {
         setShowAdminResetModal(true);
@@ -791,7 +784,8 @@ function AISuitePageContent() {
                             <div className="flex items-center justify-between p-3 bg-slate-700/50 border border-slate-600 rounded-lg text-sm font-semibold text-white">
                                 <span className="flex items-center gap-2"><DollarSign className="w-5 h-5 text-yellow-400"/>Koin Anda:</span>
                                 <span className="text-yellow-300 text-lg font-bold">{userCoins}</span>
-                                {lastUsageTimestamp !== 0 && userCoins < MAX_ADMIN_COINS_DISPLAY && ( // Tampilkan countdown jika koin bukan MAX dan sudah pernah dipakai
+                                {/* Tampilkan countdown jika koin belum MAX dan sudah pernah digunakan */}
+                                {userCoins < MAX_ADMIN_COINS_DISPLAY && ( 
                                     <span className="text-xs text-slate-400 ml-4">{remainingTime}</span>
                                 )}
                             </div>
@@ -855,18 +849,12 @@ function AISuitePageContent() {
                                 <Accordion title="Manajemen Koin" icon={<DollarSign size={16}/>} defaultOpen={true}>
                                     <div className="space-y-3">
                                         <p className="text-sm text-slate-400">Anda memiliki <span className="text-yellow-300 font-bold">{userCoins}</span> koin tersisa.</p>
-                                        <button
-                                            onClick={handleManualCoinReset}
-                                            className="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold text-sm hover:bg-blue-700 transition flex justify-center items-center gap-2"
-                                        >
-                                            <RefreshCw size={16}/> Reset Koin Harian ({DEFAULT_DAILY_COINS})
-                                        </button>
-                                        {/* Tombol baru untuk Reset Admin */}
+                                        {/* Tombol baru untuk Reset Koin Admin */}
                                         <button
                                             onClick={handleAdminResetClick}
                                             className="w-full bg-red-600 text-white py-2 rounded-lg font-semibold text-sm hover:bg-red-700 transition flex justify-center items-center gap-2"
                                         >
-                                            <Trash2 size={16}/> Reset Koin Admin (ke {DEFAULT_DAILY_COINS})
+                                            <RefreshCw size={16}/> Reset Koin Admin (ke {DEFAULT_DAILY_COINS})
                                         </button>
                                         {/* Tombol baru untuk Refill Admin */}
                                         <button
@@ -875,11 +863,7 @@ function AISuitePageContent() {
                                         >
                                             <KeyRound size={16}/> Isi Ulang Koin Admin
                                         </button>
-                                        <p className="text-xs text-red-400">
-                                            ⚠️ Peringatan: Fitur admin refill/reset ini berinteraksi dengan API Route.
-                                            Pastikan `ADMIN_PASSWORD` telah diatur di environment variable Vercel Anda.
-                                        </p>
-                                    </div>
+                                                                </div>
                                 </Accordion>
 
                                 <Accordion title="Prompt Creator" icon={<Wand2 size={16}/>}><div className="space-y-4"><div className="space-y-3"><input type="text" value={creatorSubject} onChange={e => setCreatorSubject(e.target.value)} placeholder="Subjek Utama..." className="w-full text-sm bg-slate-800 border-slate-600 rounded-md p-2" /><textarea value={creatorDetails} onChange={e => setCreatorDetails(e.target.value)} placeholder="Detail Tambahan..." rows={2} className="w-full text-sm bg-slate-800 border-slate-600 rounded-md p-2" /><button onClick={handleCreatePrompt} disabled={isCreatorLoading || !creatorSubject.trim()} className="w-full bg-purple-600 text-white py-2 rounded-lg font-semibold text-sm hover:bg-purple-700 transition disabled:opacity-50 flex justify-center items-center">{isCreatorLoading ? "Meningkatkan..." : 'Tingkatkan Prompt'}</button></div>{createdPrompt && ( <div className="border-t border-slate-700 pt-4 space-y-3"> <p className="text-xs font-semibold text-slate-400">Hasil dari AI:</p> <p className="text-sm bg-slate-900 p-3 rounded-md border border-slate-600">{createdPrompt}</p> <div className="flex gap-2"><button onClick={() => { setPrompt(createdPrompt); toast.success('Prompt digunakan!'); }} className="flex-1 bg-sky-600 text-white py-2 rounded-lg font-semibold text-xs hover:bg-sky-700 transition flex items-center justify-center gap-2"><CornerDownLeft size={14}/> Gunakan</button><button onClick={() => { navigator.clipboard.writeText(createdPrompt); toast.success('Prompt disalin!'); }} className="flex-1 bg-slate-600 text-white py-2 rounded-lg font-semibold text-xs hover:bg-slate-700 transition flex items-center justify-center gap-2"><Copy size={14} /> Salin</button></div> </div> )}</div></Accordion>
