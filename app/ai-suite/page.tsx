@@ -449,7 +449,31 @@ function AISuitePageContent() {
     const [userCoins, setUserCoins] = useState(DEFAULT_DAILY_COINS);
     const [lastUsageTimestamp, setLastUsageTimestamp] = useState<number>(0);
     const [showAdminPasswordModal, setShowAdminPasswordModal] = useState(false); // State untuk modal password admin
+    const [remainingTime, setRemainingTime] = useState<string>(''); // State untuk visual penghitung mundur
     
+    // Fungsi helper untuk menghitung sisa waktu
+    const calculateRemainingTime = useCallback((timestamp: number) => {
+        const now = Date.now();
+        const timeSinceLastUse = now - timestamp;
+        const timeLeft = COIN_RESET_INTERVAL_MS - timeSinceLastUse;
+
+        if (timeLeft <= 0) {
+            return 'Siap direset atau sudah direset!';
+        }
+
+        const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+        const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+        if (hours > 0) {
+            return `Direset dalam ${hours}j ${minutes}m`;
+        } else if (minutes > 0) {
+            return `Direset dalam ${minutes}m ${seconds}d`;
+        } else {
+            return `Direset dalam ${seconds}d`;
+        }
+    }, []);
+
     // Muat riwayat dan koin dari localStorage saat komponen pertama kali dimuat
     useEffect(() => {
         const savedHistory = localStorage.getItem('ai_image_history');
@@ -495,6 +519,20 @@ function AISuitePageContent() {
         localStorage.setItem('user_ai_coins', userCoins.toString());
         localStorage.setItem('last_coin_usage_timestamp', lastUsageTimestamp.toString());
     }, [userCoins, lastUsageTimestamp]);
+
+    // Effect untuk memperbarui visual penghitung mundur setiap detik
+    useEffect(() => {
+        // Panggil saat pertama kali dimuat
+        setRemainingTime(calculateRemainingTime(lastUsageTimestamp));
+
+        // Perbarui setiap detik
+        const interval = setInterval(() => {
+            setRemainingTime(calculateRemainingTime(lastUsageTimestamp));
+        }, 1000); // Perbarui setiap detik
+
+        // Bersihkan interval saat komponen dilepas
+        return () => clearInterval(interval);
+    }, [lastUsageTimestamp, calculateRemainingTime]); // Recalculate if lastUsageTimestamp or function changes (though function is memoized)
     
     const handleModelChange = (newModel: ImageGenModel) => { if (newModel === 'dall-e-3') { const savedKey = localStorage.getItem('openai_api_key'); if (!savedKey) { setIsDalleModalOpen(true); } else { setImageGenModel('dall-e-3'); } } else { setImageGenModel(newModel); } };
     const handleSaveDalleKey = (key: string) => { localStorage.setItem('openai_api_key', key); setIsDalleModalOpen(false); setImageGenModel('dall-e-3'); toast.success("API Key DALL-E 3 disimpan untuk sesi ini."); };
@@ -553,7 +591,7 @@ function AISuitePageContent() {
         } catch (error: any) {
             toast.error(error.message || 'Terjadi kesalahan tak terduga.', { id: toastId });
         } finally { setIsLoading(false); }
-    }, [prompt, imageGenModel, artStyle, quality, imageWidth, imageHeight, batchSize, userCoins]); // Tambah userCoins ke dependencies
+    }, [prompt, imageGenModel, artStyle, quality, imageWidth, imageHeight, batchSize, userCoins, calculateRemainingTime]); // Tambah userCoins dan calculateRemainingTime ke dependencies
 
     useEffect(() => { const urlPrompt = searchParams.get('prompt'); if (urlPrompt && urlPrompt !== prompt) { setPrompt(urlPrompt); toast.success('Prompt dari halaman utama dimuat!'); } }, [searchParams, prompt]);
     
@@ -631,10 +669,13 @@ function AISuitePageContent() {
                 <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
                     <div className="lg:col-span-2 flex flex-col gap-6">
                         <div className="bg-slate-800/40 backdrop-blur-md p-6 rounded-2xl shadow-2xl shadow-black/20 border border-slate-700 h-full flex flex-col space-y-6">
-                            {/* Display Koin */}
+                            {/* Display Koin dengan Penghitung Mundur */}
                             <div className="flex items-center justify-between p-3 bg-slate-700/50 border border-slate-600 rounded-lg text-sm font-semibold text-white">
                                 <span className="flex items-center gap-2"><DollarSign className="w-5 h-5 text-yellow-400"/>Koin Anda:</span>
                                 <span className="text-yellow-300 text-lg font-bold">{userCoins}</span>
+                                {lastUsageTimestamp !== 0 && userCoins < MAX_ADMIN_COINS && ( // Tampilkan countdown jika koin bukan MAX dan sudah pernah dipakai
+                                    <span className="text-xs text-slate-400 ml-4">{remainingTime}</span>
+                                )}
                             </div>
 
                             <div><label htmlFor="prompt" className="block text-slate-300 mb-3 font-bold text-xl items-center"><Zap className="w-7 h-7 mr-3 text-cyan-400"/>Image Generation</label><div className="relative w-full"><textarea id="prompt" className="w-full bg-slate-900 border-2 border-slate-700 rounded-lg p-4 pr-10 text-slate-100 text-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 transition" rows={4} placeholder="Tuliskan imajinasi Anda di sini..." value={prompt} onChange={(e) => setPrompt(e.target.value)} disabled={isLoading} />{prompt && <button onClick={handleClearPrompt} className="absolute top-3 right-3 text-slate-500 hover:text-white transition"><Eraser size={20}/></button>}</div></div>
@@ -693,7 +734,8 @@ function AISuitePageContent() {
                                 </div></Accordion>
 
                                 {/* Accordion untuk Manajemen Koin */}
-                                <Accordion title="Manajemen Koin" icon={<DollarSign size={16}/>}>
+                                {/* Default open untuk memperlihatkan tombol */}
+                                <Accordion title="Manajemen Koin" icon={<DollarSign size={16}/>} defaultOpen={true}>
                                     <div className="space-y-3">
                                         <p className="text-sm text-slate-400">Anda memiliki <span className="text-yellow-300 font-bold">{userCoins}</span> koin tersisa.</p>
                                         <button
