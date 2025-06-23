@@ -311,7 +311,7 @@ const imagePresets = [
 
 // --- Konstanta Koin ---
 const DEFAULT_DAILY_COINS = 500; // Koin harian default diubah menjadi 500
-const MAX_ADMIN_COINS_DISPLAY = 1000; // Batas maksimum untuk refill admin (untuk display)
+const MAX_ADMIN_COINS_DISPLAY = 5000; // Batas maksimum untuk refill admin (untuk display)
 const COIN_RESET_INTERVAL_MS = 24 * 60 * 60 * 1000; // 24 jam dalam milidetik
 
 // Pilihan jumlah refill untuk admin
