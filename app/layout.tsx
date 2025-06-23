@@ -5,10 +5,11 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import { Header, Footer } from "./components"; // <-- PATH DIPERBAIKI DI SINI
+import { SpeedInsights } from '@vercel/speed-insights/next'; // Import SpeedInsights
 
 const inter = Inter({ subsets: ["latin"] });
 
-const businessName = "Ayick.dev";
+const businessName = "Jasa Pembuatan Website";
 const authorName = "Arif Tirtana";
 const businessDescription = "Selamat datang di Dunia Digital Ayick. Sebagai Web Developer & Akselerator Digital, saya membantu bisnis Anda melesat di dunia online melalui kehadiran digital yang kuat, efektif, dan modern.";
 const businessUrl = "https://ariftirtana.my.id"; 
@@ -65,7 +66,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#010812',
+  themeColor: '#1a73e8',
   colorScheme: 'light',
 };
 
@@ -113,6 +114,7 @@ export default function RootLayout({
         <Providers>
           {children}
         </Providers>
+        <SpeedInsights /> {/* Komponen SpeedInsights ditambahkan di sini */}
       </body>
     </html>
   );
