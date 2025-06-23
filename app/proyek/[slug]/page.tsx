@@ -1,9 +1,10 @@
+// jasa-web-main/app/proyek/[slug]/page.tsx
+
 import { Metadata } from 'next';
 import { portfolioProjects } from '@/lib/portfolio-data'; 
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-// PERBAIKAN: Impor ikon Github
 import { ArrowLeft, ExternalLink, Eye, Github } from 'lucide-react'; 
 
 const ProjectCTA = () => (
@@ -23,13 +24,15 @@ const ProjectCTA = () => (
     </div>
 );
 
-// Gunakan 'any' untuk params sebagai workaround untuk error build
+// PERBAIKAN: Gunakan tipe yang spesifik, bukan 'any'
 type ProyekPostPageProps = {
-    params: any; 
+    params: {
+        slug: string;
+    };
 };
 
 export async function generateMetadata({ params }: ProyekPostPageProps): Promise<Metadata> {
-    const slug = params.slug as string; 
+    const slug = params.slug; 
     const project = portfolioProjects.find((p) => p.slug === slug);
     if (!project) { return { title: 'Proyek Tidak Ditemukan' }; }
     return {
@@ -55,7 +58,7 @@ export async function generateStaticParams() {
 }
 
 export default function ProyekPostPage({ params }: ProyekPostPageProps) {
-    const slug = params.slug as string; 
+    const slug = params.slug;
     const project = portfolioProjects.find((p) => p.slug === slug);
     if (!project) { notFound(); }
 
@@ -70,9 +73,8 @@ export default function ProyekPostPage({ params }: ProyekPostPageProps) {
                 <h1 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white leading-tight mb-4">{project.title}</h1>
                 <p className="text-lg text-slate-600 dark:text-slate-400 mb-6">{project.summary}</p>
 
-                {/* PERBAIKAN: Gunakan liveUrl dan periksa keberadaannya */}
                 {project.liveUrl && (
-                    <div className="mb-4"> {/* Mengurangi margin bawah agar lebih rapi */}
+                    <div className="mb-4">
                         <Link 
                             href={project.liveUrl} 
                             target="_blank" 
@@ -84,7 +86,6 @@ export default function ProyekPostPage({ params }: ProyekPostPageProps) {
                         </Link>
                     </div>
                 )}
-                {/* PERBAIKAN: Gunakan githubUrl dan periksa keberadaannya, dan impor ikon Github */}
                 {project.githubUrl && (
                     <div className="mb-8">
                         <Link 
@@ -103,7 +104,6 @@ export default function ProyekPostPage({ params }: ProyekPostPageProps) {
                     <Image src={project.imageUrl} alt={project.title} fill className="object-cover" priority />
                 </div>
                 
-                {/* PERBAIKAN: Gunakan project.description untuk konten */}
                 <div className="prose prose-lg dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: project.description }} />
 
                 <ProjectCTA />

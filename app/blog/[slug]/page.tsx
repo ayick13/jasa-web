@@ -1,18 +1,19 @@
+// jasa-web-main/app/blog/[slug]/page.tsx
+
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { blogArticles, Article } from '@/lib/blog-data';
 import BlogPostContent from './blog-post-content';
 
-// Definisikan tipe props secara lokal dan spesifik untuk halaman ini.
-// Ini adalah praktik terbaik.
-type Props = {
+// Tipe untuk props halaman, didefinisikan secara inline untuk kejelasan
+type PageProps = {
   params: {
     slug: string;
   };
 };
 
-// Gunakan tipe 'Props' yang sudah benar.
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+// Fungsi generateMetadata menggunakan tipe PageProps
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const slug = params.slug;
   const article = blogArticles.find((a) => a.slug === slug);
 
@@ -40,16 +41,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-// (Sangat disarankan) Fungsi untuk membuat halaman statis saat build.
+// Fungsi generateStaticParams tetap sama
 export async function generateStaticParams() {
     return blogArticles.map((article) => ({
       slug: article.slug,
     }));
 }
   
-
-// Gunakan tipe 'Props' untuk komponen utama.
-export default function BlogPostPage({ params }: Props) {
+// Komponen Halaman menggunakan tipe PageProps
+export default function BlogPostPage({ params }: PageProps) {
   const slug = params.slug;
   const article: Article | undefined = blogArticles.find((a) => a.slug === slug);
 
