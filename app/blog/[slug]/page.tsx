@@ -3,14 +3,14 @@ import { notFound } from 'next/navigation';
 import { blogArticles, Article } from '@/lib/blog-data';
 import BlogPostContent from './blog-post-content';
 
-// Interface ini tetap digunakan untuk generateMetadata, jadi ini sudah benar.
+// Interface untuk mendefinisikan tipe props, terutama untuk generateMetadata
 interface BlogPostPageProps {
   params: {
     slug: string;
   };
 }
 
-// Fungsi ini sudah benar.
+// Fungsi untuk membuat metadata halaman secara dinamis berdasarkan slug
 export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
   const slug = params.slug;
   const article = blogArticles.find((a) => a.slug === slug);
@@ -39,9 +39,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
   };
 }
 
-// === PERBAIKAN UTAMA DI SINI ===
-// Kita biarkan Next.js yang menangani tipe props secara otomatis
-// dengan tidak menggunakan 'async' dan membiarkan tipenya diinferensi.
+// Komponen utama halaman blog post
 export default function BlogPostPage({ params }: { params: { slug: string } }) {
   const slug = params.slug;
   const article: Article | undefined = blogArticles.find((a) => a.slug === slug);
@@ -50,6 +48,6 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
     notFound();
   }
 
-  // Cukup render komponen BlogPostContent dan kirimkan seluruh objek artikel
+  // Merender komponen konten dan mengirimkan data artikel sebagai props
   return <BlogPostContent article={article} />;
 }
