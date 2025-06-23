@@ -309,17 +309,20 @@ const imagePresets = [
 ];
 
 // --- Konstanta Koin ---
-const DEFAULT_DAILY_COINS = 5;
-const MAX_ADMIN_COINS = 100;
+const DEFAULT_DAILY_COINS = 100; // Koin harian default diubah menjadi 100
+const MAX_ADMIN_COINS_DISPLAY = 1000; // Untuk display di tombol admin
 const COIN_RESET_INTERVAL_MS = 24 * 60 * 60 * 1000; // 24 jam dalam milidetik
+
+// Pilihan jumlah refill untuk admin
+const ADMIN_REFILL_PRESETS = [100, 200, 300, 500, 1000];
 
 // --- Komponen UI ---
 const ParameterInput = ({ label, children }: { label: string, children: React.ReactNode }) => ( <div><label className="block text-xs font-semibold text-slate-400 mb-1">{label}</label>{children}</div> );
 const Accordion = ({ title, icon, children, defaultOpen = false }: { title: string; icon: React.ReactNode; children: React.ReactNode, defaultOpen?: boolean }) => { const [isOpen, setIsOpen] = useState(defaultOpen); return ( <div className="w-full"> <button onClick={() => setIsOpen(!isOpen)} className="w-full flex items-center justify-between gap-2 p-3 bg-slate-700/50 border border-slate-600 rounded-lg hover:bg-slate-700 transition-colors text-sm font-semibold"> <div className="flex items-center gap-2">{icon}{title}</div> <ChevronDown className={`w-5 h-5 text-slate-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} /> </button> {isOpen && <div className="mt-3 p-4 bg-slate-900/50 border border-slate-700 rounded-lg">{children}</div>} </div> ); };
 const CodeBlock = ({ language, code }: { language: string, code: string }) => { const handleCopy = () => { navigator.clipboard.writeText(code); toast.success("Kode disalin ke clipboard!"); }; return ( <div className="bg-slate-900/70 rounded-md my-2 border border-slate-700"> <div className="flex justify-between items-center px-4 py-1 bg-slate-800/50 rounded-t-md"> <span className="text-xs font-sans text-slate-400">{language}</span> <button onClick={handleCopy} className="text-xs text-slate-400 hover:text-white flex items-center gap-1"><Copy size={14}/> Salin</button> </div> <pre className="p-4 text-sm overflow-x-auto"><code>{code}</code></pre> </div> ); };
 
-// --- Komponen Modal Baru untuk Password Admin ---
-const AdminPasswordModal = ({ isOpen, onClose, onConfirm }: { isOpen: boolean; onClose: () => void; onConfirm: (password: string) => void; }) => {
+// --- Komponen Modal untuk Reset Admin (hanya password) ---
+const AdminResetModal = ({ isOpen, onClose, onConfirm }: { isOpen: boolean; onClose: () => void; onConfirm: (password: string) => void; }) => {
     const [passwordInput, setPasswordInput] = useState('');
 
     if (!isOpen) return null;
@@ -334,8 +337,8 @@ const AdminPasswordModal = ({ isOpen, onClose, onConfirm }: { isOpen: boolean; o
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose}>
             <div className="bg-slate-800 border border-slate-700 rounded-lg max-w-sm w-full p-6 relative space-y-4" onClick={(e) => e.stopPropagation()}>
                 <button onClick={onClose} className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors z-10"><X size={20} /></button>
-                <div className="flex items-center gap-3"><KeyRound className="text-yellow-400" size={24}/><h3 className="text-xl font-bold text-white">Masukkan Password Admin</h3></div>
-                <p className="text-sm text-slate-400">Untuk mengisi ulang koin, masukkan password admin.</p>
+                <div className="flex items-center gap-3"><KeyRound className="text-yellow-400" size={24}/><h3 className="text-xl font-bold text-white">Reset Koin Admin</h3></div>
+                <p className="text-sm text-slate-400">Masukkan password admin untuk mereset koin pengguna ke default harian ({DEFAULT_DAILY_COINS}).</p>
                 <input
                     type="password"
                     value={passwordInput}
@@ -346,7 +349,93 @@ const AdminPasswordModal = ({ isOpen, onClose, onConfirm }: { isOpen: boolean; o
                 />
                 <div className="flex justify-end gap-2 pt-2">
                     <button onClick={onClose} className="bg-slate-600 hover:bg-slate-700 text-white font-bold py-2 px-4 rounded-lg text-sm">Batal</button>
-                    <button onClick={handleSubmit} className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-lg text-sm">Konfirmasi</button>
+                    <button onClick={handleSubmit} className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-lg text-sm">Konfirmasi Reset</button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// --- Komponen Modal untuk Refill Admin (password + pilihan jumlah) ---
+const AdminRefillModal = ({ isOpen, onClose, onConfirm }: { isOpen: boolean; onClose: () => void; onConfirm: (password: string, amount: number) => void; }) => {
+    const [passwordInput, setPasswordInput] = useState('');
+    const [selectedAmount, setSelectedAmount] = useState<number | 'custom'>(ADMIN_REFILL_PRESETS[0]);
+    const [customAmountInput, setCustomAmountInput] = useState<string>('');
+
+    if (!isOpen) return null;
+
+    const handleRefillSubmit = () => {
+        let finalAmount = 0;
+        if (selectedAmount === 'custom') {
+            finalAmount = parseInt(customAmountInput);
+            if (isNaN(finalAmount) || finalAmount <= 0) {
+                toast.error('Jumlah kustom tidak valid.');
+                return;
+            }
+        } else {
+            finalAmount = selectedAmount;
+        }
+        onConfirm(passwordInput, finalAmount);
+        setPasswordInput('');
+        setCustomAmountInput('');
+        onClose();
+    };
+
+    return (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose}>
+            <div className="bg-slate-800 border border-slate-700 rounded-lg max-w-sm w-full p-6 relative space-y-4" onClick={(e) => e.stopPropagation()}>
+                <button onClick={onClose} className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors z-10"><X size={20} /></button>
+                <div className="flex items-center gap-3"><KeyRound className="text-yellow-400" size={24}/><h3 className="text-xl font-bold text-white">Isi Ulang Koin Admin</h3></div>
+                
+                <p className="text-sm font-semibold text-slate-400 mb-2">Pilih Jumlah Koin:</p>
+                <div className="grid grid-cols-3 gap-2 mb-4">
+                    {ADMIN_REFILL_PRESETS.map(amount => (
+                        <label key={amount} className="flex items-center text-sm text-slate-300">
+                            <input
+                                type="radio"
+                                name="refillAmount"
+                                value={amount}
+                                checked={selectedAmount === amount}
+                                onChange={() => setSelectedAmount(amount)}
+                                className="form-radio text-cyan-500 mr-1"
+                            />
+                            {amount}
+                        </label>
+                    ))}
+                    <label className="flex items-center text-sm text-slate-300">
+                        <input
+                            type="radio"
+                            name="refillAmount"
+                            value="custom"
+                            checked={selectedAmount === 'custom'}
+                            onChange={() => setSelectedAmount('custom')}
+                            className="form-radio text-cyan-500 mr-1"
+                        />
+                        Custom
+                    </label>
+                </div>
+
+                {selectedAmount === 'custom' && (
+                    <input
+                        type="number"
+                        value={customAmountInput}
+                        onChange={(e) => setCustomAmountInput(e.target.value)}
+                        placeholder="Jumlah kustom"
+                        className="w-full bg-slate-700 border-slate-600 rounded-md p-2 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 mb-4"
+                    />
+                )}
+
+                <input
+                    type="password"
+                    value={passwordInput}
+                    onChange={(e) => setPasswordInput(e.target.value)}
+                    onKeyPress={(e) => { if (e.key === 'Enter') handleRefillSubmit(); }}
+                    placeholder="Password admin"
+                    className="w-full bg-slate-700 border-slate-600 rounded-md p-2 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                />
+                <div className="flex justify-end gap-2 pt-2">
+                    <button onClick={onClose} className="bg-slate-600 hover:bg-slate-700 text-white font-bold py-2 px-4 rounded-lg text-sm">Batal</button>
+                    <button onClick={handleRefillSubmit} className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-lg text-sm">Konfirmasi Isi Ulang</button>
                 </div>
             </div>
         </div>
@@ -425,7 +514,7 @@ const DalleApiKeyModal = ({ isOpen, onClose, onSave }: { isOpen: boolean, onClos
 // --- Komponen Utama Halaman ---
 function AISuitePageContent() {
     const searchParams = useSearchParams();
-    const router = useRouter(); // Inisialisasi useRouter
+    const router = useRouter();
     const [prompt, setPrompt] = useState(searchParams.get('prompt') || '');
     const [imageGenModel, setImageGenModel] = useState<ImageGenModel>('flux');
     const [artStyle, setArtStyle] = useState<ArtStyle>('realistic');
@@ -448,8 +537,9 @@ function AISuitePageContent() {
     // State untuk koin
     const [userCoins, setUserCoins] = useState(DEFAULT_DAILY_COINS);
     const [lastUsageTimestamp, setLastUsageTimestamp] = useState<number>(0);
-    const [showAdminPasswordModal, setShowAdminPasswordModal] = useState(false); // State untuk modal password admin
-    const [remainingTime, setRemainingTime] = useState<string>(''); // State untuk visual penghitung mundur
+    const [showAdminResetModal, setShowAdminResetModal] = useState(false); // State untuk modal reset admin
+    const [showAdminRefillModal, setShowAdminRefillModal] = useState(false); // State untuk modal refill admin
+    const [remainingTime, setRemainingTime] = useState<string>('');
     
     // Fungsi helper untuk menghitung sisa waktu
     const calculateRemainingTime = useCallback((timestamp: number) => {
@@ -522,17 +612,12 @@ function AISuitePageContent() {
 
     // Effect untuk memperbarui visual penghitung mundur setiap detik
     useEffect(() => {
-        // Panggil saat pertama kali dimuat
-        setRemainingTime(calculateRemainingTime(lastUsageTimestamp));
-
-        // Perbarui setiap detik
+        setRemainingTime(calculateRemainingTime(lastUsageTimestamp)); // Initial calculation
         const interval = setInterval(() => {
             setRemainingTime(calculateRemainingTime(lastUsageTimestamp));
-        }, 1000); // Perbarui setiap detik
-
-        // Bersihkan interval saat komponen dilepas
+        }, 1000);
         return () => clearInterval(interval);
-    }, [lastUsageTimestamp, calculateRemainingTime]); // Recalculate if lastUsageTimestamp or function changes (though function is memoized)
+    }, [lastUsageTimestamp, calculateRemainingTime]);
     
     const handleModelChange = (newModel: ImageGenModel) => { if (newModel === 'dall-e-3') { const savedKey = localStorage.getItem('openai_api_key'); if (!savedKey) { setIsDalleModalOpen(true); } else { setImageGenModel('dall-e-3'); } } else { setImageGenModel(newModel); } };
     const handleSaveDalleKey = (key: string) => { localStorage.setItem('openai_api_key', key); setIsDalleModalOpen(false); setImageGenModel('dall-e-3'); toast.success("API Key DALL-E 3 disimpan untuk sesi ini."); };
@@ -591,8 +676,8 @@ function AISuitePageContent() {
         } catch (error: any) {
             toast.error(error.message || 'Terjadi kesalahan tak terduga.', { id: toastId });
         } finally { setIsLoading(false); }
-    }, [prompt, imageGenModel, artStyle, quality, imageWidth, imageHeight, batchSize, userCoins, calculateRemainingTime]); // Tambah userCoins dan calculateRemainingTime ke dependencies
-
+    }, [prompt, imageGenModel, artStyle, quality, imageWidth, imageHeight, batchSize, userCoins, calculateRemainingTime]);
+    
     useEffect(() => { const urlPrompt = searchParams.get('prompt'); if (urlPrompt && urlPrompt !== prompt) { setPrompt(urlPrompt); toast.success('Prompt dari halaman utama dimuat!'); } }, [searchParams, prompt]);
     
     // Perbaikan bug: Menghapus prompt dari state dan juga dari URL
@@ -622,20 +707,18 @@ function AISuitePageContent() {
         toast.success(`Koin Anda telah direset menjadi ${DEFAULT_DAILY_COINS}!`);
     }, []);
 
-    // Fungsi untuk admin refill koin - SEKARANG MEMBUKA MODAL DAN BERINTERAKSI DENGAN API ROUTE
-    const handleAdminRefill = useCallback(() => {
-        setShowAdminPasswordModal(true); // Buka modal password admin
+    // Fungsi untuk membuka modal reset admin
+    const handleAdminResetClick = useCallback(() => {
+        setShowAdminResetModal(true);
     }, []);
 
-    // Fungsi yang dipanggil dari modal setelah password dikonfirmasi
-    const handleConfirmAdminPassword = useCallback(async (password: string) => {
+    // Fungsi yang dipanggil dari AdminResetModal setelah password dikonfirmasi
+    const handleConfirmAdminReset = useCallback(async (password: string) => {
         try {
-            const response = await fetch('/api/admin/refill-coins', {
+            const response = await fetch('/api/admin/action', { // Panggil API Route generik
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ password }),
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password, actionType: 'reset' }), // Kirim tipe aksi 'reset'
             });
 
             const data = await response.json();
@@ -643,9 +726,38 @@ function AISuitePageContent() {
             if (response.ok) {
                 setUserCoins(data.newCoins);
                 setLastUsageTimestamp(Date.now());
-                toast.success(`Koin telah diisi ulang menjadi ${data.newCoins}!`);
+                toast.success(`Koin telah direset menjadi ${data.newCoins} oleh admin!`);
             } else {
-                toast.error(data.error || 'Gagal mengisi ulang koin.');
+                toast.error(data.error || 'Gagal mereset koin admin.');
+            }
+        } catch (error) {
+            console.error('Error during admin reset fetch:', error);
+            toast.error('Terjadi kesalahan saat menghubungi server.');
+        }
+    }, []);
+
+    // Fungsi untuk membuka modal refill admin
+    const handleAdminRefillClick = useCallback(() => {
+        setShowAdminRefillModal(true);
+    }, []);
+
+    // Fungsi yang dipanggil dari AdminRefillModal setelah password dan jumlah dikonfirmasi
+    const handleConfirmAdminRefill = useCallback(async (password: string, amount: number) => {
+        try {
+            const response = await fetch('/api/admin/action', { // Panggil API Route generik
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password, actionType: 'refill', amount }), // Kirim tipe aksi 'refill' dan jumlah
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                setUserCoins(data.newCoins);
+                setLastUsageTimestamp(Date.now());
+                toast.success(`Koin telah diisi ulang menjadi ${data.newCoins} oleh admin!`);
+            } else {
+                toast.error(data.error || 'Gagal mengisi ulang koin admin.');
             }
         } catch (error) {
             console.error('Error during admin refill fetch:', error);
@@ -657,11 +769,17 @@ function AISuitePageContent() {
         <Fragment>
             <DalleApiKeyModal isOpen={isDalleModalOpen} onClose={handleCloseDalleModal} onSave={handleSaveDalleKey} />
             <ImageDetailModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} imageData={selectedImageData} />
-            {/* Render modal password admin */}
-            <AdminPasswordModal 
-                isOpen={showAdminPasswordModal} 
-                onClose={() => setShowAdminPasswordModal(false)} 
-                onConfirm={handleConfirmAdminPassword} 
+            {/* Render modal password admin untuk Reset */}
+            <AdminResetModal
+                isOpen={showAdminResetModal}
+                onClose={() => setShowAdminResetModal(false)}
+                onConfirm={handleConfirmAdminReset}
+            />
+            {/* Render modal password dan jumlah untuk Refill */}
+            <AdminRefillModal
+                isOpen={showAdminRefillModal}
+                onClose={() => setShowAdminRefillModal(false)}
+                onConfirm={handleConfirmAdminRefill}
             />
             <Toaster position="top-center" toastOptions={{ style: { background: '#1e293b', color: '#e2e8f0', border: '1px solid #334155' }}} />
             <main className="container mx-auto py-12 px-4 sm:px-6 lg:px-8">
@@ -673,7 +791,7 @@ function AISuitePageContent() {
                             <div className="flex items-center justify-between p-3 bg-slate-700/50 border border-slate-600 rounded-lg text-sm font-semibold text-white">
                                 <span className="flex items-center gap-2"><DollarSign className="w-5 h-5 text-yellow-400"/>Koin Anda:</span>
                                 <span className="text-yellow-300 text-lg font-bold">{userCoins}</span>
-                                {lastUsageTimestamp !== 0 && userCoins < MAX_ADMIN_COINS && ( // Tampilkan countdown jika koin bukan MAX dan sudah pernah dipakai
+                                {lastUsageTimestamp !== 0 && userCoins < MAX_ADMIN_COINS_DISPLAY && ( // Tampilkan countdown jika koin bukan MAX dan sudah pernah dipakai
                                     <span className="text-xs text-slate-400 ml-4">{remainingTime}</span>
                                 )}
                             </div>
@@ -734,7 +852,6 @@ function AISuitePageContent() {
                                 </div></Accordion>
 
                                 {/* Accordion untuk Manajemen Koin */}
-                                {/* Default open untuk memperlihatkan tombol */}
                                 <Accordion title="Manajemen Koin" icon={<DollarSign size={16}/>} defaultOpen={true}>
                                     <div className="space-y-3">
                                         <p className="text-sm text-slate-400">Anda memiliki <span className="text-yellow-300 font-bold">{userCoins}</span> koin tersisa.</p>
@@ -744,14 +861,22 @@ function AISuitePageContent() {
                                         >
                                             <RefreshCw size={16}/> Reset Koin Harian ({DEFAULT_DAILY_COINS})
                                         </button>
+                                        {/* Tombol baru untuk Reset Admin */}
                                         <button
-                                            onClick={handleAdminRefill}
+                                            onClick={handleAdminResetClick}
+                                            className="w-full bg-red-600 text-white py-2 rounded-lg font-semibold text-sm hover:bg-red-700 transition flex justify-center items-center gap-2"
+                                        >
+                                            <Trash2 size={16}/> Reset Koin Admin (ke {DEFAULT_DAILY_COINS})
+                                        </button>
+                                        {/* Tombol baru untuk Refill Admin */}
+                                        <button
+                                            onClick={handleAdminRefillClick}
                                             className="w-full bg-purple-600 text-white py-2 rounded-lg font-semibold text-sm hover:bg-purple-700 transition flex justify-center items-center gap-2"
                                         >
-                                            <KeyRound size={16}/> Admin Refill (MAX {MAX_ADMIN_COINS})
+                                            <KeyRound size={16}/> Isi Ulang Koin Admin
                                         </button>
                                         <p className="text-xs text-red-400">
-                                            ⚠️ Peringatan: Fitur admin refill ini sekarang berinteraksi dengan API Route.
+                                            ⚠️ Peringatan: Fitur admin refill/reset ini berinteraksi dengan API Route.
                                             Pastikan `ADMIN_PASSWORD` telah diatur di environment variable Vercel Anda.
                                         </p>
                                     </div>
