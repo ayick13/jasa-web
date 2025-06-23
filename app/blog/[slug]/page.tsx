@@ -3,15 +3,16 @@ import { notFound } from 'next/navigation';
 import { blogArticles, Article } from '@/lib/blog-data';
 import BlogPostContent from './blog-post-content';
 
-// Interface untuk mendefinisikan tipe props, terutama untuk generateMetadata
-interface BlogPostPageProps {
+// Definisikan tipe props secara lokal untuk file ini.
+// Ini adalah cara yang paling aman dan tidak akan berkonflik.
+type Props = {
   params: {
     slug: string;
   };
-}
+};
 
-// Fungsi untuk membuat metadata halaman secara dinamis berdasarkan slug
-export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
+// Gunakan tipe lokal 'Props' untuk generateMetadata.
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const slug = params.slug;
   const article = blogArticles.find((a) => a.slug === slug);
 
@@ -39,8 +40,20 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
   };
 }
 
-// Komponen utama halaman blog post
-export default function BlogPostPage({ params }: { params: { slug: string } }) {
+/**
+ * (Opsional tapi sangat disarankan)
+ * Fungsi ini memberi tahu Next.js untuk membuat semua halaman blog saat build.
+ * Ini membuat situs Anda lebih cepat dan optimal.
+ */
+export async function generateStaticParams() {
+    return blogArticles.map((article) => ({
+      slug: article.slug,
+    }));
+}
+  
+
+// Gunakan tipe lokal 'Props' untuk komponen halaman utama.
+export default function BlogPostPage({ params }: Props) {
   const slug = params.slug;
   const article: Article | undefined = blogArticles.find((a) => a.slug === slug);
 
@@ -48,6 +61,6 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
     notFound();
   }
 
-  // Merender komponen konten dan mengirimkan data artikel sebagai props
+  // Merender komponen konten dengan data artikel yang ditemukan
   return <BlogPostContent article={article} />;
 }
