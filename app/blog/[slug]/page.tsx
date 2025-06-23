@@ -5,15 +5,8 @@ import { notFound } from 'next/navigation';
 import { blogArticles, Article } from '@/lib/blog-data';
 import BlogPostContent from './blog-post-content';
 
-// Tipe untuk props halaman, didefinisikan secara inline untuk kejelasan
-type PageProps = {
-  params: {
-    slug: string;
-  };
-};
-
-// Fungsi generateMetadata menggunakan tipe PageProps
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+// PERBAIKAN: Tipe untuk props didefinisikan secara inline
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const slug = params.slug;
   const article = blogArticles.find((a) => a.slug === slug);
 
@@ -41,15 +34,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-// Fungsi generateStaticParams tetap sama
 export async function generateStaticParams() {
     return blogArticles.map((article) => ({
       slug: article.slug,
     }));
 }
   
-// Komponen Halaman menggunakan tipe PageProps
-export default function BlogPostPage({ params }: PageProps) {
+// PERBAIKAN: Tipe untuk props didefinisikan secara inline
+export default function BlogPostPage({ params }: { params: { slug: string } }) {
   const slug = params.slug;
   const article: Article | undefined = blogArticles.find((a) => a.slug === slug);
 
