@@ -795,7 +795,7 @@ function AISuitePageContent() {
                                 <span className="flex items-center gap-2"><DollarSign className="w-5 h-5 text-yellow-400"/>Koin Anda:</span>
                                 <span className="text-yellow-300 text-lg font-bold">{userCoins}</span>
                                 {/* Tampilkan countdown jika koin belum MAX dan sudah pernah digunakan */}
-                                {userCoins < MAX_ADMIN_COINS_DISPLAY && ( // MAX_ADMIN_COINS_DISPLAY adalah 1000, jika userCoins 500, maka akan tampil
+                                {userCoins < DEFAULT_DAILY_COINS && ( // Ganti MAX_ADMIN_COINS_DISPLAY menjadi DEFAULT_DAILY_COINS, agar countdown muncul saat koin kurang dari default harian
                                     <span className="text-xs text-slate-400 ml-4">{remainingTime}</span>
                                 )}
                             </div>
@@ -873,8 +873,9 @@ function AISuitePageContent() {
                                         >
                                             <KeyRound size={16}/> Isi Ulang Koin Admin
                                         </button>
-                                        <p className="text-xs text-red-400">
-                                            ⚠️ **Penting:** Fitur admin refill/reset ini mengandalkan validasi aman melalui API Route. Pastikan `ADMIN_PASSWORD` **telah diatur dengan benar** sebagai *environment variable* di Vercel Anda. Jika tidak, fitur ini **tidak akan berfungsi**.
+                                        <p className="text-xs text-slate-400">
+                                            Fitur admin ini diperuntukkan bagi administrator. Akses dan fungsionalitas mungkin terbatas.
+                                            Jika Anda seorang admin dan menghadapi masalah konfigurasi, mohon konfirmasi ke admin Anda atau tim dukungan.
                                         </p>
                                     </div>
                                 </Accordion>
