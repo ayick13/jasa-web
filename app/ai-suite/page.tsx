@@ -7,7 +7,8 @@ import { toast, Toaster } from 'react-hot-toast';
 import {
     Download, Zap, Eraser, Sparkles, Wand2, MessageSquare, Bot, Send, Settings,
     ChevronDown, ImageIcon, BrainCircuit, Upload, CheckCircle, Copy, CornerDownLeft, X,
-    Volume2, Paperclip, History, KeyRound, ExternalLink, Trash2, DollarSign, RefreshCw
+    Volume2, Paperclip, History, KeyRound, ExternalLink, Trash2, DollarSign, RefreshCw,
+    Eye, EyeOff // Import ikon Eye dan EyeOff
 } from 'lucide-react';
 
 // --- Tipe Data & Konstanta ---
@@ -324,6 +325,7 @@ const CodeBlock = ({ language, code }: { language: string, code: string }) => { 
 // --- Komponen Modal untuk Reset Admin (hanya password) ---
 const AdminResetModal = ({ isOpen, onClose, onConfirm }: { isOpen: boolean; onClose: () => void; onConfirm: (password: string) => void; }) => {
     const [passwordInput, setPasswordInput] = useState('');
+    const [showPassword, setShowPassword] = useState(false); // State untuk show/hide password
 
     if (!isOpen) return null;
 
@@ -339,14 +341,27 @@ const AdminResetModal = ({ isOpen, onClose, onConfirm }: { isOpen: boolean; onCl
                 <button onClick={onClose} className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors z-10"><X size={20} /></button>
                 <div className="flex items-center gap-3"><RefreshCw className="text-red-400" size={24}/><h3 className="text-xl font-bold text-white">Reset Koin Admin</h3></div>
                 <p className="text-sm text-slate-400">Masukkan password admin untuk mereset koin pengguna ke default harian ({DEFAULT_DAILY_COINS}).</p>
-                <input
-                    type="password"
-                    value={passwordInput}
-                    onChange={(e) => setPasswordInput(e.target.value)}
-                    onKeyPress={(e) => { if (e.key === 'Enter') handleSubmit(); }}
-                    placeholder="Password admin"
-                    className="w-full bg-slate-700 border-slate-600 rounded-md p-2 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                />
+                
+                {/* Input password dengan toggle show/hide */}
+                <div className="relative w-full">
+                    <input
+                        type={showPassword ? 'text' : 'password'}
+                        value={passwordInput}
+                        onChange={(e) => setPasswordInput(e.target.value)}
+                        onKeyPress={(e) => { if (e.key === 'Enter') handleSubmit(); }}
+                        placeholder="Password admin"
+                        className="w-full bg-slate-700 border-slate-600 rounded-md p-2 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 pr-10"
+                    />
+                    <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white transition-colors"
+                        aria-label={showPassword ? 'Sembunyikan password' : 'Tampilkan password'}
+                    >
+                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                </div>
+
                 <div className="flex justify-end gap-2 pt-2">
                     <button onClick={onClose} className="bg-slate-600 hover:bg-slate-700 text-white font-bold py-2 px-4 rounded-lg text-sm">Batal</button>
                     <button onClick={handleSubmit} className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-lg text-sm">Konfirmasi Reset</button>
@@ -361,6 +376,7 @@ const AdminRefillModal = ({ isOpen, onClose, onConfirm }: { isOpen: boolean; onC
     const [passwordInput, setPasswordInput] = useState('');
     const [selectedAmount, setSelectedAmount] = useState<number | 'custom'>(ADMIN_REFILL_PRESETS[0]);
     const [customAmountInput, setCustomAmountInput] = useState<string>('');
+    const [showPassword, setShowPassword] = useState(false); // State untuk show/hide password
 
     if (!isOpen) return null;
 
@@ -425,14 +441,26 @@ const AdminRefillModal = ({ isOpen, onClose, onConfirm }: { isOpen: boolean; onC
                     />
                 )}
 
-                <input
-                    type="password"
-                    value={passwordInput}
-                    onChange={(e) => setPasswordInput(e.target.value)}
-                    onKeyPress={(e) => { if (e.key === 'Enter') handleRefillSubmit(); }}
-                    placeholder="Password admin"
-                    className="w-full bg-slate-700 border-slate-600 rounded-md p-2 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                />
+                {/* Input password dengan toggle show/hide */}
+                <div className="relative w-full">
+                    <input
+                        type={showPassword ? 'text' : 'password'}
+                        value={passwordInput}
+                        onChange={(e) => setPasswordInput(e.target.value)}
+                        onKeyPress={(e) => { if (e.key === 'Enter') handleRefillSubmit(); }}
+                        placeholder="Password admin"
+                        className="w-full bg-slate-700 border-slate-600 rounded-md p-2 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 pr-10"
+                    />
+                    <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white transition-colors"
+                        aria-label={showPassword ? 'Sembunyikan password' : 'Tampilkan password'}
+                    >
+                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                </div>
+
                 <div className="flex justify-end gap-2 pt-2">
                     <button onClick={onClose} className="bg-slate-600 hover:bg-slate-700 text-white font-bold py-2 px-4 rounded-lg text-sm">Batal</button>
                     <button onClick={handleRefillSubmit} className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-lg text-sm">Konfirmasi Isi Ulang</button>
@@ -492,7 +520,10 @@ const ImageDetailModal = ({ isOpen, onClose, imageData }: { isOpen: boolean, onC
 
 const DalleApiKeyModal = ({ isOpen, onClose, onSave }: { isOpen: boolean, onClose: () => void, onSave: (key: string) => void }) => {
     const [apiKey, setApiKey] = useState('');
+    const [showApiKey, setShowApiKey] = useState(false); // State untuk show/hide API Key
+
     if (!isOpen) return null;
+
     const handleSave = () => {
         if (apiKey.trim()) { onSave(apiKey.trim()); } else { toast.error("API Key tidak boleh kosong."); }
     };
@@ -502,7 +533,24 @@ const DalleApiKeyModal = ({ isOpen, onClose, onSave }: { isOpen: boolean, onClos
                 <button onClick={onClose} className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors z-10"><X size={20} /></button>
                 <div className="flex items-center gap-3"><KeyRound className="text-yellow-400" size={24}/><h3 className="text-xl font-bold text-white">Masukkan API Key OpenAI</h3></div>
                 <p className="text-sm text-slate-400">Model DALL-E 3 memerlukan API Key OpenAI Anda sendiri untuk berfungsi. Key Anda hanya akan disimpan sementara di browser Anda untuk sesi ini.</p>
-                <input type="password" value={apiKey} onChange={(e) => setApiKey(e.target.value)} placeholder="sk-..." className="w-full bg-slate-700 border-slate-600 rounded-md p-2 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500" />
+                {/* Input API Key dengan toggle show/hide */}
+                <div className="relative w-full">
+                    <input
+                        type={showApiKey ? 'text' : 'password'}
+                        value={apiKey}
+                        onChange={(e) => setApiKey(e.target.value)}
+                        placeholder="sk-..."
+                        className="w-full bg-slate-700 border-slate-600 rounded-md p-2 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 pr-10"
+                    />
+                    <button
+                        type="button"
+                        onClick={() => setShowApiKey(!showApiKey)}
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white transition-colors"
+                        aria-label={showApiKey ? 'Sembunyikan API Key' : 'Tampilkan API Key'}
+                    >
+                        {showApiKey ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                </div>
                 <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-xs text-cyan-400 hover:underline flex items-center gap-1">Bagaimana cara mendapatkan API Key? <ExternalLink size={14}/></a>
                 <div className="flex justify-end gap-2 pt-2"><button onClick={onClose} className="bg-slate-600 hover:bg-slate-700 text-white font-bold py-2 px-4 rounded-lg text-sm">Batal</button><button onClick={handleSave} className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-lg text-sm">Simpan & Lanjutkan</button></div>
             </div>
@@ -716,7 +764,7 @@ function AISuitePageContent() {
         } catch (error: any) {
             toast.error(error.message || 'Terjadi kesalahan tak terduga.', { id: toastId });
         } finally { setIsLoading(false); }
-    }, [prompt, imageGenModel, artStyle, quality, imageWidth, imageHeight, batchSize, userCoins, generatedImages, calculateRemainingTime]); // Tambah generatedImages ke dependencies
+    }, [prompt, imageGenModel, artStyle, quality, imageWidth, imageHeight, batchSize, userCoins, generatedImages, calculateRemainingTime]);
     
     // Perbaikan bug: Menghapus prompt dari state dan juga dari URL
     const handleClearPrompt = useCallback(() => {
@@ -848,7 +896,7 @@ function AISuitePageContent() {
             <Toaster position="top-center" toastOptions={{ style: { background: '#1e293b', color: '#e2e8f0', border: '1px solid #334155' }}} />
             <main className="container mx-auto py-12 px-4 sm:px-6 lg:px-8">
                 <div className="text-center mb-12"><h1 className="text-5xl md:text-6xl font-extrabold mb-4 text-white">AI <span className="bg-clip-text text-transparent bg-gradient-to-r from-sky-400 to-cyan-300">Image Suite</span></h1><p className="text-lg text-slate-400 max-w-2xl mx-auto">Sebuah command center untuk mengubah imajinasi Anda menjadi kenyataan visual.</p></div>
-                <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+                <div className="grid grid-cols-1 lg:col-span-5 gap-8"> {/* Adjusted grid-cols to utilize full width for main content */}
                     <div className="lg:col-span-2 flex flex-col gap-6">
                         <div className="bg-slate-800/40 backdrop-blur-md p-6 rounded-2xl shadow-2xl shadow-black/20 border border-slate-700 h-full flex flex-col space-y-6">
                             {/* Display Koin dengan Penghitung Mundur */}
@@ -856,7 +904,7 @@ function AISuitePageContent() {
                                 <span className="flex items-center gap-2"><DollarSign className="w-5 h-5 text-yellow-400"/>Koin Anda:</span>
                                 <span className="text-yellow-300 text-lg font-bold">{userCoins}</span>
                                 {/* Tampilkan countdown jika koin belum MAX dan sudah pernah digunakan */}
-                                {userCoins < DEFAULT_DAILY_COINS && lastUsageTimestamp !== 0 && ( // Tampilkan jika kurang dari default dan sudah pernah dipakai
+                                {lastUsageTimestamp !== 0 && ( // Tampilkan jika sudah pernah dipakai
                                     <span className="text-xs text-slate-400 ml-4">{remainingTime}</span>
                                 )}
                             </div>
