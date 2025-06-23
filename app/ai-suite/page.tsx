@@ -515,7 +515,40 @@ const DalleApiKeyModal = ({ isOpen, onClose, onSave }: { isOpen: boolean, onClos
 function AISuitePageContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
-    const [prompt, setPrompt] = useState(searchParams.get('prompt') || '');
+
+    // 1. Inisialisasi prompt HANYA SEKALI dari URL menggunakan fungsi inisializer
+    const [prompt, setPrompt] = useState(() => {
+        const urlPrompt = searchParams.get('prompt');
+        if (urlPrompt) {
+            // Jika ada prompt di URL saat pertama kali dimuat, set prompt
+            // dan langsung hapus dari URL untuk mencegah re-init pada refresh.
+            // Gunakan router.replace dalam inisializer fungsi untuk efek samping pada mount.
+            // Ini akan memastikan URL bersih dari prompt pada pemuatan awal.
+            const newSearchParams = new URLSearchParams(searchParams.toString());
+            newSearchParams.delete('prompt');
+            // Pastikan ini hanya berjalan di sisi klien (browser)
+            if (typeof window !== 'undefined') {
+                router.replace(`?${newSearchParams.toString()}`, { scroll: false });
+            }
+            return urlPrompt;
+        }
+        return '';
+    });
+
+    // useRef untuk melacak apakah prompt telah dimodifikasi oleh pengguna
+    // Ini penting agar prompt dari URL tidak mengesampingkan perubahan manual pengguna
+    const isPromptUserModified = useRef(false);
+
+    // Effect untuk menampilkan toast "Prompt dimuat!" (hanya sekali jika dari URL)
+    useEffect(() => {
+        // Cek apakah prompt awalnya dimuat dari URL dan belum dimodifikasi pengguna
+        if (searchParams.get('prompt') && !isPromptUserModified.current) {
+            toast.success('Prompt dari halaman utama dimuat!');
+        }
+    }, []); // Hanya berjalan sekali saat komponen di-mount
+
+
+    // ... state lainnya ...
     const [imageGenModel, setImageGenModel] = useState<ImageGenModel>('flux');
     const [artStyle, setArtStyle] = useState<ArtStyle>('realistic');
     const [quality, setQuality] = useState<QualityOption>('standar');
@@ -537,8 +570,8 @@ function AISuitePageContent() {
     // State untuk koin
     const [userCoins, setUserCoins] = useState(DEFAULT_DAILY_COINS);
     const [lastUsageTimestamp, setLastUsageTimestamp] = useState<number>(0);
-    const [showAdminResetModal, setShowAdminResetModal] = useState(false); // State untuk modal reset admin
-    const [showAdminRefillModal, setShowAdminRefillModal] = useState(false); // State untuk modal refill admin
+    const [showAdminResetModal, setShowAdminResetModal] = useState(false);
+    const [showAdminRefillModal, setShowAdminRefillModal] = useState(false);
     const [remainingTime, setRemainingTime] = useState<string>('');
     
     // Fungsi helper untuk menghitung sisa waktu
@@ -678,21 +711,36 @@ function AISuitePageContent() {
         } finally { setIsLoading(false); }
     }, [prompt, imageGenModel, artStyle, quality, imageWidth, imageHeight, batchSize, userCoins, calculateRemainingTime]);
     
-    useEffect(() => { const urlPrompt = searchParams.get('prompt'); if (urlPrompt && urlPrompt !== prompt) { setPrompt(urlPrompt); toast.success('Prompt dari halaman utama dimuat!'); } }, [searchParams, prompt]);
-    
     // Perbaikan bug: Menghapus prompt dari state dan juga dari URL
     const handleClearPrompt = useCallback(() => {
         setPrompt('');
+        isPromptUserModified.current = true; // Tandai bahwa prompt telah diubah oleh pengguna
         const newSearchParams = new URLSearchParams(searchParams.toString());
         newSearchParams.delete('prompt');
         router.replace(`?${newSearchParams.toString()}`, { scroll: false });
         toast.success('Prompt dibersihkan.');
     }, [searchParams, router]);
+
+    // Handle perubahan input prompt secara langsung
+    const handlePromptChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setPrompt(e.target.value);
+        isPromptUserModified.current = true; // Tandai bahwa prompt telah diubah oleh pengguna
+    }, []);
     
     const handleCreatePrompt = async () => { if (!creatorSubject.trim()) return toast.error('Subjek di Prompt Creator tidak boleh kosong.'); setIsCreatorLoading(true); setCreatedPrompt(null); const toastId = toast.loading('AI sedang membuat prompt...'); try { const response = await fetch('/api/enhance-prompt', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ subject: creatorSubject, details: creatorDetails }) }); if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.message || "Gagal membuat prompt dari AI."); } const data = await response.json(); setCreatedPrompt(data.prompt); toast.success('Prompt berhasil ditingkatkan!', { id: toastId }); } catch (error: any) { toast.error(error.message || "Gagal menghubungi AI.", { id: toastId }); } finally { setIsCreatorLoading(false); } };
     const handleOpenModal = (imageData: GeneratedImageData) => { setSelectedImageData(imageData); setIsModalOpen(true); };
-    const handlePromptFromChat = useCallback((chatPrompt: string) => { setPrompt(chatPrompt); toast.success('Pesan dari asisten digunakan!'); }, []);
-    const handlePromptFromAnalysis = useCallback((analysisPrompt: string) => { setPrompt(analysisPrompt); }, []);
+    
+    // handlePromptFromChat dan handlePromptFromAnalysis juga perlu menandai isPromptUserModified
+    const handlePromptFromChat = useCallback((chatPrompt: string) => { 
+        setPrompt(chatPrompt); 
+        isPromptUserModified.current = true;
+        toast.success('Pesan dari asisten digunakan!'); 
+    }, []);
+
+    const handlePromptFromAnalysis = useCallback((analysisPrompt: string) => { 
+        setPrompt(analysisPrompt); 
+        isPromptUserModified.current = true;
+    }, []);
 
     const handleClearHistory = useCallback(() => {
         localStorage.removeItem('ai_image_history');
@@ -800,7 +848,7 @@ function AISuitePageContent() {
                                 )}
                             </div>
 
-                            <div><label htmlFor="prompt" className="block text-slate-300 mb-3 font-bold text-xl items-center"><Zap className="w-7 h-7 mr-3 text-cyan-400"/>Image Generation</label><div className="relative w-full"><textarea id="prompt" className="w-full bg-slate-900 border-2 border-slate-700 rounded-lg p-4 pr-10 text-slate-100 text-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 transition" rows={4} placeholder="Tuliskan imajinasi Anda di sini..." value={prompt} onChange={(e) => setPrompt(e.target.value)} disabled={isLoading} />{prompt && <button onClick={handleClearPrompt} className="absolute top-3 right-3 text-slate-500 hover:text-white transition"><Eraser size={20}/></button>}</div></div>
+                            <div><label htmlFor="prompt" className="block text-slate-300 mb-3 font-bold text-xl items-center"><Zap className="w-7 h-7 mr-3 text-cyan-400"/>Image Generation</label><div className="relative w-full"><textarea id="prompt" className="w-full bg-slate-900 border-2 border-slate-700 rounded-lg p-4 pr-10 text-slate-100 text-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 transition" rows={4} placeholder="Tuliskan imajinasi Anda di sini..." value={prompt} onChange={handlePromptChange} disabled={isLoading} />{prompt && <button onClick={handleClearPrompt} className="absolute top-3 right-3 text-slate-500 hover:text-white transition"><Eraser size={20}/></button>}</div></div>
                             <div className="mt-2"><button onClick={handleGenerateImage} disabled={isLoading || !prompt.trim() || userCoins <= 0} className="w-full font-bold py-4 px-8 rounded-full bg-gradient-to-r from-sky-500 to-cyan-400 text-white hover:opacity-90 transition-all duration-300 flex items-center justify-center text-xl disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-cyan-500/20">{isLoading ? (<> <svg className="animate-spin h-6 w-6 text-current mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Generating...</>) : (<><Zap className="mr-2"/> Generate Image</>)}</button></div>
                             <div className="space-y-4 pt-6 border-t border-slate-700">
                                 <Accordion title="Parameter" icon={<Settings size={16}/>}><div className="grid grid-cols-2 gap-4"><ParameterInput label="Model"><select className="w-full text-xs bg-slate-800 border-slate-600 rounded-md p-2" value={imageGenModel} onChange={(e) => handleModelChange(e.target.value as ImageGenModel)}>{imageGenModels.map(m => <option key={m} value={m}>{m}</option>)}</select></ParameterInput><ParameterInput label="Gaya Seni">
@@ -874,8 +922,8 @@ function AISuitePageContent() {
                                             <KeyRound size={16}/> Isi Ulang Koin Admin
                                         </button>
                                         <p className="text-xs text-slate-400">
-                                            Fitur admin ini diperuntukkan bagi administrator. Akses dan fungsionalitas mungkin terbatas.
-                                            Jika Anda seorang admin dan menghadapi masalah konfigurasi, mohon konfirmasi ke admin Anda atau tim dukungan.
+                                            Fitur ini diperuntukkan bagi administrator. Akses dan fungsionalitas mungkin terbatas.
+                                            Jika Anda seorang administrator dan mengalami masalah, mohon konfirmasi dengan tim dukungan melalui halaman kontak.
                                         </p>
                                     </div>
                                 </Accordion>
