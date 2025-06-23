@@ -3,15 +3,15 @@ import { notFound } from 'next/navigation';
 import { blogArticles, Article } from '@/lib/blog-data';
 import BlogPostContent from './blog-post-content';
 
-// Definisikan tipe props secara lokal untuk file ini.
-// Ini adalah cara yang paling aman dan tidak akan berkonflik.
+// Definisikan tipe props secara lokal dan spesifik untuk halaman ini.
+// Ini adalah praktik terbaik.
 type Props = {
   params: {
     slug: string;
   };
 };
 
-// Gunakan tipe lokal 'Props' untuk generateMetadata.
+// Gunakan tipe 'Props' yang sudah benar.
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const slug = params.slug;
   const article = blogArticles.find((a) => a.slug === slug);
@@ -40,11 +40,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-/**
- * (Opsional tapi sangat disarankan)
- * Fungsi ini memberi tahu Next.js untuk membuat semua halaman blog saat build.
- * Ini membuat situs Anda lebih cepat dan optimal.
- */
+// (Sangat disarankan) Fungsi untuk membuat halaman statis saat build.
 export async function generateStaticParams() {
     return blogArticles.map((article) => ({
       slug: article.slug,
@@ -52,7 +48,7 @@ export async function generateStaticParams() {
 }
   
 
-// Gunakan tipe lokal 'Props' untuk komponen halaman utama.
+// Gunakan tipe 'Props' untuk komponen utama.
 export default function BlogPostPage({ params }: Props) {
   const slug = params.slug;
   const article: Article | undefined = blogArticles.find((a) => a.slug === slug);
@@ -61,6 +57,5 @@ export default function BlogPostPage({ params }: Props) {
     notFound();
   }
 
-  // Merender komponen konten dengan data artikel yang ditemukan
   return <BlogPostContent article={article} />;
 }
