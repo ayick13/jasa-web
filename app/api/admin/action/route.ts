@@ -2,7 +2,7 @@
 import { NextResponse } from 'next/server';
 
 const DEFAULT_DAILY_COINS = 500; // Koin harian default yang baru
-const MAX_ADMIN_REFILL_AMOUNT = 1000; // Batas maksimum untuk refill kustom
+const MAX_ADMIN_REFILL_AMOUNT = 5000; // Batas maksimum untuk refill kustom
 
 export async function POST(request: Request) {
   try {
