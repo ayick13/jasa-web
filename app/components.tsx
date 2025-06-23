@@ -39,8 +39,24 @@ const servicesData = [
     { icon: Share2, title: "Integrasi API", description: "Menghubungkan website Anda dengan layanan dan sistem pihak ketiga." }
 ];
 const skillsData = [
-    { name: "HTML5 & CSS3" }, { name: "JavaScript (ES6+)" }, { name: "TypeScript" }, { name: "React & Next.js" }, { name: "Tailwind CSS" }, { name: "Node.js" }, { name: "Firebase" }, { name: "Git & GitHub" }
+    { name: "HTML5 & CSS3" },
+    { name: "JavaScript (ES6+)" },
+    { name: "TypeScript" },
+    { name: "React & Next.js" },
+    { name: "Tailwind CSS" },
+    { name: "Node.js" },
+    { name: "Firebase" },
+    { name: "Git & GitHub" },
+    // Keahlian baru yang ditambahkan:
+    { name: "FontAwesome" },
+    { name: "Bootstrap" },
+    { name: "WordPress" },
+    { name: "Elementor" },
+    { name: "WordPress Plugins" },
+    { name: "Digital Marketing" },
+    { name: "Photoshop Design" }
 ];
+
 const pricingData = [
     { title: "Basic", price: "1.5jt", period: "proyek", description: "Ideal untuk portofolio pribadi, landing page, atau profil bisnis sederhana.", features: ["Hingga 3 Halaman", "Desain Modern & Responsif", "Formulir Kontak Berfungsi", "Setup SEO Dasar", "1 Sesi Revisi Desain", "Hosting & Domain (.com) 1 Tahun"], isRecommended: false },
     { title: "Pro", price: "4jt", period: "proyek", description: "Pilihan populer untuk UKM, startup, atau company profile yang lebih lengkap.", features: ["Hingga 8 Halaman", "Semua fitur paket Basic", "Desain Eksklusif Sesuai Brand", "Manajemen Konten (CMS)", "Integrasi Media Sosial & WhatsApp", "Analitik Pengunjung (Google Analytics)", "Dukungan Teknis 3 Bulan"], isRecommended: true },
