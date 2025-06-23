@@ -1,7 +1,7 @@
 // app/api/admin/action/route.ts
 import { NextResponse } from 'next/server';
 
-const DEFAULT_DAILY_COINS = 100; // Koin harian default yang baru
+const DEFAULT_DAILY_COINS = 500; // Koin harian default yang baru
 const MAX_ADMIN_REFILL_AMOUNT = 1000; // Batas maksimum untuk refill kustom
 
 export async function POST(request: Request) {
