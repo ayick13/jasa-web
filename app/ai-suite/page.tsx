@@ -570,8 +570,8 @@ function AISuitePageContent() {
     // State untuk koin
     const [userCoins, setUserCoins] = useState(DEFAULT_DAILY_COINS);
     const [lastUsageTimestamp, setLastUsageTimestamp] = useState<number>(0);
-    const [showAdminResetModal, setShowAdminResetModal] = useState(false);
-    const [showAdminRefillModal, setShowAdminRefillModal] = useState(false);
+    const [showAdminResetModal, setShowAdminResetModal] = useState(false); // State untuk modal reset admin
+    const [showAdminRefillModal, setShowAdminRefillModal] = useState(false); // State untuk modal refill admin
     const [remainingTime, setRemainingTime] = useState<string>('');
     
     // Fungsi helper untuk menghitung sisa waktu
@@ -665,6 +665,13 @@ function AISuitePageContent() {
             return;
         }
 
+        // Revoke Object URLs dari gambar yang dihasilkan sebelumnya sebelum membersihkan state
+        generatedImages.forEach(img => {
+            if (img.url.startsWith('blob:')) {
+                URL.revokeObjectURL(img.url);
+            }
+        });
+
         const finalPrompt = imageGenModel === 'dall-e-3' ? prompt : `${prompt}${artStyle !== 'realistic' ? `, in the style of ${artStyle.replace('-', ' ')}` : ''}${quality === 'hd' ? ', hd' : quality === 'ultrahd' ? ', 4k, photorealistic' : ''}`;
         setIsLoading(true); setGeneratedImages([]);
         setActiveTab('current');
@@ -709,7 +716,7 @@ function AISuitePageContent() {
         } catch (error: any) {
             toast.error(error.message || 'Terjadi kesalahan tak terduga.', { id: toastId });
         } finally { setIsLoading(false); }
-    }, [prompt, imageGenModel, artStyle, quality, imageWidth, imageHeight, batchSize, userCoins, calculateRemainingTime]);
+    }, [prompt, imageGenModel, artStyle, quality, imageWidth, imageHeight, batchSize, userCoins, generatedImages, calculateRemainingTime]); // Tambah generatedImages ke dependencies
     
     // Perbaikan bug: Menghapus prompt dari state dan juga dari URL
     const handleClearPrompt = useCallback(() => {
@@ -743,10 +750,16 @@ function AISuitePageContent() {
     }, []);
 
     const handleClearHistory = useCallback(() => {
+        // Revoke object URLs from history images before clearing
+        historyImages.forEach(img => {
+            if (img.url.startsWith('blob:')) {
+                URL.revokeObjectURL(img.url);
+            }
+        });
         localStorage.removeItem('ai_image_history');
         setHistoryImages([]);
         toast.success('Riwayat dihapus.');
-    }, []);
+    }, [historyImages]); // Tambah historyImages ke dependencies agar revoke berjalan
 
     // Fungsi untuk membuka modal reset admin
     const handleAdminResetClick = useCallback(() => {
@@ -843,7 +856,7 @@ function AISuitePageContent() {
                                 <span className="flex items-center gap-2"><DollarSign className="w-5 h-5 text-yellow-400"/>Koin Anda:</span>
                                 <span className="text-yellow-300 text-lg font-bold">{userCoins}</span>
                                 {/* Tampilkan countdown jika koin belum MAX dan sudah pernah digunakan */}
-                                {userCoins < DEFAULT_DAILY_COINS && ( // Ganti MAX_ADMIN_COINS_DISPLAY menjadi DEFAULT_DAILY_COINS, agar countdown muncul saat koin kurang dari default harian
+                                {userCoins < DEFAULT_DAILY_COINS && lastUsageTimestamp !== 0 && ( // Tampilkan jika kurang dari default dan sudah pernah dipakai
                                     <span className="text-xs text-slate-400 ml-4">{remainingTime}</span>
                                 )}
                             </div>
