@@ -12,6 +12,32 @@ export interface Project {
 
 export const portfolioProjects: Project[] = [
   {
+    slug: 'app-magai-co',
+    title: 'app.magai.co',
+    category: 'Web AI',
+    summary: 'Proyek pengembangan web AI di mana saya berpartisipasi dalam tim selama 4-5 bulan pada tahun 2023.',
+    description: `
+      <p>Proyek app.magai.co adalah sebuah platform web AI inovatif. Selama 4-5 bulan di tahun 2023, saya berkolaborasi dengan tim untuk mengembangkan berbagai fitur dan fungsionalitas AI pada platform ini. Kontribusi saya mencakup pengembangan bagian frontend dan integrasi API untuk layanan AI, memastikan pengalaman pengguna yang mulus dan responsif.</p>
+      <p class="mt-4">Proyek ini berfokus pada pemanfaatan kecerdasan buatan untuk menyediakan solusi web yang cerdas, seperti analisis data, otomatisasi, dan interaksi pengguna yang ditingkatkan. Pengalaman ini memperdalam pemahaman saya tentang arsitektur aplikasi AI dan pengembangan web berskala besar.</p>
+    `,
+    technologies: ['AI', 'Next.js', 'React', 'TypeScript', 'API Integration'],
+    imageUrl: 'https://image.pollinations.ai/prompt/A%20sleek%20and%20futuristic%20web%20interface%20displaying%20AI%20elements%20like%20neural%20networks%20and%20data%20visualizations,%20with%20a%20modern%20minimalist%20design%20and%20glowing%20blue%20accents.?nologo=true&referrer=ariftirtana.my.id',
+    liveUrl: 'https://app.magai.co',
+  },
+  {
+    slug: 'dzine-ai',
+    title: 'dzine.ai',
+    category: 'Web AI',
+    summary: 'Berpartisipasi dalam fase wireframe dan desain UI/UX untuk platform web AI dzine.ai.',
+    description: `
+      <p>Dalam proyek dzine.ai, saya berfokus pada tahap awal pengembangan, yaitu wireframing dan desain UI/UX. Tujuan utama adalah menciptakan antarmuka yang intuitif dan menarik bagi pengguna, memastikan pengalaman yang lancar saat berinteraksi dengan fitur-fitur AI yang canggih.</p>
+      <p class="mt-4">Kontribusi saya meliputi pembuatan sketsa kasar (wireframe) untuk struktur halaman, alur pengguna (user flow), dan prototipe interaktif. Saya juga merancang elemen visual seperti tata letak, tipografi, skema warna, dan ikonografi untuk memastikan konsistensi merek dan daya tarik visual. Fokus utama adalah pada kemudahan penggunaan dan estetika yang modern untuk aplikasi berbasis AI.</p>
+    `,
+    technologies: ['UI/UX Design', 'Wireframing', 'Figma', 'Web Design', 'AI'],
+    imageUrl: 'https://image.pollinations.ai/prompt/A%20futuristic%20and%20minimalist%20AI%20design%20studio%20interface%20with%20clean%20lines,%20soft%20gradients,%20and%20interactive%20elements.%20Focus%20on%20intuitive%20layout%20and%20modern%20typography.?nologo=true&referrer=ariftirtana.my.id',
+    liveUrl: 'https://dzine.ai',
+  },
+  {
     slug: 'waffledan-ecommerce',
     title: 'Waffledan F&B E-Commerce',
     category: 'E-Commerce',
