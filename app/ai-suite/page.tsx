@@ -645,51 +645,68 @@ function AISuitePageContent() {
         }
     }, []);
 
-    // Muat riwayat dan koin dari localStorage saat komponen pertama kali dimuat
+    // --- PERBAIKAN: Logika LocalStorage ---
+
+    // 1. Muat riwayat dan state lain dari localStorage saat komponen pertama kali dimuat
     useEffect(() => {
-        const savedHistory = localStorage.getItem('ai_image_history');
-        if (savedHistory) {
-            try {
+        // Muat Riwayat Gambar
+        try {
+            const savedHistory = localStorage.getItem('ai_image_history');
+            if (savedHistory) {
                 const parsedHistory: GeneratedImageData[] = JSON.parse(savedHistory);
-                setHistoryImages(parsedHistory.filter(item => item && item.url && item.prompt));
-            } catch (e) {
-                console.error("Failed to parse AI image history from localStorage", e);
-                setHistoryImages([]);
+                // Lakukan validasi dasar untuk memastikan data tidak rusak
+                if (Array.isArray(parsedHistory)) {
+                    setHistoryImages(parsedHistory.filter(item => item && item.url && item.prompt));
+                }
             }
+        } catch (e) {
+            console.error("Gagal memuat riwayat dari localStorage:", e);
+            localStorage.removeItem('ai_image_history'); // Hapus data yang rusak
         }
 
+        // Muat Koin Pengguna
         const savedCoins = localStorage.getItem('user_ai_coins');
         const savedTimestamp = localStorage.getItem('last_coin_usage_timestamp');
         
         let initialCoins = DEFAULT_DAILY_COINS;
-        let initialTimestamp = Date.now();
+        let initialTimestamp = 0; // Mulai dari 0
 
         if (savedCoins && savedTimestamp) {
-            const parsedCoins = parseInt(savedCoins);
-            const parsedTimestamp = parseInt(savedTimestamp);
+            const parsedCoins = parseInt(savedCoins, 10);
+            const parsedTimestamp = parseInt(savedTimestamp, 10);
 
             if (!isNaN(parsedCoins) && !isNaN(parsedTimestamp)) {
-                initialCoins = parsedCoins;
-                initialTimestamp = parsedTimestamp;
-
-                // Cek apakah sudah 24 jam sejak penggunaan terakhir untuk reset otomatis
+                // Cek apakah sudah 24 jam untuk reset
                 if (Date.now() - parsedTimestamp > COIN_RESET_INTERVAL_MS) {
-                    initialCoins = DEFAULT_DAILY_COINS; // Reset koin
-                    initialTimestamp = Date.now(); // Perbarui timestamp reset
+                    initialCoins = DEFAULT_DAILY_COINS;
+                    initialTimestamp = Date.now();
                     toast.success('Koin harian Anda telah direset!');
+                } else {
+                    initialCoins = parsedCoins;
+                    initialTimestamp = parsedTimestamp;
                 }
             }
         }
         setUserCoins(initialCoins);
         setLastUsageTimestamp(initialTimestamp);
 
-    }, []);
+    }, []); // <-- Dependency array kosong agar hanya berjalan sekali
 
-    // Simpan koin dan timestamp ke localStorage setiap kali berubah
+    // 2. Simpan riwayat ke localStorage setiap kali `historyImages` berubah
+    useEffect(() => {
+        // Jangan simpan state awal yang kosong ke localStorage
+        if (historyImages.length > 0) {
+            localStorage.setItem('ai_image_history', JSON.stringify(historyImages));
+        }
+    }, [historyImages]);
+
+    // 3. Simpan koin dan timestamp ke localStorage setiap kali berubah
     useEffect(() => {
         localStorage.setItem('user_ai_coins', userCoins.toString());
         localStorage.setItem('last_coin_usage_timestamp', lastUsageTimestamp.toString());
     }, [userCoins, lastUsageTimestamp]);
+    
+    // --- AKHIR PERBAIKAN ---
 
     // Effect untuk memperbarui visual penghitung mundur setiap detik
     useEffect(() => {
@@ -751,11 +768,8 @@ function AISuitePageContent() {
 
             if (images.length > 0) {
                 setGeneratedImages(images);
-                setHistoryImages(prevHistory => {
-                    const newHistory = [...prevHistory, ...images];
-                    localStorage.setItem('ai_image_history', JSON.stringify(newHistory));
-                    return newHistory;
-                });
+                // Di sini, kita hanya memperbarui state. useEffect akan menangani penyimpanan ke localStorage
+                setHistoryImages(prevHistory => [...images, ...prevHistory]); 
                 setUserCoins(prevCoins => prevCoins - 1); // Kurangi koin
                 setLastUsageTimestamp(Date.now()); // Perbarui timestamp penggunaan terakhir
                 toast.success(`${images.length} gambar berhasil dibuat! Koin Anda sisa ${userCoins - 1}.`, { id: toastId });
@@ -764,7 +778,7 @@ function AISuitePageContent() {
         } catch (error: any) {
             toast.error(error.message || 'Terjadi kesalahan tak terduga.', { id: toastId });
         } finally { setIsLoading(false); }
-    }, [prompt, imageGenModel, artStyle, quality, imageWidth, imageHeight, batchSize, userCoins, generatedImages, calculateRemainingTime]);
+    }, [prompt, imageGenModel, artStyle, quality, imageWidth, imageHeight, batchSize, userCoins, generatedImages]);
     
     // Perbaikan bug: Menghapus prompt dari state dan juga dari URL
     const handleClearPrompt = useCallback(() => {
@@ -804,10 +818,10 @@ function AISuitePageContent() {
                 URL.revokeObjectURL(img.url);
             }
         });
-        localStorage.removeItem('ai_image_history');
-        setHistoryImages([]);
+        localStorage.removeItem('ai_image_history'); // Hapus dari localStorage
+        setHistoryImages([]); // Hapus dari state
         toast.success('Riwayat dihapus.');
-    }, [historyImages]); // Tambah historyImages ke dependencies agar revoke berjalan
+    }, [historyImages]); 
 
     // Fungsi untuk membuka modal reset admin
     const handleAdminResetClick = useCallback(() => {
