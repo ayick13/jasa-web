@@ -36,23 +36,14 @@ const handler = NextAuth({
           where: { email: credentials.email },
         });
 
-        // ==========================================================
-        // =              PERBAIKAN UTAMA ADA DI SINI               =
-        // ==========================================================
-
-        // 1. Cek jika user tidak ada ATAU jika user ada tapi tidak punya password
-        //    (Ini terjadi jika mereka mendaftar via Google/Facebook)
         if (!user || !user.password) {
           return null;
         }
 
-        // 2. Sekarang kita bisa dengan aman membandingkan password
         const isPasswordCorrect = await bcrypt.compare(
           credentials.password,
-          user.password // TypeScript sekarang tahu ini pasti sebuah string
+          user.password
         );
-        
-        // ==========================================================
 
         if (!isPasswordCorrect) {
           return null;
@@ -74,12 +65,12 @@ const handler = NextAuth({
   },
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
-    // Menambahkan data `id` ke dalam token sesi
     jwt({ token, user }) {
-      if (user) token.id = user.id;
+      if (user) {
+        token.id = user.id;
+      }
       return token;
     },
-    // Menambahkan data `id` dari token ke objek sesi di client
     session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
