@@ -1,14 +1,26 @@
 // app/api/auth/[...nextauth]/route.ts
 
 import NextAuth from 'next-auth';
-import CredentialsProvider from 'next-auth/providers/credentials';
+import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import { PrismaClient } from '@prisma/client';
+import CredentialsProvider from 'next-auth/providers/credentials';
+import GoogleProvider from 'next-auth/providers/google';
+import FacebookProvider from 'next-auth/providers/facebook';
 import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
 const handler = NextAuth({
+  adapter: PrismaAdapter(prisma),
   providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
+    FacebookProvider({
+      clientId: process.env.FACEBOOK_CLIENT_ID!,
+      clientSecret: process.env.FACEBOOK_CLIENT_SECRET!,
+    }),
     CredentialsProvider({
       name: 'Credentials',
       credentials: {
@@ -16,34 +28,36 @@ const handler = NextAuth({
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        // Cek apakah email dan password ada
         if (!credentials?.email || !credentials.password) {
           return null;
         }
 
-        // 1. Cari pengguna di database berdasarkan email
         const user = await prisma.user.findUnique({
           where: { email: credentials.email },
         });
 
-        // Jika pengguna tidak ditemukan, kembalikan null
-        if (!user) {
+        // ==========================================================
+        // =              PERBAIKAN UTAMA ADA DI SINI               =
+        // ==========================================================
+
+        // 1. Cek jika user tidak ada ATAU jika user ada tapi tidak punya password
+        //    (Ini terjadi jika mereka mendaftar via Google/Facebook)
+        if (!user || !user.password) {
           return null;
         }
 
-        // 2. Bandingkan password yang diinput dengan hash di database
+        // 2. Sekarang kita bisa dengan aman membandingkan password
         const isPasswordCorrect = await bcrypt.compare(
           credentials.password,
-          user.password
+          user.password // TypeScript sekarang tahu ini pasti sebuah string
         );
+        
+        // ==========================================================
 
-        // Jika password tidak cocok, kembalikan null
         if (!isPasswordCorrect) {
           return null;
         }
         
-        // 3. Jika semua cocok, kembalikan data pengguna
-        // (Jangan kembalikan password!)
         return {
           id: user.id,
           name: user.name,
@@ -59,6 +73,20 @@ const handler = NextAuth({
     strategy: 'jwt',
   },
   secret: process.env.NEXTAUTH_SECRET,
+  callbacks: {
+    // Menambahkan data `id` ke dalam token sesi
+    jwt({ token, user }) {
+      if (user) token.id = user.id;
+      return token;
+    },
+    // Menambahkan data `id` dari token ke objek sesi di client
+    session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.id as string;
+      }
+      return session;
+    },
+  },
 });
 
 export { handler as GET, handler as POST };
