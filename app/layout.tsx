@@ -4,12 +4,13 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
-import { Header, Footer } from "./components";
+import { Header, Footer } from "./components"; // <-- Impor yang sudah ada
 import { SpeedInsights } from '@vercel/speed-insights/next';
-import { Analytics } from '@vercel/analytics/react'; // Import Analytics
+import { Analytics } from '@vercel/analytics/react';
 
 const inter = Inter({ subsets: ["latin"] });
 
+// --- Metadata (Tidak ada perubahan, semua dari kode asli Anda) ---
 const businessName = "Jasa Pembuatan Website";
 const authorName = "Arif Tirtana";
 const businessDescription = "Selamat datang di Dunia Digital Ayick. Sebagai Web Developer & Akselerator Digital, saya membantu bisnis Anda melesat di dunia online melalui kehadiran digital yang kuat, efektif, dan modern.";
@@ -71,6 +72,8 @@ export const viewport: Viewport = {
   colorScheme: 'light',
 };
 
+
+// --- FUNGSI RootLayout (BAGIAN YANG DIPERBAIKI) ---
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -94,7 +97,7 @@ export default function RootLayout({
       'addressCountry': 'ID'
     },
     'sameAs': [
-      'https://www.linkedin.com/in/arif-tirtana',
+      'https://www.facebook.com/ayicktigabelas',
       'https://github.com/ayick13',
     ],
     'provider': {
@@ -111,12 +114,22 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className={inter.className}>
+      {/* PERUBAHAN DI SINI: Menambahkan class untuk layout flex dan background */}
+      <body className={`${inter.className} flex flex-col min-h-screen bg-white dark:bg-slate-900`}>
         <Providers>
-          {children}
+          {/* ========================================================== */}
+          {/* =       STRUKTUR UTAMA YANG KONSISTEN UNTUK SEMUA HALAMAN      = */}
+          {/* ========================================================== */}
+          <Header />
+          <main className="flex-grow">
+            {/* 'children' adalah tempat di mana semua halaman (page.tsx) akan dirender */}
+            {children} 
+          </main>
+          <Footer />
+          {/* ========================================================== */}
         </Providers>
         <SpeedInsights />
-        <Analytics /> {/* Komponen Analytics ditambahkan di sini */}
+        <Analytics />
       </body>
     </html>
   );
