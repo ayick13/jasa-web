@@ -4,7 +4,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
-import { Header, Footer } from "./components"; // <-- Impor yang sudah ada
+import { Header, Footer } from "./components"; // Impor yang sudah ada dan benar
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Analytics } from '@vercel/analytics/react';
 
@@ -14,7 +14,7 @@ const inter = Inter({ subsets: ["latin"] });
 const businessName = "Jasa Pembuatan Website";
 const authorName = "Arif Tirtana";
 const businessDescription = "Selamat datang di Dunia Digital Ayick. Sebagai Web Developer & Akselerator Digital, saya membantu bisnis Anda melesat di dunia online melalui kehadiran digital yang kuat, efektif, dan modern.";
-const businessUrl = "https://ariftirtana.my.id"; 
+const businessUrl = "https://ariftirtana.my.id";
 const imagePath = "/picture/og.png";
 
 export const metadata: Metadata = {
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   },
   description: businessDescription,
   keywords: [
-    'Dunia Digital Ayick', 'Arif Tirtana', 'akselerator digital', 'web developer profesional', 
+    'Dunia Digital Ayick', 'Arif Tirtana', 'akselerator digital', 'web developer profesional',
     'konsultan digital', 'strategi online', 'pembuatan website', 'optimasi website'
   ],
   creator: authorName,
@@ -73,7 +73,7 @@ export const viewport: Viewport = {
 };
 
 
-// --- FUNGSI RootLayout (BAGIAN YANG DIPERBAIKI) ---
+// --- FUNGSI RootLayout (BAGIAN YANG SUDAH ANDA PERBAIKI DAN KONSISTEN) ---
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -114,20 +114,19 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      {/* PERUBAHAN DI SINI: Menambahkan class untuk layout flex dan background */}
+      {/* Penambahan kelas flexbox untuk sticky footer dan pengaturan background */}
       <body className={`${inter.className} flex flex-col min-h-screen bg-white dark:bg-slate-900`}>
         <Providers>
-          {/* ========================================================== */}
-          {/* =       STRUKTUR UTAMA YANG KONSISTEN UNTUK SEMUA HALAMAN      = */}
-          {/* ========================================================== */}
+          {/* Header diletakkan di luar main agar selalu di bagian atas */}
           <Header />
+          {/* Main content akan mengisi ruang yang tersisa, mendorong footer ke bawah */}
           <main className="flex-grow">
-            {/* 'children' adalah tempat di mana semua halaman (page.tsx) akan dirender */}
-            {children} 
+            {children}
           </main>
+          {/* Footer diletakkan di luar main agar selalu di bagian bawah */}
           <Footer />
-          {/* ========================================================== */}
         </Providers>
+        {/* Vercel Speed Insights dan Analytics diletakkan di luar Providers jika tidak memerlukan context */}
         <SpeedInsights />
         <Analytics />
       </body>

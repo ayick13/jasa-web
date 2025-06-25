@@ -5,7 +5,7 @@ import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import { PrismaClient } from '@prisma/client';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
-import FacebookProvider from 'next-auth/providers/facebook';
+// import FacebookProvider from 'next-auth/providers/facebook'; // BARIS INI DIHAPUS ATAU DIKOMENTARI
 import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
@@ -17,10 +17,11 @@ const handler = NextAuth({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
-    FacebookProvider({
-      clientId: process.env.FACEBOOK_CLIENT_ID!,
-      clientSecret: process.env.FACEBOOK_CLIENT_SECRET!,
-    }),
+    // Hapus blok FacebookProvider ini jika tidak digunakan
+    // FacebookProvider({
+    //   clientId: process.env.FACEBOOK_CLIENT_ID!,
+    //   clientSecret: process.env.FACEBOOK_CLIENT_SECRET!,
+    // }),
     CredentialsProvider({
       name: 'Credentials',
       credentials: {
@@ -48,7 +49,7 @@ const handler = NextAuth({
         if (!isPasswordCorrect) {
           return null;
         }
-        
+
         return {
           id: user.id,
           name: user.name,
