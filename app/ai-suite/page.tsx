@@ -1,8 +1,10 @@
-// File: app/ai-suite/page.tsx (Versi Perbaikan dengan Tema Konsisten)
+// File: app/ai-suite/page.tsx (Versi Final dengan SEMUA komponen dan perbaikan)
 
 'use client';
 
-import React, { useState, useEffect, useRef, useMemo, useCallback, Fragment, Suspense } from 'react';
+// Impor yang dibutuhkan
+import { useSession, signOut } from 'next-auth/react';
+import React, { useState, useEffect, useRef, useCallback, Fragment, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { toast, Toaster } from 'react-hot-toast';
@@ -10,7 +12,7 @@ import {
     Download, Zap, Eraser, Sparkles, Wand2, MessageSquare, Bot, Send, Settings,
     ChevronDown, ImageIcon, BrainCircuit, Upload, CheckCircle, Copy, CornerDownLeft, X,
     Volume2, Paperclip, History, KeyRound, ExternalLink, Trash2,
-    Eye, EyeOff
+    Eye, EyeOff, LogOut
 } from 'lucide-react';
 
 // --- Tipe Data & Konstanta (Tidak ada perubahan) ---
@@ -298,14 +300,13 @@ const batchSizes = [1, 2, 3, 4] as const;
 type BatchSize = (typeof batchSizes)[number];
 interface ChatMessage { id: string; role: 'user' | 'assistant'; content: string; imageUrl?: string; }
 interface GeneratedImageData { url: string; prompt: string; model: ImageGenModel; artStyle: ArtStyle; quality: QualityOption; width: number; height: number; seed: string; isDalle?: boolean; timestamp: number; }
-interface HistoryItem { id: string; prompt: string; timestamp: string; }
 const imagePresets = [
     { label: 'Square (1024x1024)', width: 1024, height: 1024 },
     { label: 'Portrait (1024x1792)', width: 1024, height: 1792 },
     { label: 'Landscape (1792x1024)', width: 1792, height: 1024 },
 ];
 
-// --- Komponen UI yang Sudah Diperbaiki ---
+// --- Komponen-komponen UI ---
 const ParameterInput = ({ label, children }: { label: string, children: React.ReactNode }) => (
     <div>
         <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">{label}</label>
@@ -349,7 +350,9 @@ const CodeBlock = ({ language, code }: { language: string, code: string }) => {
     );
 };
 
-// --- Komponen Fungsional (dengan perbaikan tema) ---
+// ===================================================================================
+// DEFINISI KOMPONEN FUNGSIONAL (ChatBox, ImageAnalyzer, dll)
+// ===================================================================================
 const ChatBox = ({ onPromptFromChat }: { onPromptFromChat: (prompt: string) => void }) => {
     const [messages, setMessages] = useState<ChatMessage[]>([{ id: 'init', role: 'assistant', content: 'Halo! Anda bisa mengirim teks atau gambar untuk dianalisa.' }]);
     const [input, setInput] = useState(''); const [isThinking, setIsThinking] = useState(false); const [availableModels, setAvailableModels] = useState<Record<string, any>>({}); const [selectedModel, setSelectedModel] = useState('openai'); const imageInputRef = useRef<HTMLInputElement>(null); const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -454,7 +457,43 @@ const ImageAnalyzer = ({ onPromptFromAnalysis }: { onPromptFromAnalysis: (prompt
     );
 };
 
-// Modal Detail Gambar (Diperbaiki)
+// ===================================================================================
+
+const UserDisplay = () => {
+    const { data: session, status } = useSession();
+
+    if (status === "loading") {
+        return <div className="animate-pulse bg-slate-200 dark:bg-slate-700 rounded-full h-10 w-48"></div>;
+    }
+
+    if (status === "authenticated" && session.user) {
+        return (
+            <div className="flex items-center gap-4 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2 rounded-full">
+                <Image
+                    src={session.user.image || '/images/profil.webp'} // Menggunakan profil.webp sebagai fallback
+                    alt={session.user.name || 'User Avatar'}
+                    width={32}
+                    height={32}
+                    className="rounded-full"
+                />
+                <div className="text-sm">
+                    <p className="font-bold text-slate-800 dark:text-white">{session.user.name}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">{session.user.email}</p>
+                </div>
+                <button
+                    onClick={() => signOut({ callbackUrl: '/' })}
+                    className="p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-red-100 dark:hover:bg-red-900/50 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                    title="Logout"
+                >
+                    <LogOut size={20} />
+                </button>
+            </div>
+        );
+    }
+
+    return null; // Tidak menampilkan apa-apa jika tidak login
+};
+
 const ImageDetailModal = ({ isOpen, onClose, imageData }: { isOpen: boolean, onClose: () => void, imageData: GeneratedImageData | null }) => {
     if (!isOpen || !imageData) return null;
     return (
@@ -483,7 +522,6 @@ const ImageDetailModal = ({ isOpen, onClose, imageData }: { isOpen: boolean, onC
     );
 };
 
-// Modal API Key (Diperbaiki)
 const DalleApiKeyModal = ({ isOpen, onClose, onSave }: { isOpen: boolean, onClose: () => void, onSave: (key: string) => void }) => {
     const [apiKey, setApiKey] = useState('');
     const [showApiKey, setShowApiKey] = useState(false);
@@ -515,10 +553,10 @@ const DalleApiKeyModal = ({ isOpen, onClose, onSave }: { isOpen: boolean, onClos
     );
 };
 
-// --- Komponen Utama Halaman (dengan perbaikan tema) ---
 function AISuitePageContent() {
+    const { data: session, status } = useSession();
     const searchParams = useSearchParams(); const router = useRouter(); const [prompt, setPrompt] = useState(() => { const urlPrompt = searchParams.get('prompt'); if (urlPrompt) { const newSearchParams = new URLSearchParams(searchParams.toString()); newSearchParams.delete('prompt'); if (typeof window !== 'undefined') { router.replace(`?${newSearchParams.toString()}`, { scroll: false }); } return urlPrompt; } return ''; }); const isPromptUserModified = useRef(false);
-    useEffect(() => { if (searchParams.get('prompt') && !isPromptUserModified.current) { toast.success('Prompt dari halaman utama dimuat!'); } }, []);
+    useEffect(() => { if (searchParams.get('prompt') && !isPromptUserModified.current) { toast.success('Prompt dari halaman utama dimuat!'); } }, [searchParams]); // Dependensi ditambahkan
     const [imageGenModel, setImageGenModel] = useState<ImageGenModel>('flux'); const [artStyle, setArtStyle] = useState<ArtStyle>('realistic'); const [quality, setQuality] = useState<QualityOption>('standar'); const [imageWidth, setImageWidth] = useState(1024); const [imageHeight, setImageHeight] = useState(1024); const [batchSize, setBatchSize] = useState<BatchSize>(1); const [generatedImages, setGeneratedImages] = useState<GeneratedImageData[]>([]); const [historyImages, setHistoryImages] = useState<GeneratedImageData[]>([]); const [isLoading, setIsLoading] = useState(false); const [isCreatorLoading, setIsCreatorLoading] = useState(false); const [creatorSubject, setCreatorSubject] = useState(''); const [creatorDetails, setCreatorDetails] = useState(''); const [createdPrompt, setCreatedPrompt] = useState<string | null>(null); const [isModalOpen, setIsModalOpen] = useState(false); const [selectedImageData, setSelectedImageData] = useState<GeneratedImageData | null>(null); const [isDalleModalOpen, setIsDalleModalOpen] = useState(false); const [activeTab, setActiveTab] = useState<'current' | 'history'>('current');
     useEffect(() => { try { const savedHistory = localStorage.getItem('ai_image_history'); if (savedHistory) { const parsedHistory: GeneratedImageData[] = JSON.parse(savedHistory); if (Array.isArray(parsedHistory)) { setHistoryImages(parsedHistory.filter(item => item && item.url && item.prompt)); } } } catch (e) { console.error("Gagal memuat riwayat dari localStorage:", e); localStorage.removeItem('ai_image_history'); } }, []);
     useEffect(() => { if (historyImages.length > 0) { localStorage.setItem('ai_image_history', JSON.stringify(historyImages)); } else { localStorage.removeItem('ai_image_history'); } }, [historyImages]);
@@ -538,8 +576,11 @@ function AISuitePageContent() {
         <Fragment>
             <DalleApiKeyModal isOpen={isDalleModalOpen} onClose={handleCloseDalleModal} onSave={handleSaveDalleKey} />
             <ImageDetailModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} imageData={selectedImageData} />
-            <Toaster position="top-center" toastOptions={{ className: 'bg-slate-800 text-white', style: { background: '#1e293b', color: '#e2e8f0', border: '1px solid #334155' } }} />
-            <main className="container mx-auto py-12 px-4 sm:px-6 lg:px-8 bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
+            <Toaster position="top-center" toastOptions={{ className: 'dark:bg-slate-800 dark:text-white', style: { border: '1px solid #334155' } }} />
+            <main className="container mx-auto py-8 px-4 sm:px-6 lg:px-8 bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
+                <div className="flex justify-end mb-8">
+                    <UserDisplay />
+                </div>
                 <div className="text-center mb-12">
                     <h1 className="text-5xl md:text-6xl font-extrabold mb-4 text-slate-900 dark:text-white">AI <span className="bg-clip-text text-transparent bg-gradient-to-r from-sky-400 to-cyan-300">Image Suite</span></h1>
                     <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">Sebuah command center untuk mengubah imajinasi Anda menjadi kenyataan visual.</p>
@@ -562,49 +603,42 @@ function AISuitePageContent() {
                                 </button>
                             </div>
                             <div className="space-y-4 pt-6 border-t border-slate-200 dark:border-slate-700">
-                                <Accordion title="Parameter" icon={<Settings size={16}/>}><div className="grid grid-cols-2 gap-4">
-                                    <ParameterInput label="Model">
-                                        <select className="w-full text-xs bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-md p-2 text-slate-800 dark:text-white" value={imageGenModel} onChange={(e) => handleModelChange(e.target.value as ImageGenModel)}>
-                                            {imageGenModels.map(m => <option key={m} value={m}>{m}</option>)}
-                                        </select>
-                                    </ParameterInput>
-                                    <ParameterInput label="Gaya Seni">
-                                        <select className="w-full text-xs bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-md p-2 text-slate-800 dark:text-white" value={artStyle} onChange={(e) => setArtStyle(e.target.value as ArtStyle)} disabled={imageGenModel === 'dall-e-3'}>
-                                            {artStylesGrouped.map((group) => ( <optgroup key={group.label} label={group.label}>{group.options.map(option => (<option key={option.value} value={option.value}>{option.text}</option>))}</optgroup>))}
-                                        </select>
-                                    </ParameterInput>
-                                    <ParameterInput label="Kualitas">
-                                        <select className="w-full text-xs bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-md p-2 text-slate-800 dark:text-white" value={quality} onChange={(e) => setQuality(e.target.value as QualityOption)} disabled={imageGenModel === 'dall-e-3'}>
-                                            {qualityOptions.map(q => <option key={q} value={q}>{q.charAt(0).toUpperCase() + q.slice(1)}</option>)}
-                                        </select>
-                                    </ParameterInput>
-                                    <ParameterInput label="Jumlah">
-                                        <select className="w-full text-xs bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-md p-2 text-slate-800 dark:text-white" value={batchSize} onChange={(e) => setBatchSize(Number(e.target.value) as BatchSize)} disabled={imageGenModel === 'dall-e-3'}>
-                                            {batchSizes.map(s => <option key={s} value={s}>{s}</option>)}
-                                        </select>
-                                    </ParameterInput>
-                                    <div className="col-span-2">
-                                        <ParameterInput label="Ukuran Preset">
-                                            <select className="w-full text-xs bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-md p-2 text-slate-800 dark:text-white" value={`${imageWidth}x${imageHeight}`} onChange={(e) => { const [widthStr, heightStr] = e.target.value.split('x'); setImageWidth(parseInt(widthStr)); setImageHeight(parseInt(heightStr)); }} disabled={imageGenModel === 'dall-e-3'}>
-                                                {imagePresets.map(preset => (<option key={`${preset.width}x${preset.height}`} value={`${preset.width}x${preset.height}`}>{preset.label}</option>))}
-                                            </select>
-                                        </ParameterInput>
-                                    </div>
-                                    <div className="col-span-2 grid grid-cols-2 gap-2">
-                                        <ParameterInput label="Width"><input type="number" className="w-full text-xs bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-md p-2 text-slate-800 dark:text-white" value={imageWidth} onChange={e => setImageWidth(parseInt(e.target.value))} disabled={imageGenModel === 'dall-e-3'}/></ParameterInput>
-                                        <ParameterInput label="Height"><input type="number" className="w-full text-xs bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-md p-2 text-slate-800 dark:text-white" value={imageHeight} onChange={e => setImageHeight(parseInt(e.target.value))} disabled={imageGenModel === 'dall-e-3'}/></ParameterInput>
-                                    </div>
-                                </div></Accordion>
-                                <Accordion title="Prompt Creator" icon={<Wand2 size={16}/>}>
-                                    <div className="space-y-4">
-                                        <div className="space-y-3">
-                                            <input type="text" value={creatorSubject} onChange={e => setCreatorSubject(e.target.value)} placeholder="Subjek Utama..." className="w-full text-sm bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-md p-2 text-slate-800 dark:text-white" />
-                                            <textarea value={creatorDetails} onChange={e => setCreatorDetails(e.target.value)} placeholder="Detail Tambahan..." rows={2} className="w-full text-sm bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-md p-2 text-slate-800 dark:text-white" />
-                                            <button onClick={handleCreatePrompt} disabled={isCreatorLoading || !creatorSubject.trim()} className="w-full bg-purple-600 text-white py-2 rounded-lg font-semibold text-sm hover:bg-purple-700 transition disabled:opacity-50 flex justify-center items-center">{isCreatorLoading ? "Meningkatkan..." : 'Tingkatkan Prompt'}</button>
-                                        </div>
-                                        {createdPrompt && ( <div className="border-t border-slate-200 dark:border-slate-700 pt-4 space-y-3"> <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">Hasil dari AI:</p> <p className="text-sm bg-slate-50 dark:bg-slate-900 p-3 rounded-md border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-300">{createdPrompt}</p> <div className="flex gap-2"><button onClick={() => { setPrompt(createdPrompt); toast.success('Prompt digunakan!'); }} className="flex-1 bg-sky-600 text-white py-2 rounded-lg font-semibold text-xs hover:bg-sky-700 transition flex items-center justify-center gap-2"><CornerDownLeft size={14}/> Gunakan</button><button onClick={() => { navigator.clipboard.writeText(createdPrompt); toast.success('Prompt disalin!'); }} className="flex-1 bg-slate-500 dark:bg-slate-600 text-white py-2 rounded-lg font-semibold text-xs hover:bg-slate-600 dark:hover:bg-slate-700 transition flex items-center justify-center gap-2"><Copy size={14} /> Salin</button></div> </div> )}
-                                    </div>
+                                <Accordion title="Parameter" icon={<Settings size={16}/>}>
+                                  <div className="grid grid-cols-2 gap-4">
+                                      <ParameterInput label="Model">
+                                          <select className="w-full text-xs bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-md p-2 text-slate-800 dark:text-white" value={imageGenModel} onChange={(e) => handleModelChange(e.target.value as ImageGenModel)}>
+                                              {imageGenModels.map(m => <option key={m} value={m}>{m}</option>)}
+                                          </select>
+                                      </ParameterInput>
+                                      <ParameterInput label="Gaya Seni">
+                                          <select className="w-full text-xs bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-md p-2 text-slate-800 dark:text-white" value={artStyle} onChange={(e) => setArtStyle(e.target.value as ArtStyle)} disabled={imageGenModel === 'dall-e-3'}>
+                                              {artStylesGrouped.map((group) => ( <optgroup key={group.label} label={group.label}>{group.options.map(option => (<option key={option.value} value={option.value}>{option.text}</option>))}</optgroup>))}
+                                          </select>
+                                      </ParameterInput>
+                                      <ParameterInput label="Kualitas">
+                                          <select className="w-full text-xs bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-md p-2 text-slate-800 dark:text-white" value={quality} onChange={(e) => setQuality(e.target.value as QualityOption)} disabled={imageGenModel === 'dall-e-3'}>
+                                              {qualityOptions.map(q => <option key={q} value={q}>{q.charAt(0).toUpperCase() + q.slice(1)}</option>)}
+                                          </select>
+                                      </ParameterInput>
+                                      <ParameterInput label="Jumlah">
+                                          <select className="w-full text-xs bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-md p-2 text-slate-800 dark:text-white" value={batchSize} onChange={(e) => setBatchSize(Number(e.target.value) as BatchSize)} disabled={imageGenModel === 'dall-e-3'}>
+                                              {batchSizes.map(s => <option key={s} value={s}>{s}</option>)}
+                                          </select>
+                                      </ParameterInput>
+                                      <div className="col-span-2">
+                                          <ParameterInput label="Ukuran Preset">
+                                              <select className="w-full text-xs bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-md p-2 text-slate-800 dark:text-white" value={`${imageWidth}x${imageHeight}`} onChange={(e) => { const [widthStr, heightStr] = e.target.value.split('x'); setImageWidth(parseInt(widthStr)); setImageHeight(parseInt(heightStr)); }} disabled={imageGenModel === 'dall-e-3'}>
+                                                  {imagePresets.map(preset => (<option key={`${preset.width}x${preset.height}`} value={`${preset.width}x${preset.height}`}>{preset.label}</option>))}
+                                              </select>
+                                          </ParameterInput>
+                                      </div>
+                                      <div className="col-span-2 grid grid-cols-2 gap-2">
+                                          <ParameterInput label="Width"><input type="number" className="w-full text-xs bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-md p-2 text-slate-800 dark:text-white" value={imageWidth} onChange={e => setImageWidth(parseInt(e.target.value))} disabled={imageGenModel === 'dall-e-3'}/></ParameterInput>
+                                          <ParameterInput label="Height"><input type="number" className="w-full text-xs bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-md p-2 text-slate-800 dark:text-white" value={imageHeight} onChange={e => setImageHeight(parseInt(e.target.value))} disabled={imageGenModel === 'dall-e-3'}/></ParameterInput>
+                                      </div>
+                                  </div>
                                 </Accordion>
+                                <Accordion title="Prompt Creator" icon={<Wand2 size={16}/>}><div className="space-y-4"><div className="space-y-3"><input type="text" value={creatorSubject} onChange={e => setCreatorSubject(e.target.value)} placeholder="Subjek Utama..." className="w-full text-sm bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-md p-2 text-slate-800 dark:text-white" /><textarea value={creatorDetails} onChange={e => setCreatorDetails(e.target.value)} placeholder="Detail Tambahan..." rows={2} className="w-full text-sm bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-md p-2 text-slate-800 dark:text-white" /><button onClick={handleCreatePrompt} disabled={isCreatorLoading || !creatorSubject.trim()} className="w-full bg-purple-600 text-white py-2 rounded-lg font-semibold text-sm hover:bg-purple-700 transition disabled:opacity-50 flex justify-center items-center">{isCreatorLoading ? "Meningkatkan..." : 'Tingkatkan Prompt'}</button></div>{createdPrompt && ( <div className="border-t border-slate-200 dark:border-slate-700 pt-4 space-y-3"> <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">Hasil dari AI:</p> <p className="text-sm bg-slate-50 dark:bg-slate-900 p-3 rounded-md border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-300">{createdPrompt}</p> <div className="flex gap-2"><button onClick={() => { setPrompt(createdPrompt); toast.success('Prompt digunakan!'); }} className="flex-1 bg-sky-600 text-white py-2 rounded-lg font-semibold text-xs hover:bg-sky-700 transition flex items-center justify-center gap-2"><CornerDownLeft size={14}/> Gunakan</button><button onClick={() => { navigator.clipboard.writeText(createdPrompt); toast.success('Prompt disalin!'); }} className="flex-1 bg-slate-500 dark:bg-slate-600 text-white py-2 rounded-lg font-semibold text-xs hover:bg-slate-600 dark:hover:bg-slate-700 transition flex items-center justify-center gap-2"><Copy size={14} /> Salin</button></div> </div> )}</div></Accordion>
                                 <Accordion title="AI Assistant" icon={<MessageSquare size={16}/>}><ChatBox onPromptFromChat={handlePromptFromChat} /></Accordion>
                                 <Accordion title="Image Analyze" icon={<ImageIcon size={16}/>} defaultOpen={false}><ImageAnalyzer onPromptFromAnalysis={handlePromptFromAnalysis} /></Accordion>
                                 <Accordion title="Text to Audio" icon={<Volume2 size={16}/>} defaultOpen={false}><TextToAudioConverter /></Accordion>
@@ -654,7 +688,6 @@ function AISuitePageContent() {
     );
 }
 
-// --- Wrapper & Ekspor Halaman ---
 function AuthenticatedAISuiteWrapper() {
     return (
         <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-white dark:bg-slate-900 text-slate-800 dark:text-white text-xl">Memuat AI Suite...</div>}>
