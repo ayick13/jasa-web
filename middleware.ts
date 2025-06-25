@@ -1,7 +1,13 @@
-// middleware.ts
-export { default } from "next-auth/middleware";
+// File: middleware.ts (Versi Final)
+
+import { withAuth } from "next-auth/middleware";
+
+export default withAuth({
+  pages: {
+    signIn: "/login", // Arahkan ke halaman login kustom Anda
+  },
+});
 
 export const config = {
-  // Melindungi semua halaman di dalam /ai-suite
   matcher: ["/ai-suite/:path*"],
 };

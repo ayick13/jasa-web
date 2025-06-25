@@ -1,3 +1,5 @@
+// File: app/ai-suite/page.tsx (Versi Perbaikan dengan Tema Konsisten)
+
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo, useCallback, Fragment, Suspense } from 'react';
@@ -11,11 +13,9 @@ import {
     Eye, EyeOff
 } from 'lucide-react';
 
-// --- Tipe Data & Konstanta ---
+// --- Tipe Data & Konstanta (Tidak ada perubahan) ---
 const imageGenModels = ['flux', 'turbo', 'dall-e-3', 'gptimage'] as const;
 type ImageGenModel = (typeof imageGenModels)[number];
-
-// Definisi artStyles yang diperbarui (gabungan semua gaya unik)
 const artStyles = [
     'realistic', 'photographic', 'anime', 'manga', 'pixel-art', 'fantasy', 'sci-fi', 'steampunk', 'cyberpunk', 'cinematic',
     'hyper realistic', 'cinematic realism', 'hyperdetailed', 'sci-fi realism', 'medical illustration',
@@ -38,9 +38,8 @@ const artStyles = [
     'ukiyo-e', 'chinese painting', 'sumi-e', 'persian miniature', 'medieval illuminated', 'byzantine icon', 'tribal art', 'afrofuturism', 'indigenous art', 'soviet propaganda'
 ] as const;
 type ArtStyle = (typeof artStyles)[number];
-
-// Struktur data untuk mengelompokkan gaya seni (untuk rendering optgroup)
 const artStylesGrouped = [
+    // ... (data artStylesGrouped tetap sama, tidak perlu diubah) ...
     { label: 'Default Styles', options: [
         { value: 'realistic', text: 'Realistic' },
         { value: 'photographic', text: 'Photographic' },
@@ -293,7 +292,6 @@ const artStylesGrouped = [
         { value: 'soviet propaganda', text: 'Soviet Propaganda' }
     ]}
 ];
-
 const qualityOptions = ['standar', 'hd', 'ultrahd'] as const;
 type QualityOption = (typeof qualityOptions)[number];
 const batchSizes = [1, 2, 3, 4] as const;
@@ -301,20 +299,57 @@ type BatchSize = (typeof batchSizes)[number];
 interface ChatMessage { id: string; role: 'user' | 'assistant'; content: string; imageUrl?: string; }
 interface GeneratedImageData { url: string; prompt: string; model: ImageGenModel; artStyle: ArtStyle; quality: QualityOption; width: number; height: number; seed: string; isDalle?: boolean; timestamp: number; }
 interface HistoryItem { id: string; prompt: string; timestamp: string; }
-
-// --- Preset Ukuran Gambar Baru ---
 const imagePresets = [
     { label: 'Square (1024x1024)', width: 1024, height: 1024 },
     { label: 'Portrait (1024x1792)', width: 1024, height: 1792 },
     { label: 'Landscape (1792x1024)', width: 1792, height: 1024 },
 ];
 
-// --- Komponen UI ---
-const ParameterInput = ({ label, children }: { label: string, children: React.ReactNode }) => ( <div><label className="block text-xs font-semibold text-slate-400 dark:text-slate-300 mb-1">{label}</label>{children}</div> );
-const Accordion = ({ title, icon, children, defaultOpen = false }: { title: string; icon: React.ReactNode; children: React.ReactNode, defaultOpen?: boolean }) => { const [isOpen, setIsOpen] = useState(defaultOpen); return ( <div className="w-full"> <button onClick={() => setIsOpen(!isOpen)} className="w-full flex items-center justify-between gap-2 p-3 bg-slate-700/50 border border-slate-600 rounded-lg hover:bg-slate-700 transition-colors text-sm font-semibold text-white"> <div className="flex items-center gap-2">{icon}{title}</div> <ChevronDown className={`w-5 h-5 text-slate-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} /> </button> {isOpen && <div className="mt-3 p-4 bg-slate-900/50 border border-slate-700 rounded-lg">{children}</div>} </div> ); };
-const CodeBlock = ({ language, code }: { language: string, code: string }) => { const handleCopy = () => { navigator.clipboard.writeText(code); toast.success("Kode disalin ke clipboard!"); }; return ( <div className="bg-slate-900/70 rounded-md my-2 border border-slate-700"> <div className="flex justify-between items-center px-4 py-1 bg-slate-800/50 rounded-t-md"> <span className="text-xs font-sans text-slate-400">{language}</span> <button onClick={handleCopy} className="text-xs text-slate-400 hover:text-white flex items-center gap-1"><Copy size={14}/> Salin</button> </div> <pre className="p-4 text-sm overflow-x-auto text-slate-300"><code>{code}</code></pre> </div> ); };
+// --- Komponen UI yang Sudah Diperbaiki ---
+const ParameterInput = ({ label, children }: { label: string, children: React.ReactNode }) => (
+    <div>
+        <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">{label}</label>
+        {children}
+    </div>
+);
 
-// --- Komponen Fungsional ---
+const Accordion = ({ title, icon, children, defaultOpen = false }: { title: string; icon: React.ReactNode; children: React.ReactNode, defaultOpen?: boolean }) => {
+    const [isOpen, setIsOpen] = useState(defaultOpen);
+    return (
+        <div className="w-full">
+            <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="w-full flex items-center justify-between gap-2 p-3 bg-slate-100 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-sm font-semibold text-slate-800 dark:text-white"
+            >
+                <div className="flex items-center gap-2">{icon}{title}</div>
+                <ChevronDown className={`w-5 h-5 text-slate-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+            </button>
+            {isOpen && (
+                <div className="mt-3 p-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg">
+                    {children}
+                </div>
+            )}
+        </div>
+    );
+};
+
+const CodeBlock = ({ language, code }: { language: string, code: string }) => {
+    const handleCopy = () => {
+        navigator.clipboard.writeText(code);
+        toast.success("Kode disalin ke clipboard!");
+    };
+    return (
+        <div className="bg-slate-100 dark:bg-slate-900/70 rounded-md my-2 border border-slate-200 dark:border-slate-700">
+            <div className="flex justify-between items-center px-4 py-1 bg-slate-200 dark:bg-slate-800/50 rounded-t-md">
+                <span className="text-xs font-sans text-slate-500 dark:text-slate-400">{language}</span>
+                <button onClick={handleCopy} className="text-xs text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white flex items-center gap-1"><Copy size={14}/> Salin</button>
+            </div>
+            <pre className="p-4 text-sm overflow-x-auto text-slate-600 dark:text-slate-300"><code>{code}</code></pre>
+        </div>
+    );
+};
+
+// --- Komponen Fungsional (dengan perbaikan tema) ---
 const ChatBox = ({ onPromptFromChat }: { onPromptFromChat: (prompt: string) => void }) => {
     const [messages, setMessages] = useState<ChatMessage[]>([{ id: 'init', role: 'assistant', content: 'Halo! Anda bisa mengirim teks atau gambar untuk dianalisa.' }]);
     const [input, setInput] = useState(''); const [isThinking, setIsThinking] = useState(false); const [availableModels, setAvailableModels] = useState<Record<string, any>>({}); const [selectedModel, setSelectedModel] = useState('openai'); const imageInputRef = useRef<HTMLInputElement>(null); const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -356,272 +391,154 @@ const ChatBox = ({ onPromptFromChat }: { onPromptFromChat: (prompt: string) => v
         } catch (error: any) { toast.error(error.message); setMessages(prev => prev.map(msg => msg.id === assistantMessageId ? { ...msg, content: "Maaf, terjadi kesalahan." } : msg )); } finally { setIsThinking(false); }
     };
     const renderMessageContent = (content: string) => { const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g; let lastIndex = 0; const parts = []; let match; while ((match = codeBlockRegex.exec(content)) !== null) { const [fullMatch, language, code] = match; const textBefore = content.substring(lastIndex, match.index); if (textBefore) { parts.push(<p key={lastIndex} className="whitespace-pre-wrap">{textBefore}</p>); } parts.push(<CodeBlock key={match.index} language={language || 'bash'} code={code.trim()} />); lastIndex = match.index + fullMatch.length; } const textAfter = content.substring(lastIndex); if (textAfter) { parts.push(<p key={lastIndex + 1} className="whitespace-pre-wrap">{textAfter}</p>); } return parts.length > 0 ? parts : <p className="whitespace-pre-wrap">{content}</p>; };
-    return ( <div className="flex flex-col h-[500px] bg-slate-900/50 rounded-lg"> <input type="file" ref={imageInputRef} onChange={handleImageUpload} accept="image/*" className="hidden" /> <div className="p-3 border-b border-slate-700 flex items-center justify-between flex-shrink-0"> <h3 className="text-sm font-bold text-white flex items-center">AI Assistant</h3> <select value={selectedModel} onChange={(e) => setSelectedModel(e.target.value)} className="bg-slate-700 text-xs text-white rounded p-1 border border-slate-600 focus:outline-none focus:ring-2 focus:ring-cyan-500 max-w-[150px]"> {Object.keys(availableModels).length > 0 ? ( Object.entries(availableModels).map(([key, modelInfo]) => (<option key={key} value={key}>{modelInfo.name || key}</option>)) ) : ( <option value="openai">Memuat model...</option> )} </select> </div> <div ref={messagesEndRef} className="flex-grow p-4 space-y-4 overflow-y-auto text-slate-300"> {messages.map(msg => ( <div key={msg.id} className={`flex gap-2 text-sm ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}> {msg.role === 'assistant' && <div className="w-7 h-7 rounded-full bg-cyan-900 flex items-center justify-center flex-shrink-0"><Bot size={16} className="text-cyan-400"/></div>} <div className={`p-2.5 rounded-lg max-w-[85%] ${msg.role === 'user' ? 'bg-sky-600 text-white rounded-br-none' : 'bg-slate-700 text-slate-300 rounded-bl-none'}`}> {msg.imageUrl && <Image src={msg.imageUrl} alt="User upload" width={200} height={200} className="rounded-md mb-2"/>} {msg.content === "..." && isThinking ? <span className="animate-pulse">...</span> : renderMessageContent(msg.content)} {msg.role === 'assistant' && msg.content && msg.content !== "..." && !msg.content.includes("kesalahan") && <button onClick={() => onPromptFromChat(msg.content)} className="mt-2 text-xs font-semibold text-cyan-400 hover:underline">Gunakan sebagai Prompt</button>} </div> </div> ))} </div> <div className="p-4 border-t border-slate-700"> <div className="flex items-center gap-2"> <button onClick={() => imageInputRef.current?.click()} title="Upload Gambar" className="p-2 rounded-full text-slate-400 hover:bg-slate-700 hover:text-white transition"><Paperclip size={20}/></button> <input type="text" value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()} placeholder="Tanya sesuatu atau upload gambar..." className="w-full bg-slate-700 text-white rounded-full py-2 px-4 focus:outline-none focus:ring-2 focus:ring-cyan-500" /> <button onClick={handleSendMessage} disabled={!input.trim() || isThinking} className="p-2 rounded-full bg-cyan-500 text-white hover:bg-cyan-600 disabled:bg-slate-600 transition"><Send size={20}/></button> </div> </div> </div> );
+    
+    return (
+        <div className="flex flex-col h-[500px] bg-white dark:bg-slate-900/50 rounded-lg border border-slate-200 dark:border-slate-700">
+            <input type="file" ref={imageInputRef} onChange={handleImageUpload} accept="image/*" className="hidden" />
+            <div className="p-3 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between flex-shrink-0">
+                <h3 className="text-sm font-bold text-slate-800 dark:text-white flex items-center">AI Assistant</h3>
+                <select value={selectedModel} onChange={(e) => setSelectedModel(e.target.value)} className="bg-slate-100 dark:bg-slate-700 text-xs text-slate-800 dark:text-white rounded p-1 border border-slate-200 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-cyan-500 max-w-[150px]">
+                    {Object.keys(availableModels).length > 0 ? (Object.entries(availableModels).map(([key, modelInfo]) => (<option key={key} value={key}>{(modelInfo as any).name || key}</option>))) : (<option value="openai">Memuat model...</option>)}
+                </select>
+            </div>
+            <div ref={messagesEndRef} className="flex-grow p-4 space-y-4 overflow-y-auto text-slate-600 dark:text-slate-300">
+                {messages.map(msg => (
+                    <div key={msg.id} className={`flex gap-2 text-sm ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                        {msg.role === 'assistant' && <div className="w-7 h-7 rounded-full bg-cyan-100 dark:bg-cyan-900 flex items-center justify-center flex-shrink-0"><Bot size={16} className="text-cyan-600 dark:text-cyan-400"/></div>}
+                        <div className={`p-2.5 rounded-lg max-w-[85%] ${msg.role === 'user' ? 'bg-sky-600 text-white rounded-br-none' : 'bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-300 rounded-bl-none'}`}>
+                            {msg.imageUrl && <Image src={msg.imageUrl} alt="User upload" width={200} height={200} className="rounded-md mb-2"/>}
+                            {msg.content === "..." && isThinking ? <span className="animate-pulse">...</span> : renderMessageContent(msg.content)}
+                            {msg.role === 'assistant' && msg.content && msg.content !== "..." && !msg.content.includes("kesalahan") && <button onClick={() => onPromptFromChat(msg.content)} className="mt-2 text-xs font-semibold text-cyan-600 dark:text-cyan-400 hover:underline">Gunakan sebagai Prompt</button>}
+                        </div>
+                    </div>
+                ))}
+            </div>
+            <div className="p-4 border-t border-slate-200 dark:border-slate-700">
+                <div className="flex items-center gap-2">
+                    <button onClick={() => imageInputRef.current?.click()} title="Upload Gambar" className="p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-800 dark:hover:text-white transition"><Paperclip size={20}/></button>
+                    <input type="text" value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()} placeholder="Tanya sesuatu atau upload gambar..." className="w-full bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-white rounded-full py-2 px-4 focus:outline-none focus:ring-2 focus:ring-cyan-500" />
+                    <button onClick={handleSendMessage} disabled={!input.trim() || isThinking} className="p-2 rounded-full bg-cyan-500 text-white hover:bg-cyan-600 disabled:bg-slate-400 dark:disabled:bg-slate-600 transition"><Send size={20}/></button>
+                </div>
+            </div>
+        </div>
+    );
 };
-const TextToAudioConverter = () => { const [text, setText] = useState(''); const [voice, setVoice] = useState('alloy'); const [isLoading, setIsLoading] = useState(false); const [audioUrl, setAudioUrl] = useState<string | null>(null); const handleGenerateAudio = async () => { if (!text.trim()) return toast.error("Teks tidak boleh kosong."); setIsLoading(true); setAudioUrl(null); const toastId = toast.loading("Membuat audio..."); try { const response = await fetch('/api/text-to-audio', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text, voice }), }); if (!response.ok) { try { const errorData = await response.json(); throw new Error(errorData.error || "Gagal membuat audio."); } catch { throw new Error(await response.text()); } } const blob = await response.blob(); const url = URL.createObjectURL(blob); setAudioUrl(url); toast.success("Audio berhasil dibuat!", { id: toastId }); } catch (error: any) { toast.error(error.message, { id: toastId }); } finally { setIsLoading(false); } }; return ( <div className="space-y-4"> <textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="Masukkan teks yang ingin diubah menjadi suara..." rows={5} className="w-full text-sm bg-slate-800 border-slate-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-cyan-500" /> <div className="grid grid-cols-1 gap-4"> <ParameterInput label="Jenis Suara"><select value={voice} onChange={e => setVoice(e.target.value)} className="w-full text-xs bg-slate-800 border-slate-600 rounded-md p-2"><option value="alloy">Alloy</option><option value="echo">Echo</option><option value="fable">Fable</option><option value="onyx">Onyx</option><option value="nova">Nova</option><option value="shimmer">Shimmer</option></select></ParameterInput> </div> <button onClick={handleGenerateAudio} disabled={isLoading || !text.trim()} className="w-full bg-emerald-600 text-white py-2 rounded-lg font-semibold text-sm hover:bg-emerald-700 transition disabled:opacity-50 flex justify-center items-center">{isLoading ? "Membuat..." : "Buat Audio"}</button> {audioUrl && ( <div className="border-t border-slate-700 pt-4"><audio controls src={audioUrl} className="w-full">Your browser does not support the audio element.</audio></div> )} </div> ); };
-const ImageAnalyzer = ({ onPromptFromAnalysis }: { onPromptFromAnalysis: (prompt: string) => void }) => { const [imageFile, setImageFile] = useState<File | null>(null); const [imagePreview, setImagePreview] = useState<string | null>(null); const [isAnalyzing, setIsAnalyzing] = useState(false); const [analysisResult, setAnalysisResult] = useState<string | null>(null); const fileInputRef = useRef<HTMLInputElement>(null); const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => { const file = event.target.files?.[0]; if (file) { setImageFile(file); setAnalysisResult(null); const reader = new FileReader(); reader.onloadend = () => setImagePreview(reader.result as string); reader.readAsDataURL(file); } }; const handleAnalyze = async () => { if (!imageFile) return toast.error('Silakan unggah gambar terlebih dahulu.'); setIsAnalyzing(true); setAnalysisResult(null); const toastId = toast.loading('Menganalisis gambar...'); const reader = new FileReader(); reader.readAsDataURL(imageFile); reader.onload = async () => { try { const base64Image = (reader.result as string).split(',')[1]; const response = await fetch('/api/analyze-image', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ image: base64Image }) }); if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.message || 'Analisis gambar gagal.'); } const data = await response.json(); setAnalysisResult(data.description); toast.success('Analisis berhasil!', { id: toastId }); } catch (error: any) { toast.error(error.message || 'Gagal menganalisis gambar.', { id: toastId }); } finally { setIsAnalyzing(false); } }; }; const handleUseAsPrompt = () => { if (analysisResult) { onPromptFromAnalysis(analysisResult); toast.success('Hasil analisis digunakan sebagai prompt!'); } }; return ( <div className="space-y-4"> <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" /> <button onClick={() => fileInputRef.current?.click()} className="w-full flex items-center justify-center gap-2 bg-slate-700 text-white py-3 rounded-lg font-semibold hover:bg-slate-600 transition"><Upload size={18} /> Pilih Gambar</button> {imagePreview && ( <div className="mt-4 space-y-4"> <div className="relative w-full aspect-video rounded-lg overflow-hidden border-2 border-slate-600"><Image src={imagePreview} alt="Pratinjau Gambar" layout="fill" objectFit="contain" /></div> <button onClick={handleAnalyze} disabled={isAnalyzing} className="w-full bg-indigo-600 text-white py-2 rounded-lg font-semibold hover:bg-indigo-700 transition disabled:opacity-50 flex items-center justify-center gap-2">{isAnalyzing ? "Menganalisis..." : 'Analisis Gambar Ini'}</button> </div> )} {analysisResult && ( <div className="mt-4 p-4 bg-slate-900 rounded-lg border border-slate-600 space-y-3"> <p className="text-sm text-slate-300">{analysisResult}</p> <button onClick={handleUseAsPrompt} className="w-full bg-teal-600 text-white py-2 rounded-lg font-semibold hover:bg-teal-700 transition text-sm flex items-center justify-center gap-2"><CheckCircle size={16}/> Gunakan sebagai Prompt</button> </div> )} </div> ); };
-const ImageDetailModal = ({ isOpen, onClose, imageData }: { isOpen: boolean, onClose: () => void, imageData: GeneratedImageData | null }) => { if (!isOpen || !imageData) return null; return ( <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose}> <div className="bg-slate-800 border border-slate-700 rounded-lg max-w-4xl w-full max-h-[90vh] flex flex-col lg:flex-row gap-6 p-6 relative" onClick={(e) => e.stopPropagation()}> <button onClick={onClose} className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors z-10"><X size={24} /></button> <div className="flex-shrink-0 lg:w-1/2"><div className="relative aspect-square w-full bg-slate-900 rounded-md overflow-hidden"><Image src={imageData.url} alt={imageData.prompt} layout="fill" className="object-contain" unoptimized/></div></div> <div className="flex-grow lg:w-1/2 overflow-y-auto pr-2 space-y-4"> <h3 className="text-2xl font-bold text-white">Detail Generasi</h3> <div><label className="text-sm font-semibold text-slate-400">Prompt</label><p className="mt-1 text-base text-slate-200 bg-slate-700/50 p-3 rounded-md">{imageData.prompt}</p></div> <div className="grid grid-cols-2 gap-4 text-sm"> <div><label className="font-semibold text-slate-400">Model</label><p className="text-slate-200">{imageData.model}</p></div> <div><label className="font-semibold text-slate-400">Gaya Seni</label><p className="text-slate-200">{imageData.isDalle ? 'N/A' : imageData.artStyle}</p></div> <div><label className="font-semibold text-slate-400">Kualitas</label><p className="text-slate-200">{imageData.isDalle ? 'N/A' : imageData.quality}</p></div> <div><label className="font-semibold text-slate-400">Resolusi</label><p className="text-slate-200">{imageData.width} x {imageData.height}</p></div> <div><label className="font-semibold text-slate-400">Seed</label><p className="text-slate-200 break-all">{imageData.seed}</p></div> <div><label className="font-semibold text-slate-400">Waktu Generasi</label><p className="text-slate-200">{new Date(imageData.timestamp).toLocaleString()}</p></div> </div> <div className="pt-4 flex flex-col sm:flex-row gap-2"> <a href={imageData.url} download={`ayick-ai-${imageData.seed}.png`} className="w-full sm:w-auto flex-1 bg-cyan-600 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center gap-2 hover:bg-cyan-700 transition"><Download size={16}/> Unduh</a> <button onClick={() => { navigator.clipboard.writeText(imageData.prompt); toast.success('Prompt disalin!'); }} className="w-full sm:w-auto flex-1 bg-slate-600 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center gap-2 hover:bg-slate-700 transition"><Copy size={16}/> Salin Prompt</button> </div> </div> </div> </div> ); };
 
-const DalleApiKeyModal = ({ isOpen, onClose, onSave }: { isOpen: boolean, onClose: () => void, onSave: (key: string) => void }) => {
-    const [apiKey, setApiKey] = useState('');
-    const [showApiKey, setShowApiKey] = useState(false); // State untuk show/hide API Key
+const TextToAudioConverter = () => {
+    const [text, setText] = useState(''); const [voice, setVoice] = useState('alloy'); const [isLoading, setIsLoading] = useState(false); const [audioUrl, setAudioUrl] = useState<string | null>(null);
+    const handleGenerateAudio = async () => { if (!text.trim()) return toast.error("Teks tidak boleh kosong."); setIsLoading(true); setAudioUrl(null); const toastId = toast.loading("Membuat audio..."); try { const response = await fetch('/api/text-to-audio', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text, voice }), }); if (!response.ok) { try { const errorData = await response.json(); throw new Error(errorData.error || "Gagal membuat audio."); } catch { throw new Error(await response.text()); } } const blob = await response.blob(); const url = URL.createObjectURL(blob); setAudioUrl(url); toast.success("Audio berhasil dibuat!", { id: toastId }); } catch (error: any) { toast.error(error.message, { id: toastId }); } finally { setIsLoading(false); } };
+    return (
+        <div className="space-y-4">
+            <textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="Masukkan teks yang ingin diubah menjadi suara..." rows={5} className="w-full text-sm bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-slate-800 dark:text-white" />
+            <div className="grid grid-cols-1 gap-4">
+                <ParameterInput label="Jenis Suara"><select value={voice} onChange={e => setVoice(e.target.value)} className="w-full text-xs bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-md p-2 text-slate-800 dark:text-white"><option value="alloy">Alloy</option><option value="echo">Echo</option><option value="fable">Fable</option><option value="onyx">Onyx</option><option value="nova">Nova</option><option value="shimmer">Shimmer</option></select></ParameterInput>
+            </div>
+            <button onClick={handleGenerateAudio} disabled={isLoading || !text.trim()} className="w-full bg-emerald-600 text-white py-2 rounded-lg font-semibold text-sm hover:bg-emerald-700 transition disabled:opacity-50 flex justify-center items-center">{isLoading ? "Membuat..." : "Buat Audio"}</button>
+            {audioUrl && (<div className="border-t border-slate-200 dark:border-slate-700 pt-4"><audio controls src={audioUrl} className="w-full">Your browser does not support the audio element.</audio></div>)}
+        </div>
+    );
+};
 
-    if (!isOpen) return null;
+const ImageAnalyzer = ({ onPromptFromAnalysis }: { onPromptFromAnalysis: (prompt: string) => void }) => {
+    const [imageFile, setImageFile] = useState<File | null>(null); const [imagePreview, setImagePreview] = useState<string | null>(null); const [isAnalyzing, setIsAnalyzing] = useState(false); const [analysisResult, setAnalysisResult] = useState<string | null>(null); const fileInputRef = useRef<HTMLInputElement>(null);
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => { const file = event.target.files?.[0]; if (file) { setImageFile(file); setAnalysisResult(null); const reader = new FileReader(); reader.onloadend = () => setImagePreview(reader.result as string); reader.readAsDataURL(file); } };
+    const handleAnalyze = async () => { if (!imageFile) return toast.error('Silakan unggah gambar terlebih dahulu.'); setIsAnalyzing(true); setAnalysisResult(null); const toastId = toast.loading('Menganalisis gambar...'); const reader = new FileReader(); reader.readAsDataURL(imageFile); reader.onload = async () => { try { const base64Image = (reader.result as string).split(',')[1]; const response = await fetch('/api/analyze-image', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ image: base64Image }) }); if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.message || 'Analisis gambar gagal.'); } const data = await response.json(); setAnalysisResult(data.description); toast.success('Analisis berhasil!', { id: toastId }); } catch (error: any) { toast.error(error.message || 'Gagal menganalisis gambar.', { id: toastId }); } finally { setIsAnalyzing(false); } }; };
+    const handleUseAsPrompt = () => { if (analysisResult) { onPromptFromAnalysis(analysisResult); toast.success('Hasil analisis digunakan sebagai prompt!'); } };
+    return (
+        <div className="space-y-4">
+            <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
+            <button onClick={() => fileInputRef.current?.click()} className="w-full flex items-center justify-center gap-2 bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white py-3 rounded-lg font-semibold hover:bg-slate-300 dark:hover:bg-slate-600 transition"><Upload size={18} /> Pilih Gambar</button>
+            {imagePreview && (<div className="mt-4 space-y-4"> <div className="relative w-full aspect-video rounded-lg overflow-hidden border-2 border-slate-200 dark:border-slate-600"><Image src={imagePreview} alt="Pratinjau Gambar" layout="fill" objectFit="contain" /></div> <button onClick={handleAnalyze} disabled={isAnalyzing} className="w-full bg-indigo-600 text-white py-2 rounded-lg font-semibold hover:bg-indigo-700 transition disabled:opacity-50 flex items-center justify-center gap-2">{isAnalyzing ? "Menganalisis..." : 'Analisis Gambar Ini'}</button> </div>)}
+            {analysisResult && (<div className="mt-4 p-4 bg-slate-100 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-600 space-y-3"> <p className="text-sm text-slate-600 dark:text-slate-300">{analysisResult}</p> <button onClick={handleUseAsPrompt} className="w-full bg-teal-600 text-white py-2 rounded-lg font-semibold hover:bg-teal-700 transition text-sm flex items-center justify-center gap-2"><CheckCircle size={16}/> Gunakan sebagai Prompt</button> </div>)}
+        </div>
+    );
+};
 
-    const handleSave = () => {
-        if (apiKey.trim()) { onSave(apiKey.trim()); } else { toast.error("API Key tidak boleh kosong."); }
-    };
+// Modal Detail Gambar (Diperbaiki)
+const ImageDetailModal = ({ isOpen, onClose, imageData }: { isOpen: boolean, onClose: () => void, imageData: GeneratedImageData | null }) => {
+    if (!isOpen || !imageData) return null;
     return (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose}>
-            <div className="bg-slate-800 dark:bg-slate-200 border border-slate-700 dark:border-slate-300 rounded-lg max-w-md w-full p-6 relative space-y-4" onClick={(e) => e.stopPropagation()}>
-                <button onClick={onClose} className="absolute top-4 right-4 text-slate-400 dark:text-slate-600 hover:text-white dark:hover:text-slate-800 transition-colors z-10"><X size={20} /></button>
-                <div className="flex items-center gap-3"><KeyRound className="text-yellow-400 dark:text-yellow-600" size={24}/><h3 className="text-xl font-bold text-white dark:text-slate-800">Masukkan API Key OpenAI</h3></div>
-                <p className="text-sm text-slate-400 dark:text-slate-600">Model DALL-E 3 memerlukan API Key OpenAI Anda sendiri untuk berfungsi. Key Anda hanya akan disimpan sementara di browser Anda untuk sesi ini.</p>
-                {/* Input API Key dengan toggle show/hide */}
+            <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg max-w-4xl w-full max-h-[90vh] flex flex-col lg:flex-row gap-6 p-6 relative" onClick={(e) => e.stopPropagation()}>
+                <button onClick={onClose} className="absolute top-4 right-4 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors z-10"><X size={24} /></button>
+                <div className="flex-shrink-0 lg:w-1/2"><div className="relative aspect-square w-full bg-slate-100 dark:bg-slate-900 rounded-md overflow-hidden"><Image src={imageData.url} alt={imageData.prompt} layout="fill" className="object-contain" unoptimized/></div></div>
+                <div className="flex-grow lg:w-1/2 overflow-y-auto pr-2 space-y-4">
+                    <h3 className="text-2xl font-bold text-slate-900 dark:text-white">Detail Generasi</h3>
+                    <div><label className="text-sm font-semibold text-slate-500 dark:text-slate-400">Prompt</label><p className="mt-1 text-base text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-700/50 p-3 rounded-md">{imageData.prompt}</p></div>
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div><label className="font-semibold text-slate-500 dark:text-slate-400">Model</label><p className="text-slate-800 dark:text-slate-200">{imageData.model}</p></div>
+                        <div><label className="font-semibold text-slate-500 dark:text-slate-400">Gaya Seni</label><p className="text-slate-800 dark:text-slate-200">{imageData.isDalle ? 'N/A' : imageData.artStyle}</p></div>
+                        <div><label className="font-semibold text-slate-500 dark:text-slate-400">Kualitas</label><p className="text-slate-800 dark:text-slate-200">{imageData.isDalle ? 'N/A' : imageData.quality}</p></div>
+                        <div><label className="font-semibold text-slate-500 dark:text-slate-400">Resolusi</label><p className="text-slate-800 dark:text-slate-200">{imageData.width} x {imageData.height}</p></div>
+                        <div><label className="font-semibold text-slate-500 dark:text-slate-400">Seed</label><p className="text-slate-800 dark:text-slate-200 break-all">{imageData.seed}</p></div>
+                        <div><label className="font-semibold text-slate-500 dark:text-slate-400">Waktu Generasi</label><p className="text-slate-800 dark:text-slate-200">{new Date(imageData.timestamp).toLocaleString()}</p></div>
+                    </div>
+                    <div className="pt-4 flex flex-col sm:flex-row gap-2">
+                        <a href={imageData.url} download={`ayick-ai-${imageData.seed}.png`} className="w-full sm:w-auto flex-1 bg-cyan-600 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center gap-2 hover:bg-cyan-700 transition"><Download size={16}/> Unduh</a>
+                        <button onClick={() => { navigator.clipboard.writeText(imageData.prompt); toast.success('Prompt disalin!'); }} className="w-full sm:w-auto flex-1 bg-slate-500 dark:bg-slate-600 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center gap-2 hover:bg-slate-600 dark:hover:bg-slate-700 transition"><Copy size={16}/> Salin Prompt</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// Modal API Key (Diperbaiki)
+const DalleApiKeyModal = ({ isOpen, onClose, onSave }: { isOpen: boolean, onClose: () => void, onSave: (key: string) => void }) => {
+    const [apiKey, setApiKey] = useState('');
+    const [showApiKey, setShowApiKey] = useState(false);
+    if (!isOpen) return null;
+    const handleSave = () => { if (apiKey.trim()) { onSave(apiKey.trim()); } else { toast.error("API Key tidak boleh kosong."); } };
+    return (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose}>
+            <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg max-w-md w-full p-6 relative space-y-4" onClick={(e) => e.stopPropagation()}>
+                <button onClick={onClose} className="absolute top-4 right-4 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors z-10"><X size={20} /></button>
+                <div className="flex items-center gap-3"><KeyRound className="text-yellow-500 dark:text-yellow-400" size={24}/><h3 className="text-xl font-bold text-slate-900 dark:text-white">Masukkan API Key OpenAI</h3></div>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Model DALL-E 3 memerlukan API Key OpenAI Anda sendiri untuk berfungsi. Key Anda hanya akan disimpan sementara di browser Anda untuk sesi ini.</p>
                 <div className="relative w-full">
                     <input
                         type={showApiKey ? 'text' : 'password'}
                         value={apiKey}
                         onChange={(e) => setApiKey(e.target.value)}
                         placeholder="sk-..."
-                        className="w-full bg-slate-700 dark:bg-slate-100 border-slate-600 dark:border-slate-300 rounded-md p-2 text-white dark:text-slate-800 focus:outline-none focus:ring-2 focus:ring-cyan-500 pr-10"
+                        className="w-full bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md p-2 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 pr-10"
                     />
-                    <button
-                        type="button"
-                        onClick={() => setShowApiKey(!showApiKey)}
-                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 dark:text-slate-600 hover:text-white dark:hover:text-slate-800 transition-colors"
-                        aria-label={showApiKey ? 'Sembunyikan API Key' : 'Tampilkan API Key'}
-                    >
-                        {showApiKey ? <EyeOff size={18} /> : <Eye size={18} />}
-                    </button>
+                    <button type="button" onClick={() => setShowApiKey(!showApiKey)} className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors" aria-label={showApiKey ? 'Sembunyikan API Key' : 'Tampilkan API Key'}>{showApiKey ? <EyeOff size={18} /> : <Eye size={18} />}</button>
                 </div>
-                <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-xs text-cyan-400 dark:text-cyan-600 hover:underline flex items-center gap-1">Bagaimana cara mendapatkan API Key? <ExternalLink size={14}/></a>
-                <div className="flex justify-end gap-2 pt-2"><button onClick={onClose} className="bg-slate-600 dark:bg-slate-400 hover:bg-slate-700 dark:hover:bg-slate-500 text-white dark:text-slate-800 font-bold py-2 px-4 rounded-lg text-sm">Batal</button><button onClick={handleSave} className="bg-cyan-600 dark:bg-cyan-500 hover:bg-cyan-700 dark:hover:bg-cyan-600 text-white dark:text-slate-800 font-bold py-2 px-4 rounded-lg text-sm">Simpan & Lanjutkan</button></div>
+                <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-xs text-cyan-600 dark:text-cyan-400 hover:underline flex items-center gap-1">Bagaimana cara mendapatkan API Key? <ExternalLink size={14}/></a>
+                <div className="flex justify-end gap-2 pt-2">
+                    <button onClick={onClose} className="bg-slate-200 dark:bg-slate-600 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-white font-bold py-2 px-4 rounded-lg text-sm">Batal</button>
+                    <button onClick={handleSave} className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-lg text-sm">Simpan & Lanjutkan</button>
+                </div>
             </div>
         </div>
     );
 };
 
-
-// --- Komponen Utama Halaman ---
+// --- Komponen Utama Halaman (dengan perbaikan tema) ---
 function AISuitePageContent() {
-    const searchParams = useSearchParams();
-    const router = useRouter();
-
-    // 1. Inisialisasi prompt HANYA SEKALI dari URL menggunakan fungsi inisializer
-    const [prompt, setPrompt] = useState(() => {
-        const urlPrompt = searchParams.get('prompt');
-        if (urlPrompt) {
-            // Jika ada prompt di URL saat pertama kali dimuat, set prompt
-            // dan langsung hapus dari URL untuk mencegah re-init pada refresh.
-            // Gunakan router.replace dalam inisializer fungsi untuk efek samping pada mount.
-            // Ini akan memastikan URL bersih dari prompt pada pemuatan awal.
-            const newSearchParams = new URLSearchParams(searchParams.toString());
-            newSearchParams.delete('prompt');
-            // Pastikan ini hanya berjalan di sisi klien (browser)
-            if (typeof window !== 'undefined') {
-                router.replace(`?${newSearchParams.toString()}`, { scroll: false });
-            }
-            return urlPrompt;
-        }
-        return '';
-    });
-
-    // useRef untuk melacak apakah prompt telah dimodifikasi oleh pengguna
-    // Ini penting agar prompt dari URL tidak mengesampingkan perubahan manual pengguna
-    const isPromptUserModified = useRef(false);
-
-    // Effect untuk menampilkan toast "Prompt dimuat!" (hanya sekali jika dari URL)
-    useEffect(() => {
-        // Cek apakah prompt awalnya dimuat dari URL dan belum dimodifikasi pengguna
-        if (searchParams.get('prompt') && !isPromptUserModified.current) {
-            toast.success('Prompt dari halaman utama dimuat!');
-        }
-    }, []); // Hanya berjalan sekali saat komponen di-mount
-
-
-    // ... state lainnya ...
-    const [imageGenModel, setImageGenModel] = useState<ImageGenModel>('flux');
-    const [artStyle, setArtStyle] = useState<ArtStyle>('realistic');
-    const [quality, setQuality] = useState<QualityOption>('standar');
-    const [imageWidth, setImageWidth] = useState(1024);
-    const [imageHeight, setImageHeight] = useState(1024);
-    const [batchSize, setBatchSize] = useState<BatchSize>(1);
-    const [generatedImages, setGeneratedImages] = useState<GeneratedImageData[]>([]);
-    const [historyImages, setHistoryImages] = useState<GeneratedImageData[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
-    const [isCreatorLoading, setIsCreatorLoading] = useState(false);
-    const [creatorSubject, setCreatorSubject] = useState('');
-    const [creatorDetails, setCreatorDetails] = useState('');
-    const [createdPrompt, setCreatedPrompt] = useState<string | null>(null);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedImageData, setSelectedImageData] = useState<GeneratedImageData | null>(null);
-    const [isDalleModalOpen, setIsDalleModalOpen] = useState(false);
-    const [activeTab, setActiveTab] = useState<'current' | 'history'>('current');
-
-    // --- Logika LocalStorage (hanya riwayat gambar) ---
-
-    // 1. Muat riwayat gambar dari localStorage saat komponen pertama kali dimuat
-    useEffect(() => {
-        try {
-            const savedHistory = localStorage.getItem('ai_image_history');
-            if (savedHistory) {
-                const parsedHistory: GeneratedImageData[] = JSON.parse(savedHistory);
-                if (Array.isArray(parsedHistory)) {
-                    setHistoryImages(parsedHistory.filter(item => item && item.url && item.prompt));
-                }
-            }
-        } catch (e) {
-            console.error("Gagal memuat riwayat dari localStorage:", e);
-            localStorage.removeItem('ai_image_history'); // Hapus data yang rusak
-        }
-    }, []);
-
-    // 2. Simpan riwayat gambar ke localStorage setiap kali `historyImages` berubah
-    useEffect(() => {
-        if (historyImages.length > 0) {
-            localStorage.setItem('ai_image_history', JSON.stringify(historyImages));
-        } else {
-            localStorage.removeItem('ai_image_history'); // Hapus jika riwayat kosong
-        }
-    }, [historyImages]);
-
-    // Fungsi handleModelChange, handleSaveDalleKey, handleCloseDalleModal tetap sama
+    const searchParams = useSearchParams(); const router = useRouter(); const [prompt, setPrompt] = useState(() => { const urlPrompt = searchParams.get('prompt'); if (urlPrompt) { const newSearchParams = new URLSearchParams(searchParams.toString()); newSearchParams.delete('prompt'); if (typeof window !== 'undefined') { router.replace(`?${newSearchParams.toString()}`, { scroll: false }); } return urlPrompt; } return ''; }); const isPromptUserModified = useRef(false);
+    useEffect(() => { if (searchParams.get('prompt') && !isPromptUserModified.current) { toast.success('Prompt dari halaman utama dimuat!'); } }, []);
+    const [imageGenModel, setImageGenModel] = useState<ImageGenModel>('flux'); const [artStyle, setArtStyle] = useState<ArtStyle>('realistic'); const [quality, setQuality] = useState<QualityOption>('standar'); const [imageWidth, setImageWidth] = useState(1024); const [imageHeight, setImageHeight] = useState(1024); const [batchSize, setBatchSize] = useState<BatchSize>(1); const [generatedImages, setGeneratedImages] = useState<GeneratedImageData[]>([]); const [historyImages, setHistoryImages] = useState<GeneratedImageData[]>([]); const [isLoading, setIsLoading] = useState(false); const [isCreatorLoading, setIsCreatorLoading] = useState(false); const [creatorSubject, setCreatorSubject] = useState(''); const [creatorDetails, setCreatorDetails] = useState(''); const [createdPrompt, setCreatedPrompt] = useState<string | null>(null); const [isModalOpen, setIsModalOpen] = useState(false); const [selectedImageData, setSelectedImageData] = useState<GeneratedImageData | null>(null); const [isDalleModalOpen, setIsDalleModalOpen] = useState(false); const [activeTab, setActiveTab] = useState<'current' | 'history'>('current');
+    useEffect(() => { try { const savedHistory = localStorage.getItem('ai_image_history'); if (savedHistory) { const parsedHistory: GeneratedImageData[] = JSON.parse(savedHistory); if (Array.isArray(parsedHistory)) { setHistoryImages(parsedHistory.filter(item => item && item.url && item.prompt)); } } } catch (e) { console.error("Gagal memuat riwayat dari localStorage:", e); localStorage.removeItem('ai_image_history'); } }, []);
+    useEffect(() => { if (historyImages.length > 0) { localStorage.setItem('ai_image_history', JSON.stringify(historyImages)); } else { localStorage.removeItem('ai_image_history'); } }, [historyImages]);
     const handleModelChange = (newModel: ImageGenModel) => { if (newModel === 'dall-e-3') { const savedKey = localStorage.getItem('openai_api_key'); if (!savedKey) { setIsDalleModalOpen(true); } else { setImageGenModel('dall-e-3'); } } else { setImageGenModel(newModel); } };
     const handleSaveDalleKey = (key: string) => { localStorage.setItem('openai_api_key', key); setIsDalleModalOpen(false); setImageGenModel('dall-e-3'); toast.success("API Key DALL-E 3 disimpan untuk sesi ini."); };
     const handleCloseDalleModal = () => { setIsDalleModalOpen(false); if (imageGenModel === 'dall-e-3') { setImageGenModel('flux'); } };
-    
-    const handleGenerateImage = useCallback(async () => {
-        if (!prompt.trim()) return toast.error('Prompt tidak boleh kosong.');
-
-        // Revoke Object URLs dari gambar yang dihasilkan sebelumnya sebelum membersihkan state
-        generatedImages.forEach(img => {
-            if (img.url.startsWith('blob:')) {
-                URL.revokeObjectURL(img.url);
-            }
-        });
-
-        const finalPrompt = imageGenModel === 'dall-e-3' ? prompt : `${prompt}${artStyle !== 'realistic' ? `, in the style of ${artStyle.replace('-', ' ')}` : ''}${quality === 'hd' ? ', hd' : quality === 'ultrahd' ? ', 4k, photorealistic' : ''}`;
-        setIsLoading(true); setGeneratedImages([]);
-        setActiveTab('current');
-        const toastId = toast.loading(`Menghasilkan gambar dengan ${imageGenModel}...`);
-        
-        try {
-            let images: GeneratedImageData[] = [];
-            const timestamp = Date.now();
-            
-            if (imageGenModel === 'dall-e-3') {
-                const apiKey = localStorage.getItem('openai_api_key');
-                if (!apiKey) { throw new Error("API Key DALL-E 3 tidak ditemukan."); }
-                
-                const response = await fetch('/api/dalle', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ prompt: finalPrompt, apiKey }) });
-                if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.error); }
-                
-                const data = await response.json();
-                images = [{ url: data.imageUrl, prompt: finalPrompt, model: 'dall-e-3', artStyle, quality, width: 1024, height: 1024, seed: 'N/A', isDalle: true, timestamp }];
-            
-            } else {
-                const promises = Array.from({ length: batchSize }, () => {
-                    const seed = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
-                    const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(finalPrompt)}?width=${imageWidth}&height=${imageHeight}&nologo=true&safe=true&model=${imageGenModel === 'gptimage' ? 'gpt3' : imageGenModel}&seed=${seed}&referrer=ariftirtana.my.id`;
-                    
-                    return fetch(imageUrl)
-                        .then(res => res.ok ? res.blob() : Promise.reject(new Error('Failed to fetch image')))
-                        .then(blob => {
-                            return new Promise<GeneratedImageData | null>((resolve) => {
-                                const reader = new FileReader();
-                                reader.onloadend = () => {
-                                    if (reader.result) {
-                                        const base64DataUrl = reader.result as string;
-                                        const imageData: GeneratedImageData = {
-                                            url: base64DataUrl,
-                                            prompt: finalPrompt,
-                                            model: imageGenModel,
-                                            artStyle,
-                                            quality,
-                                            width: imageWidth,
-                                            height: imageHeight,
-                                            seed,
-                                            timestamp
-                                        };
-                                        resolve(imageData);
-                                    } else {
-                                        resolve(null);
-                                    }
-                                };
-                                reader.onerror = () => {
-                                    console.error("FileReader error for blob:", blob);
-                                    resolve(null);
-                                };
-                                reader.readAsDataURL(blob);
-                            });
-                        })
-                        .catch((error) => {
-                            console.error("Error generating image from Pollinations:", error);
-                            return null;
-                        });
-                });
-                
-                const results = await Promise.all(promises);
-                images = results.filter((img): img is GeneratedImageData => img !== null);
-            }
-
-            if (images.length > 0) {
-                setGeneratedImages(images);
-                setHistoryImages(prevHistory => [...images, ...prevHistory]); 
-                toast.success(`${images.length} gambar berhasil dibuat!`, { id: toastId });
-            } else { throw new Error("Tidak ada gambar yang dihasilkan."); }
-
-        } catch (error: any) {
-            toast.error(error.message || 'Terjadi kesalahan tak terduga.', { id: toastId });
-        } finally { setIsLoading(false); }
-    }, [prompt, imageGenModel, artStyle, quality, imageWidth, imageHeight, batchSize, generatedImages]);
-    
-    const handleClearPrompt = useCallback(() => {
-        setPrompt('');
-        isPromptUserModified.current = true; // Tandai bahwa prompt telah diubah oleh pengguna
-        const newSearchParams = new URLSearchParams(searchParams.toString());
-        newSearchParams.delete('prompt');
-        router.replace(`?${newSearchParams.toString()}`, { scroll: false });
-        toast.success('Prompt dibersihkan.');
-    }, [searchParams, router]);
-
-    const handlePromptChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-        setPrompt(e.target.value);
-        isPromptUserModified.current = true; // Tandai bahwa prompt telah diubah oleh pengguna
-    }, []);
-    
+    const handleGenerateImage = useCallback(async () => { if (!prompt.trim()) return toast.error('Prompt tidak boleh kosong.'); generatedImages.forEach(img => { if (img.url.startsWith('blob:')) { URL.revokeObjectURL(img.url); } }); const finalPrompt = imageGenModel === 'dall-e-3' ? prompt : `${prompt}${artStyle !== 'realistic' ? `, in the style of ${artStyle.replace('-', ' ')}` : ''}${quality === 'hd' ? ', hd' : quality === 'ultrahd' ? ', 4k, photorealistic' : ''}`; setIsLoading(true); setGeneratedImages([]); setActiveTab('current'); const toastId = toast.loading(`Menghasilkan gambar dengan ${imageGenModel}...`); try { let images: GeneratedImageData[] = []; const timestamp = Date.now(); if (imageGenModel === 'dall-e-3') { const apiKey = localStorage.getItem('openai_api_key'); if (!apiKey) { throw new Error("API Key DALL-E 3 tidak ditemukan."); } const response = await fetch('/api/dalle', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ prompt: finalPrompt, apiKey }) }); if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.error); } const data = await response.json(); images = [{ url: data.imageUrl, prompt: finalPrompt, model: 'dall-e-3', artStyle, quality, width: 1024, height: 1024, seed: 'N/A', isDalle: true, timestamp }]; } else { const promises = Array.from({ length: batchSize }, () => { const seed = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`; const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(finalPrompt)}?width=${imageWidth}&height=${imageHeight}&nologo=true&safe=true&model=${imageGenModel === 'gptimage' ? 'gpt3' : imageGenModel}&seed=${seed}&referrer=ariftirtana.my.id`; return fetch(imageUrl).then(res => res.ok ? res.blob() : Promise.reject(new Error('Failed to fetch image'))).then(blob => { return new Promise<GeneratedImageData | null>((resolve) => { const reader = new FileReader(); reader.onloadend = () => { if (reader.result) { const base64DataUrl = reader.result as string; const imageData: GeneratedImageData = { url: base64DataUrl, prompt: finalPrompt, model: imageGenModel, artStyle, quality, width: imageWidth, height: imageHeight, seed, timestamp }; resolve(imageData); } else { resolve(null); } }; reader.onerror = () => { console.error("FileReader error for blob:", blob); resolve(null); }; reader.readAsDataURL(blob); }); }).catch((error) => { console.error("Error generating image from Pollinations:", error); return null; }); }); const results = await Promise.all(promises); images = results.filter((img): img is GeneratedImageData => img !== null); } if (images.length > 0) { setGeneratedImages(images); setHistoryImages(prevHistory => [...images, ...prevHistory]); toast.success(`${images.length} gambar berhasil dibuat!`, { id: toastId }); } else { throw new Error("Tidak ada gambar yang dihasilkan."); } } catch (error: any) { toast.error(error.message || 'Terjadi kesalahan tak terduga.', { id: toastId }); } finally { setIsLoading(false); } }, [prompt, imageGenModel, artStyle, quality, imageWidth, imageHeight, batchSize, generatedImages]);
+    const handleClearPrompt = useCallback(() => { setPrompt(''); isPromptUserModified.current = true; const newSearchParams = new URLSearchParams(searchParams.toString()); newSearchParams.delete('prompt'); router.replace(`?${newSearchParams.toString()}`, { scroll: false }); toast.success('Prompt dibersihkan.'); }, [searchParams, router]);
+    const handlePromptChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => { setPrompt(e.target.value); isPromptUserModified.current = true; }, []);
     const handleCreatePrompt = async () => { if (!creatorSubject.trim()) return toast.error('Subjek di Prompt Creator tidak boleh kosong.'); setIsCreatorLoading(true); setCreatedPrompt(null); const toastId = toast.loading('AI sedang membuat prompt...'); try { const response = await fetch('/api/enhance-prompt', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ subject: creatorSubject, details: creatorDetails }) }); if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.message || "Gagal membuat prompt dari AI."); } const data = await response.json(); setCreatedPrompt(data.prompt); toast.success('Prompt berhasil ditingkatkan!', { id: toastId }); } catch (error: any) { toast.error(error.message || "Gagal menghubungi AI.", { id: toastId }); } finally { setIsCreatorLoading(false); } };
     const handleOpenModal = (imageData: GeneratedImageData) => { setSelectedImageData(imageData); setIsModalOpen(true); };
-    
-    const handlePromptFromChat = useCallback((chatPrompt: string) => { 
-        setPrompt(chatPrompt); 
-        isPromptUserModified.current = true;
-        toast.success('Pesan dari asisten digunakan!'); 
-    }, []);
+    const handlePromptFromChat = useCallback((chatPrompt: string) => { setPrompt(chatPrompt); isPromptUserModified.current = true; toast.success('Pesan dari asisten digunakan!'); }, []);
+    const handlePromptFromAnalysis = useCallback((analysisPrompt: string) => { setPrompt(analysisPrompt); isPromptUserModified.current = true; }, []);
+    const handleClearHistory = useCallback(() => { historyImages.forEach(img => { if (img.url.startsWith('blob:')) { URL.revokeObjectURL(img.url); } }); localStorage.removeItem('ai_image_history'); setHistoryImages([]); toast.success('Riwayat dihapus.'); }, [historyImages]);
 
-    const handlePromptFromAnalysis = useCallback((analysisPrompt: string) => { 
-        setPrompt(analysisPrompt); 
-        isPromptUserModified.current = true;
-    }, []);
-
-    const handleClearHistory = useCallback(() => {
-        // Revoke object URLs from history images before clearing
-        historyImages.forEach(img => {
-            if (img.url.startsWith('blob:')) {
-                URL.revokeObjectURL(img.url);
-            }
-        });
-        localStorage.removeItem('ai_image_history'); // Hapus dari localStorage
-        setHistoryImages([]); // Hapus dari state
-        toast.success('Riwayat dihapus.');
-    }, [historyImages]); 
-    
     return (
         <Fragment>
             <DalleApiKeyModal isOpen={isDalleModalOpen} onClose={handleCloseDalleModal} onSave={handleSaveDalleKey} />
             <ImageDetailModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} imageData={selectedImageData} />
-            <Toaster position="top-center" toastOptions={{ style: { background: '#1e293b', color: '#e2e8f0', border: '1px solid #334155' }}} />
+            <Toaster position="top-center" toastOptions={{ className: 'bg-slate-800 text-white', style: { background: '#1e293b', color: '#e2e8f0', border: '1px solid #334155' } }} />
             <main className="container mx-auto py-12 px-4 sm:px-6 lg:px-8 bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
                 <div className="text-center mb-12">
                     <h1 className="text-5xl md:text-6xl font-extrabold mb-4 text-slate-900 dark:text-white">AI <span className="bg-clip-text text-transparent bg-gradient-to-r from-sky-400 to-cyan-300">Image Suite</span></h1>
@@ -630,58 +547,64 @@ function AISuitePageContent() {
                 <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
                     <div className="lg:col-span-2 flex flex-col gap-6">
                         <div className="bg-white dark:bg-slate-800/40 backdrop-blur-md p-6 rounded-2xl shadow-lg dark:shadow-2xl dark:shadow-black/20 border border-slate-200 dark:border-slate-700 h-full flex flex-col space-y-6">
-                            <div><label htmlFor="prompt" className="block text-slate-700 dark:text-slate-300 mb-3 font-bold text-xl items-center"><Zap className="w-7 h-7 mr-3 text-cyan-500 dark:text-cyan-400"/>Image Generation</label><div className="relative w-full"><textarea id="prompt" className="w-full bg-slate-100 dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-lg p-4 pr-10 text-slate-900 dark:text-slate-100 text-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 transition" rows={4} placeholder="Tuliskan imajinasi Anda di sini..." value={prompt} onChange={handlePromptChange} disabled={isLoading} />{prompt && <button onClick={handleClearPrompt} className="absolute top-3 right-3 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-white transition"><Eraser size={20}/></button>}</div></div>
-                            <div className="mt-2"><button onClick={handleGenerateImage} disabled={isLoading || !prompt.trim()} className="w-full font-bold py-4 px-8 rounded-full bg-gradient-to-r from-sky-500 to-cyan-400 text-white hover:opacity-90 transition-all duration-300 flex items-center justify-center text-xl disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-cyan-500/20">{isLoading ? (<> <svg className="animate-spin h-6 w-6 text-current mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Generating...</>) : (<><Zap className="mr-2"/> Generate Image</>)}</button></div>
+                            <div>
+                                <label htmlFor="prompt" className="flex items-center text-slate-800 dark:text-slate-300 mb-3 font-bold text-xl">
+                                    <Zap className="w-7 h-7 mr-3 text-cyan-500 dark:text-cyan-400"/>Image Generation
+                                </label>
+                                <div className="relative w-full">
+                                    <textarea id="prompt" className="w-full bg-slate-100 dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-lg p-4 pr-10 text-slate-900 dark:text-slate-100 text-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 transition" rows={4} placeholder="Tuliskan imajinasi Anda di sini..." value={prompt} onChange={handlePromptChange} disabled={isLoading} />
+                                    {prompt && <button onClick={handleClearPrompt} className="absolute top-3 right-3 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition"><Eraser size={20}/></button>}
+                                </div>
+                            </div>
+                            <div className="mt-2">
+                                <button onClick={handleGenerateImage} disabled={isLoading || !prompt.trim()} className="w-full font-bold py-4 px-8 rounded-full bg-gradient-to-r from-sky-500 to-cyan-400 text-white hover:opacity-90 transition-all duration-300 flex items-center justify-center text-xl disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-cyan-500/20">
+                                    {isLoading ? (<><svg className="animate-spin h-6 w-6 text-current mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Generating...</>) : (<><Zap className="mr-2"/> Generate Image</>)}
+                                </button>
+                            </div>
                             <div className="space-y-4 pt-6 border-t border-slate-200 dark:border-slate-700">
-                                <Accordion title="Parameter" icon={<Settings size={16}/>}><div className="grid grid-cols-2 gap-4"><ParameterInput label="Model"><select className="w-full text-xs bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-600 rounded-md p-2 text-slate-900 dark:text-white" value={imageGenModel} onChange={(e) => handleModelChange(e.target.value as ImageGenModel)}>{imageGenModels.map(m => <option key={m} value={m}>{m}</option>)}</select></ParameterInput><ParameterInput label="Gaya Seni">
-                                    <select
-                                        className="w-full text-xs bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-600 rounded-md p-2 text-slate-900 dark:text-white"
-                                        value={artStyle}
-                                        onChange={(e) => setArtStyle(e.target.value as ArtStyle)}
-                                        disabled={imageGenModel === 'dall-e-3'}
-                                    >
-                                        {artStylesGrouped.map((group, groupIndex) => (
-                                            <optgroup key={group.label} label={group.label}>
-                                                {group.options.map((option, optionIndex) => (
-                                                    <option key={`${groupIndex}-${optionIndex}`} value={option.value}>
-                                                        {option.text}
-                                                    </option>
-                                                ))}
-                                            </optgroup>
-                                        ))}
-                                    </select>
-                                </ParameterInput><ParameterInput label="Kualitas"><select className="w-full text-xs bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-600 rounded-md p-2 text-slate-900 dark:text-white" value={quality} onChange={(e) => setQuality(e.target.value as QualityOption)} disabled={imageGenModel === 'dall-e-3'}>{qualityOptions.map(q => <option key={q} value={q}>{q.charAt(0).toUpperCase() + q.slice(1)}</option>)}</select></ParameterInput><ParameterInput label="Jumlah"><select className="w-full text-xs bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-600 rounded-md p-2 text-slate-900 dark:text-white" value={batchSize} onChange={(e) => setBatchSize(Number(e.target.value) as BatchSize)} disabled={imageGenModel === 'dall-e-3'}>{batchSizes.map(s => <option key={s} value={s}>{s}</option>)}</select></ParameterInput>
-                                
-                                <div className="col-span-2">
-                                    <ParameterInput label="Ukuran Preset">
-                                        <select
-                                            className="w-full text-xs bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-600 rounded-md p-2 text-slate-900 dark:text-white"
-                                            value={`${imageWidth}x${imageHeight}`}
-                                            onChange={(e) => {
-                                                const [widthStr, heightStr] = e.target.value.split('x');
-                                                setImageWidth(parseInt(widthStr));
-                                                setImageHeight(parseInt(heightStr));
-                                            }}
-                                            disabled={imageGenModel === 'dall-e-3'}
-                                        >
-                                            {imagePresets.map(preset => (
-                                                <option key={`${preset.width}x${preset.height}`} value={`${preset.width}x${preset.height}`}>
-                                                    {preset.label}
-                                                </option>
-                                            ))}
+                                <Accordion title="Parameter" icon={<Settings size={16}/>}><div className="grid grid-cols-2 gap-4">
+                                    <ParameterInput label="Model">
+                                        <select className="w-full text-xs bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-md p-2 text-slate-800 dark:text-white" value={imageGenModel} onChange={(e) => handleModelChange(e.target.value as ImageGenModel)}>
+                                            {imageGenModels.map(m => <option key={m} value={m}>{m}</option>)}
                                         </select>
                                     </ParameterInput>
-                                </div>
-
-                                <div className="col-span-2 grid grid-cols-2 gap-2">
-                                    <ParameterInput label="Width">
-                                        <input type="number" className="w-full text-xs bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-600 rounded-md p-2 text-slate-900 dark:text-white" value={imageWidth} onChange={e => setImageWidth(parseInt(e.target.value))} disabled={imageGenModel === 'dall-e-3'}/></ParameterInput>
-                                    <ParameterInput label="Height">
-                                        <input type="number" className="w-full text-xs bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-600 rounded-md p-2 text-slate-900 dark:text-white" value={imageHeight} onChange={e => setImageHeight(parseInt(e.target.value))} disabled={imageGenModel === 'dall-e-3'}/></ParameterInput>
-                                </div>
+                                    <ParameterInput label="Gaya Seni">
+                                        <select className="w-full text-xs bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-md p-2 text-slate-800 dark:text-white" value={artStyle} onChange={(e) => setArtStyle(e.target.value as ArtStyle)} disabled={imageGenModel === 'dall-e-3'}>
+                                            {artStylesGrouped.map((group) => ( <optgroup key={group.label} label={group.label}>{group.options.map(option => (<option key={option.value} value={option.value}>{option.text}</option>))}</optgroup>))}
+                                        </select>
+                                    </ParameterInput>
+                                    <ParameterInput label="Kualitas">
+                                        <select className="w-full text-xs bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-md p-2 text-slate-800 dark:text-white" value={quality} onChange={(e) => setQuality(e.target.value as QualityOption)} disabled={imageGenModel === 'dall-e-3'}>
+                                            {qualityOptions.map(q => <option key={q} value={q}>{q.charAt(0).toUpperCase() + q.slice(1)}</option>)}
+                                        </select>
+                                    </ParameterInput>
+                                    <ParameterInput label="Jumlah">
+                                        <select className="w-full text-xs bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-md p-2 text-slate-800 dark:text-white" value={batchSize} onChange={(e) => setBatchSize(Number(e.target.value) as BatchSize)} disabled={imageGenModel === 'dall-e-3'}>
+                                            {batchSizes.map(s => <option key={s} value={s}>{s}</option>)}
+                                        </select>
+                                    </ParameterInput>
+                                    <div className="col-span-2">
+                                        <ParameterInput label="Ukuran Preset">
+                                            <select className="w-full text-xs bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-md p-2 text-slate-800 dark:text-white" value={`${imageWidth}x${imageHeight}`} onChange={(e) => { const [widthStr, heightStr] = e.target.value.split('x'); setImageWidth(parseInt(widthStr)); setImageHeight(parseInt(heightStr)); }} disabled={imageGenModel === 'dall-e-3'}>
+                                                {imagePresets.map(preset => (<option key={`${preset.width}x${preset.height}`} value={`${preset.width}x${preset.height}`}>{preset.label}</option>))}
+                                            </select>
+                                        </ParameterInput>
+                                    </div>
+                                    <div className="col-span-2 grid grid-cols-2 gap-2">
+                                        <ParameterInput label="Width"><input type="number" className="w-full text-xs bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-md p-2 text-slate-800 dark:text-white" value={imageWidth} onChange={e => setImageWidth(parseInt(e.target.value))} disabled={imageGenModel === 'dall-e-3'}/></ParameterInput>
+                                        <ParameterInput label="Height"><input type="number" className="w-full text-xs bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-md p-2 text-slate-800 dark:text-white" value={imageHeight} onChange={e => setImageHeight(parseInt(e.target.value))} disabled={imageGenModel === 'dall-e-3'}/></ParameterInput>
+                                    </div>
                                 </div></Accordion>
-
-                                <Accordion title="Prompt Creator" icon={<Wand2 size={16}/>}><div className="space-y-4"><div className="space-y-3"><input type="text" value={creatorSubject} onChange={e => setCreatorSubject(e.target.value)} placeholder="Subjek Utama..." className="w-full text-sm bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-600 rounded-md p-2 text-slate-900 dark:text-white" /><textarea value={creatorDetails} onChange={e => setCreatorDetails(e.target.value)} placeholder="Detail Tambahan..." rows={2} className="w-full text-sm bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-600 rounded-md p-2 text-slate-900 dark:text-white" /><button onClick={handleCreatePrompt} disabled={isCreatorLoading || !creatorSubject.trim()} className="w-full bg-purple-600 text-white py-2 rounded-lg font-semibold text-sm hover:bg-purple-700 transition disabled:opacity-50 flex justify-center items-center">{isCreatorLoading ? "Meningkatkan..." : 'Tingkatkan Prompt'}</button></div>{createdPrompt && ( <div className="border-t border-slate-200 dark:border-slate-700 pt-4 space-y-3"> <p className="text-xs font-semibold text-slate-600 dark:text-slate-400">Hasil dari AI:</p> <p className="text-sm bg-slate-50 dark:bg-slate-900 p-3 rounded-md border border-slate-200 dark:border-slate-600 text-slate-900 dark:text-slate-300">{createdPrompt}</p> <div className="flex gap-2"><button onClick={() => { setPrompt(createdPrompt); toast.success('Prompt digunakan!'); }} className="flex-1 bg-sky-600 text-white py-2 rounded-lg font-semibold text-xs hover:bg-sky-700 transition flex items-center justify-center gap-2"><CornerDownLeft size={14}/> Gunakan</button><button onClick={() => { navigator.clipboard.writeText(createdPrompt); toast.success('Prompt disalin!'); }} className="flex-1 bg-slate-600 text-white py-2 rounded-lg font-semibold text-xs hover:bg-slate-700 transition flex items-center justify-center gap-2"><Copy size={14} /> Salin</button></div> </div> )}</div></Accordion>
+                                <Accordion title="Prompt Creator" icon={<Wand2 size={16}/>}>
+                                    <div className="space-y-4">
+                                        <div className="space-y-3">
+                                            <input type="text" value={creatorSubject} onChange={e => setCreatorSubject(e.target.value)} placeholder="Subjek Utama..." className="w-full text-sm bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-md p-2 text-slate-800 dark:text-white" />
+                                            <textarea value={creatorDetails} onChange={e => setCreatorDetails(e.target.value)} placeholder="Detail Tambahan..." rows={2} className="w-full text-sm bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-md p-2 text-slate-800 dark:text-white" />
+                                            <button onClick={handleCreatePrompt} disabled={isCreatorLoading || !creatorSubject.trim()} className="w-full bg-purple-600 text-white py-2 rounded-lg font-semibold text-sm hover:bg-purple-700 transition disabled:opacity-50 flex justify-center items-center">{isCreatorLoading ? "Meningkatkan..." : 'Tingkatkan Prompt'}</button>
+                                        </div>
+                                        {createdPrompt && ( <div className="border-t border-slate-200 dark:border-slate-700 pt-4 space-y-3"> <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">Hasil dari AI:</p> <p className="text-sm bg-slate-50 dark:bg-slate-900 p-3 rounded-md border border-slate-200 dark:border-slate-600 text-slate-800 dark:text-slate-300">{createdPrompt}</p> <div className="flex gap-2"><button onClick={() => { setPrompt(createdPrompt); toast.success('Prompt digunakan!'); }} className="flex-1 bg-sky-600 text-white py-2 rounded-lg font-semibold text-xs hover:bg-sky-700 transition flex items-center justify-center gap-2"><CornerDownLeft size={14}/> Gunakan</button><button onClick={() => { navigator.clipboard.writeText(createdPrompt); toast.success('Prompt disalin!'); }} className="flex-1 bg-slate-500 dark:bg-slate-600 text-white py-2 rounded-lg font-semibold text-xs hover:bg-slate-600 dark:hover:bg-slate-700 transition flex items-center justify-center gap-2"><Copy size={14} /> Salin</button></div> </div> )}
+                                    </div>
+                                </Accordion>
                                 <Accordion title="AI Assistant" icon={<MessageSquare size={16}/>}><ChatBox onPromptFromChat={handlePromptFromChat} /></Accordion>
                                 <Accordion title="Image Analyze" icon={<ImageIcon size={16}/>} defaultOpen={false}><ImageAnalyzer onPromptFromAnalysis={handlePromptFromAnalysis} /></Accordion>
                                 <Accordion title="Text to Audio" icon={<Volume2 size={16}/>} defaultOpen={false}><TextToAudioConverter /></Accordion>
@@ -689,77 +612,37 @@ function AISuitePageContent() {
                         </div>
                     </div>
                     <div className="lg:col-span-3">
-                        <div className="bg-white dark:bg-slate-800/20 backdrop-blur-sm p-4 rounded-2xl shadow-inner shadow-black/20 install border border-slate-200 dark:border-slate-700 h-full min-h-[400px] lg:min-h-[600px] flex flex-col">
-                            {/* Tab untuk Hasil Generasi dan Riwayat */}
+                        <div className="bg-white dark:bg-slate-800/20 backdrop-blur-sm p-4 rounded-2xl shadow-inner dark:shadow-black/20 border border-slate-200 dark:border-slate-700 h-full min-h-[400px] lg:min-h-[600px] flex flex-col">
                             <div className="flex border-b border-slate-200 dark:border-slate-700 mb-4 flex-shrink-0">
-                                <button onClick={() => setActiveTab('current')} className={`py-2 px-4 text-sm font-semibold ${activeTab === 'current' ? 'text-slate-900 dark:text-white border-b-2 border-cyan-500' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'}`}>Hasil Generasi</button>
-                                <button onClick={() => setActiveTab('history')} className={`py-2 px-4 text-sm font-semibold ${activeTab === 'history' ? 'text-slate-900 dark:text-white border-b-2 border-cyan-500' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'}`}>Riwayat ({historyImages.length})</button>
-                                {activeTab === 'history' && historyImages.length > 0 && (
-                                    <button onClick={handleClearHistory} className="ml-auto py-2 px-4 text-sm text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 flex items-center gap-1">
-                                        <Trash2 size={16} /> Hapus Riwayat
-                                    </button>
-                                )}
+                                <button onClick={() => setActiveTab('current')} className={`py-2 px-4 text-sm font-semibold ${activeTab === 'current' ? 'text-slate-900 dark:text-white border-b-2 border-cyan-500' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'}`}>Hasil Generasi</button>
+                                <button onClick={() => setActiveTab('history')} className={`py-2 px-4 text-sm font-semibold ${activeTab === 'history' ? 'text-slate-900 dark:text-white border-b-2 border-cyan-500' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'}`}>Riwayat ({historyImages.length})</button>
+                                {activeTab === 'history' && historyImages.length > 0 && (<button onClick={handleClearHistory} className="ml-auto py-2 px-4 text-sm text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 flex items-center gap-1"><Trash2 size={16} /> Hapus Riwayat</button>)}
                             </div>
-
                             <div className="flex-grow overflow-y-auto">
                                 {isLoading ? (
-                                    <div className="h-full flex items-center justify-center">
-                                        <div className="m-auto text-center text-slate-600 dark:text-slate-400">
-                                            <Sparkles className="mx-auto h-12 w-12 animate-pulse text-cyan-500" />
-                                            <p className="mt-4 font-semibold">Menciptakan keajaiban...</p>
-                                        </div>
-                                    </div>
+                                    <div className="h-full flex items-center justify-center"><div className="m-auto text-center text-slate-500 dark:text-slate-400"><Sparkles className="mx-auto h-12 w-12 animate-pulse text-cyan-500" /><p className="mt-4 font-semibold">Menciptakan keajaiban...</p></div></div>
                                 ) : activeTab === 'current' ? (
                                     generatedImages.length > 0 ? (
-                                        <div className="flex-grow">
-                                            <h2 className="text-2xl font-bold mb-4 text-slate-900 dark:text-white">Hasil Generasi Terbaru</h2>
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                                {generatedImages.map((imageData, index) => (
-                                                    <div key={index} className="relative rounded-lg overflow-hidden group aspect-square border-2 border-slate-200 dark:border-slate-700 cursor-pointer" onClick={() => handleOpenModal(imageData)}>
-                                                        <Image src={imageData.url} alt="Generated AI Image" layout="fill" className="object-cover" unoptimized/>
-                                                        <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
-                                                            <p className="text-white font-bold">Lihat Detail</p>
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
+                                        <div className="flex-grow"><h2 className="text-2xl font-bold mb-4 text-slate-900 dark:text-white">Hasil Generasi Terbaru</h2><div className="grid grid-cols-1 sm:grid-cols-2 gap-4">{generatedImages.map((imageData, index) => (
+                                            <div key={index} className="relative rounded-lg overflow-hidden group aspect-square border-2 border-slate-200 dark:border-slate-700 cursor-pointer" onClick={() => handleOpenModal(imageData)}>
+                                                <Image src={imageData.url} alt="Generated AI Image" layout="fill" className="object-cover" unoptimized/>
+                                                <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition"><p className="text-white font-bold">Lihat Detail</p></div>
+                                            </div>))}
+                                        </div></div>
                                     ) : (
-                                        <div className="h-full flex items-center justify-center">
-                                            <div className="m-auto text-center text-slate-500 dark:text-slate-400">
-                                                <ImageIcon size={64} className="mx-auto" />
-                                                <p className="mt-4 font-semibold">Hasil gambar Anda akan muncul di sini</p>
-                                                <p className="text-sm">Tulis prompt dan klik "Generate Image"</p>
-                                            </div>
-                                        </div>
+                                        <div className="h-full flex items-center justify-center"><div className="m-auto text-center text-slate-500 dark:text-slate-400"><ImageIcon size={64} className="mx-auto" /><p className="mt-4 font-semibold">Hasil gambar Anda akan muncul di sini</p><p className="text-sm">Tulis prompt dan klik "Generate Image"</p></div></div>
                                     )
                                 ) : (
                                     historyImages.length > 0 ? (
-                                        <div className="flex-grow">
-                                            <h2 className="text-2xl font-bold mb-4 text-slate-900 dark:text-white">Riwayat Generasi</h2>
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                                {[...historyImages].sort((a, b) => b.timestamp - a.timestamp).map((imageData, index) => (
-                                                    <div key={imageData.url + index} className="relative rounded-lg overflow-hidden group aspect-square border-2 border-slate-200 dark:border-slate-700 cursor-pointer" onClick={() => handleOpenModal(imageData)}>
-                                                        {/* Menggunakan unoptimized karena ini adalah Data URL atau URL eksternal */}
-                                                        <Image src={imageData.url} alt="Generated AI Image" layout="fill" className="object-cover" unoptimized/>
-                                                        <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
-                                                            <p className="text-white font-bold">Lihat Detail</p>
-                                                        </div>
-                                                        <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs p-1 text-center">
-                                                            {new Date(imageData.timestamp).toLocaleString()}
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
+                                        <div className="flex-grow"><h2 className="text-2xl font-bold mb-4 text-slate-900 dark:text-white">Riwayat Generasi</h2><div className="grid grid-cols-1 sm:grid-cols-2 gap-4">{[...historyImages].sort((a, b) => b.timestamp - a.timestamp).map((imageData, index) => (
+                                            <div key={imageData.url + index} className="relative rounded-lg overflow-hidden group aspect-square border-2 border-slate-200 dark:border-slate-700 cursor-pointer" onClick={() => handleOpenModal(imageData)}>
+                                                <Image src={imageData.url} alt="Generated AI Image" layout="fill" className="object-cover" unoptimized/>
+                                                <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition"><p className="text-white font-bold">Lihat Detail</p></div>
+                                                <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs p-1 text-center">{new Date(imageData.timestamp).toLocaleString()}</div>
+                                            </div>))}
+                                        </div></div>
                                     ) : (
-                                        <div className="h-full flex items-center justify-center">
-                                            <div className="m-auto text-center text-slate-500 dark:text-slate-400">
-                                                <History size={64} className="mx-auto" />
-                                                <p className="mt-4 font-semibold">Riwayat generasi Anda akan muncul di sini</p>
-                                                <p className="text-sm">Gambar yang Anda buat akan disimpan secara otomatis.</p>
-                                            </div>
-                                        </div>
+                                        <div className="h-full flex items-center justify-center"><div className="m-auto text-center text-slate-500 dark:text-slate-400"><History size={64} className="mx-auto" /><p className="mt-4 font-semibold">Riwayat generasi Anda akan muncul di sini</p><p className="text-sm">Gambar yang Anda buat akan disimpan secara otomatis.</p></div></div>
                                     )
                                 )}
                             </div>
@@ -774,13 +657,12 @@ function AISuitePageContent() {
 // --- Wrapper & Ekspor Halaman ---
 function AuthenticatedAISuiteWrapper() {
     return (
-        <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-slate-900 text-white text-xl">Memuat AI Suite...</div>}>
+        <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-white dark:bg-slate-900 text-slate-800 dark:text-white text-xl">Memuat AI Suite...</div>}>
             <AISuitePageContent />
         </Suspense>
     );
 }
 
-// --- EKSPOR HALAMAN UTAMA ---
 export default function AISuitePage() {
     return <AuthenticatedAISuiteWrapper />;
 }

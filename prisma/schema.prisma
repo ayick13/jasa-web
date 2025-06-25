@@ -1,89 +1,57 @@
-// prisma/schema.prisma
+// File: prisma/schema.prisma (Versi Final yang Benar)
 
-// 'generator client' mendefinisikan cara Prisma Client dihasilkan.
-// 'provider' menunjuk ke klien Prisma itu sendiri.
-// 'output' adalah lokasi di mana klien akan dibuat (default di node_modules).
-// 'previewFeatures = ["dataProxy"]' diperlukan untuk Prisma Accelerate.
-// 'binaryTargets' memastikan klien yang benar dibangun untuk lingkungan deployment Anda,
-// termasuk Vercel yang biasanya berbasis Linux (debian-openssl-1.1.x atau rhel-openssl-1.0.x atau native).
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["dataProxy"] // Diperlukan untuk Prisma Accelerate
-  binaryTargets   = ["native", "linux-musl", "rhel-openssl-1.0.x"] // Target umum untuk deployment seperti Vercel
+  provider = "prisma-client-js"
 }
 
-// 'datasource db' mendefinisikan konektor database Anda (misalnya PostgreSQL)
-// 'provider' menentukan jenis database yang Anda gunakan.
-// 'url' mengambil string koneksi dari variabel lingkungan DATABASE_URL.
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL")
 }
 
-// --- Definisi Model Anda ---
-
-// Model User
-// Ini adalah model utama untuk menyimpan informasi pengguna.
-// Properti 'id', 'name', 'email', 'password', dll. adalah standar.
-// 'createdAt' dan 'updatedAt' ditambahkan untuk pelacakan waktu.
 model User {
-  id                     String    @id @default(cuid())
-  name                   String
-  email                  String    @unique
-  password               String?
-  emailVerified          DateTime? @map("email_verified") // <--- Pastikan baris ini ada
-  image                  String?
-  createdAt              DateTime  @default(now())
-  updatedAt              DateTime  @updatedAt
-
-  accounts               Account[]
-  sessions               Session[]
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  accounts      Account[]
+  sessions      Session[]
 }
 
-// Model Account (Digunakan oleh NextAuth.js untuk OAuth dan kredensial)
-// Menyimpan informasi akun terkait dengan provider otentikasi (Google, Facebook, dll.).
 model Account {
-  id                 String  @id @default(cuid())
-  userId             String
-  type               String
-  provider           String
-  providerAccountId  String  @map("provider_account_id") // Menggunakan @map untuk kesesuaian NextAuth.js
-  refresh_token      String? @db.Text // @db.Text untuk data yang bisa panjang
-  access_token       String? @db.Text // @db.Text untuk data yang bisa panjang
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String? @db.Text // @db.Text untuk data yang bisa panjang
-  session_state      String?
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
 
-  // Hubungan dengan model User
-  user               User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([provider, providerAccountId]) // Kombinasi provider dan providerAccountId harus unik
-  @@map("accounts") // Mengatur nama tabel di database menjadi "accounts"
+  @@unique([provider, providerAccountId])
 }
 
-// Model Session (Digunakan oleh NextAuth.js untuk sesi pengguna)
-// Menyimpan informasi sesi pengguna yang aktif.
 model Session {
   id           String   @id @default(cuid())
-  sessionToken String   @unique @map("session_token") // Menggunakan @map untuk kesesuaian NextAuth.js
+  sessionToken String   @unique
   userId       String
   expires      DateTime
-
-  // Hubungan dengan model User
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("sessions") // Mengatur nama tabel di database menjadi "sessions"
 }
 
-// Model VerificationToken (Digunakan oleh NextAuth.js untuk alur verifikasi email/passwordless)
-// Menyimpan token yang digunakan untuk verifikasi (misalnya, reset password, email confirmation).
 model VerificationToken {
   identifier String
   token      String   @unique
   expires    DateTime
 
-  @@unique([identifier, token]) // Kombinasi identifier dan token harus unik
-  @@map("verificationtokens") // Mengatur nama tabel di database menjadi "verificationtokens"
+  @@unique([identifier, token])
 }
