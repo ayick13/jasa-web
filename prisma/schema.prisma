@@ -28,15 +28,14 @@ datasource db {
 // 'createdAt' dan 'updatedAt' ditambahkan untuk pelacakan waktu.
 model User {
   id                     String    @id @default(cuid())
-  name                   String?
-  email                  String?   @unique
-  emailVerified          DateTime? @map("email_verified") // Menggunakan @map untuk kesesuaian NextAuth.js
+  name                   String
+  email                  String    @unique
+  password               String?
+  emailVerified          DateTime? @map("email_verified") // <--- Pastikan baris ini ada
   image                  String?
-  password               String? // Dibuat opsional karena pengguna OAuth tidak punya password
   createdAt              DateTime  @default(now())
   updatedAt              DateTime  @updatedAt
 
-  // Hubungan dengan model Account dan Session untuk NextAuth.js
   accounts               Account[]
   sessions               Session[]
 }
