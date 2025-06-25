@@ -1,3 +1,5 @@
+// app/login/page.tsx
+
 'use client';
 
 import { useState } from 'react';
@@ -6,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { toast, Toaster } from 'react-hot-toast';
 import { KeyRound, LogIn } from 'lucide-react';
+import Image from 'next/image'; // Import Image dari next/image
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -27,24 +30,45 @@ export default function LoginPage() {
       });
 
       if (result?.ok) {
-        toast.success('Login berhasil!');
-        // Berhasil, arahkan ke halaman utama AI Suite
-        router.replace('/ai-suite');
+        toast.success('Login berhasil! Mengarahkan...'); //
+        router.replace('/ai-suite'); //
       } else {
-        // Gagal, tampilkan pesan error dan goyangkan form
-        setError('Email atau Password salah. Silakan coba lagi.');
-        const form = document.getElementById('login-form');
-        form?.classList.add('animate-shake');
-        setTimeout(() => form?.classList.remove('animate-shake'), 500);
+        const errorMessage = result?.error || 'Email atau Password salah. Silakan coba lagi.'; //
+        setError(errorMessage); //
+        toast.error(errorMessage); //
+
+        const form = document.getElementById('login-form'); //
+        form?.classList.add('animate-shake'); //
+        setTimeout(() => form?.classList.remove('animate-shake'), 500); //
       }
-    } catch (error) {
-        setError('Terjadi kesalahan pada server. Coba lagi nanti.');
+    } catch (fetchError) {
+      console.error('Error during fetch or signIn process:', fetchError); //
+      setError('Terjadi kesalahan pada server. Coba lagi nanti.'); //
+      toast.error('Terjadi kesalahan pada server. Coba lagi nanti.'); //
     } finally {
-        setIsLoading(false);
+      setIsLoading(false); //
     }
   };
 
-  // CSS untuk animasi 'shake' saat login gagal
+  // Fungsi untuk menangani login dengan Google
+  const handleGoogleSignIn = async () => {
+    setIsLoading(true);
+    try {
+      const result = await signIn('google', { callbackUrl: '/ai-suite' }); // Mengarahkan ke /ai-suite setelah login Google berhasil
+      if (result?.error) {
+        toast.error(`Gagal login dengan Google: ${result.error}`);
+        setError(`Gagal login dengan Google: ${result.error}`);
+      }
+    } catch (error) {
+      console.error('Error signing in with Google:', error);
+      toast.error('Terjadi kesalahan saat login dengan Google.');
+      setError('Terjadi kesalahan saat login dengan Google.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+
   const style = `
     @keyframes shake {
       10%, 90% { transform: translate3d(-1px, 0, 0); }
@@ -60,7 +84,10 @@ export default function LoginPage() {
   return (
     <>
       <style>{style}</style>
-      <Toaster position="top-center" />
+      <Toaster position="top-center" toastOptions={{ //
+        className: 'dark:bg-slate-700 dark:text-white', //
+        style: { background: '#fff', color: '#000' } //
+      }} />
       <div className="flex flex-col items-center justify-center min-h-screen bg-slate-900 p-4">
         <div id="login-form" className="w-full max-w-md p-8 space-y-6 bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-2xl shadow-2xl shadow-black/20">
           <div className="text-center">
@@ -72,7 +99,7 @@ export default function LoginPage() {
               </h1>
               <p className="mt-2 text-slate-400">Silakan login untuk melanjutkan.</p>
           </div>
-          
+
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
               <label
@@ -133,6 +160,22 @@ export default function LoginPage() {
               </button>
             </div>
           </form>
+
+          {/* Tombol Login Google */}
+          <div className="mt-4">
+              <button
+                onClick={handleGoogleSignIn}
+                disabled={isLoading}
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 font-semibold text-slate-800 bg-white rounded-lg shadow-lg hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-300 focus:ring-offset-slate-900 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                  {isLoading ? (
+                      <div className="w-5 h-5 border-2 border-slate-800 border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                      <Image src="/google-icon.svg" alt="Google" width={20} height={20} />
+                  )}
+                  <span>{isLoading ? 'Menghubungkan...' : 'Login dengan Google'}</span>
+              </button>
+          </div>
 
           <div className="text-center text-sm text-slate-400">
             Belum punya akun?{' '}

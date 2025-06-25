@@ -22,7 +22,9 @@ export default function RegisterPage() {
     setIsLoading(true);
 
     if (!name || !email || !password) {
-        setError('Semua field wajib diisi.');
+        const missingFieldsError = 'Semua field wajib diisi.';
+        setError(missingFieldsError);
+        toast.error(missingFieldsError); // Menambahkan toast error di sini
         setIsLoading(false);
         return;
     }
@@ -47,10 +49,15 @@ export default function RegisterPage() {
         }, 2000); // Tunggu 2 detik sebelum redirect
       } else {
         const data = await res.json();
-        setError(data.error || 'Terjadi kesalahan saat registrasi.');
+        const apiError = data.error || 'Terjadi kesalahan saat registrasi.';
+        setError(apiError);
+        toast.error(apiError); // Menambahkan toast error dari API di sini
       }
     } catch (err) {
-      setError('Terjadi kesalahan pada server. Coba lagi nanti.');
+      console.error('Error during registration fetch:', err); // Lebih baik log error sebenarnya
+      const serverError = 'Terjadi kesalahan pada server. Coba lagi nanti.';
+      setError(serverError);
+      toast.error(serverError); // Menambahkan toast error untuk kesalahan server
     } finally {
       setIsLoading(false);
     }
@@ -58,7 +65,10 @@ export default function RegisterPage() {
 
   return (
     <>
-      <Toaster position="top-center" />
+      <Toaster position="top-center" toastOptions={{ // Menambahkan toastOptions untuk styling
+        className: 'dark:bg-slate-700 dark:text-white',
+        style: { background: '#fff', color: '#000' }
+      }} />
       <div className="flex flex-col items-center justify-center min-h-screen bg-slate-900 p-4">
         <div className="w-full max-w-md p-8 space-y-6 bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-2xl shadow-2xl shadow-black/20">
           <div className="text-center">
@@ -70,7 +80,7 @@ export default function RegisterPage() {
             </h1>
             <p className="mt-2 text-slate-400">Daftar untuk mendapatkan akses ke AI Suite.</p>
           </div>
-          
+
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label
