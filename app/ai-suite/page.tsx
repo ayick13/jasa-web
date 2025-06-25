@@ -9,14 +9,7 @@ import { toast, Toaster } from 'react-hot-toast';
 import {
     Download, Zap, Eraser, Sparkles, Wand2, MessageSquare, Bot, Send, Settings,
     ChevronDown, ImageIcon, BrainCircuit, Upload, CheckCircle, Copy, CornerDownLeft, X,
-    Volume2, Paperclip, History,
-    ExternalLink,
-    Eye,
-    EyeOff,
-    KeyRound,
-    LogOut,
-    Trash2
-    // DollarSign, RefreshCw, KeyRound, Eye, EyeOff, <-- Icons terkait koin/admin juga tidak perlu diimpor
+    Volume2, Paperclip, History, KeyRound, ExternalLink, Trash2, LogOut, Eye, EyeOff // <--- Impor ikon yang hilang ditambahkan kembali
 } from 'lucide-react';
 
 import { useSession, signOut } from 'next-auth/react';
@@ -223,7 +216,7 @@ const ChatBox = ({ onPromptFromChat }: { onPromptFromChat: (prompt: string) => v
             setMessages(prev => prev.map(msg => msg.id === assistantMessageId ? { ...msg, content: data.reply } : msg ));
         } catch (error: any) {
             toast.error(error.message);
-            setMessages(prev => prev.filter(msg => msg.id !== assistantMessageId));
+            setMessages(prev => prev.map(msg => msg.id === assistantMessageId ? { ...msg, content: "Maaf, terjadi kesalahan." } : msg ));
         } finally {
             setIsThinking(false);
         }
@@ -567,6 +560,7 @@ const TextToAudioConverter = () => {
                         <X size={20} />
                     </button>
                     <div className="flex items-center gap-3">
+                        {/* KeyRound icon is used here */}
                         <KeyRound className="text-yellow-500 dark:text-yellow-400" size={24}/>
                         <h3 className="text-xl font-bold text-slate-900 dark:text-white">Masukkan API Key OpenAI</h3>
                     </div>
@@ -587,9 +581,11 @@ const TextToAudioConverter = () => {
                             className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors"
                             aria-label={showApiKey ? 'Sembunyikan API Key' : 'Tampilkan API Key'}
                         >
-                            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                            {/* EyeOff and Eye icons are used here */}
+                            {showApiKey ? <EyeOff size={18} /> : <Eye size={18} />}
                         </button>
                     </div>
+                    {/* ExternalLink icon is used here */}
                     <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-xs text-cyan-500 dark:text-cyan-400 hover:underline flex items-center gap-1">
                         Bagaimana cara mendapatkan API Key? <ExternalLink size={14}/>
                     </a>
@@ -648,25 +644,7 @@ const TextToAudioConverter = () => {
         const [isDalleModalOpen, setIsDalleModalOpen] = useState(false);
         const [activeTab, setActiveTab] = useState<'current' | 'history'>('current');
 
-        // Manajemen Koin - Hapus semua state terkait koin
-        // const [userCoins, setUserCoins] = useState(0);
-        // const [lastUsageTimestamp, setLastUsageTimestamp] = useState<number>(0);
-
-        // Modals Admin terkait koin - Hapus state terkait koin
-        // const [showAdminResetModal, setShowAdminResetModal] = useState(false);
-        // const [showAdminRefillModal, setShowAdminRefillModal] = useState(false);
-
-        // Waktu reset koin yang tersisa - Hapus
-        // const [remainingTime, setRemainingTime] = useState<string>('');
-
-        // calculateRemainingTime - Hapus useCallback ini
-        // const calculateRemainingTime = useCallback((timestamp: number) => { ... }, []);
-
-        // useEffects terkait koin - Hapus
-        // useEffect(() => { ... fetchCoins ... }, [session, lastUsageTimestamp, calculateRemainingTime]);
-        // useEffect(() => { ... localStorage for coins ... }, [userCoins, lastUsageTimestamp]); // Ini sudah dihapus sebelumnya
-
-        // Memuat riwayat dari localStorage saat komponen dimuat (tetap di lokal)
+        // Memuat riwayat dari localStorage saat komponen dimuat
         useEffect(() => {
             try {
                 const savedHistory = localStorage.getItem('ai_image_history');
@@ -690,7 +668,6 @@ const TextToAudioConverter = () => {
                 localStorage.removeItem('ai_image_history');
             }
         }, [historyImages]);
-
 
         const handleModelChange = (newModel: ImageGenModel) => {
             if (newModel === 'dall-e-3') {
@@ -722,11 +699,6 @@ const TextToAudioConverter = () => {
             if (!prompt.trim()) {
                 return toast.error('Prompt tidak boleh kosong.');
             }
-            // Logika koin ini akan dihapus
-            // if (userCoins <= 0) {
-            //     toast.error('Koin tidak cukup! Silakan coba lagi besok atau minta admin untuk mengisi ulang.');
-            //     return;
-            // }
 
             generatedImages.forEach(img => {
                 if (img.url.startsWith('blob:')) {
@@ -745,12 +717,6 @@ const TextToAudioConverter = () => {
             const toastId = toast.loading(`Menghasilkan gambar dengan ${imageGenModel}...`);
 
             try {
-                // Logika pengurangan koin ini akan dihapus
-                // const updateCoinsResponse = await fetch('/api/user/update-coins', { ... });
-                // if (!updateCoinsResponse.ok) { ... }
-                // const updateCoinData = await updateCoinsResponse.json();
-                // setUserCoins(updateCoinData.newCoins);
-
                 let images: GeneratedImageData[] = [];
                 const timestamp = Date.now();
 
@@ -809,7 +775,7 @@ const TextToAudioConverter = () => {
                 if (images.length > 0) {
                     setGeneratedImages(images);
                     setHistoryImages(prevHistory => [...images, ...prevHistory]);
-                    toast.success(`${images.length} gambar berhasil dibuat!`, { id: toastId }); // Pesan sukses tanpa koin
+                    toast.success(`${images.length} gambar berhasil dibuat!`, { id: toastId });
                 } else {
                     throw new Error("Tidak ada gambar yang dihasilkan.");
                 }
@@ -937,7 +903,7 @@ const TextToAudioConverter = () => {
                             Sebuah command center untuk mengubah imajinasi Anda menjadi kenyataan visual.
                         </p>
                     </div>
-                    <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+                    <div className="grid grid-cols-1 lg:col-span-5 gap-8">
                         <div className="lg:col-span-2 flex flex-col gap-6">
                             <div className="bg-white dark:bg-slate-800/40 backdrop-blur-md p-6 rounded-2xl shadow-lg dark:shadow-2xl dark:shadow-black/20 border border-slate-200 dark:border-slate-700 h-full flex flex-col space-y-6">
                                 {/* Bagian UI koin ini dihapus */}
