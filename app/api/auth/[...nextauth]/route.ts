@@ -10,19 +10,14 @@ import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
-// Definisikan authOptions sebagai konstanta yang diekspor
-export const authOptions = {
+// Definisikan authOptions sebagai konstanta lokal, TIDAK DIEKSPOR SECARA LANGSUNG
+const authOptions = { // <--- BARIS INI BERUBAH: 'export' DIHAPUS
   adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
-    // Hapus blok FacebookProvider ini jika tidak digunakan
-    // FacebookProvider({
-    //   clientId: process.env.FACEBOOK_CLIENT_ID!,
-    //   clientSecret: process.env.FACEBOOK_CLIENT_SECRET!,
-    // }),
     CredentialsProvider({
       name: 'Credentials',
       credentials: {
@@ -64,7 +59,7 @@ export const authOptions = {
   },
   session: {
     strategy: 'jwt',
-  } as const, // <--- BARIS INI BERUBAH: Ditambahkan `as const` untuk memperbaiki tipe `session.strategy`
+  } as const,
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
     jwt({ token, user }: { token: any, user: any }) {
