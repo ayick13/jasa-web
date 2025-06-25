@@ -7,6 +7,7 @@ import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { toast, Toaster } from 'react-hot-toast';
+import Image from 'next/image';
 
 // Komponen LoginForm yang berisi logika dan hook useSearchParams
 function LoginForm() {
@@ -82,10 +83,10 @@ function LoginForm() {
         </div>
       </div>
       <div>
-        <button onClick={loginWithGoogle} disabled={isLoading} className="w-full flex items-center justify-center gap-3 py-2 px-4 border border-slate-600 rounded-md shadow-sm text-sm font-medium text-white bg-slate-700 hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 disabled:opacity-50">
-          <svg className="w-5 h-5" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512"><path fill="currentColor" d="M488 261.8C488 403.3 381.5 512 244 512 110.3 512 0 401.7 0 265.9c0-54.4 16.8-103.7 46.3-143.5l88.5 69.3c-11.3 22.6-17.4 47.7-17.4 74.2 0 66.5 54.1 120.6 120.6 120.6 66.5 0 120.6-54.1 120.6-120.6 0-21.6-5.7-42-15.8-59.8l88.5-69.3c36.3 35.8 57.5 83.1 57.5 135zM124.3 162.7L35.8 93.3C69.3 50.8 123.4 16 186.3 16c68.3 0 128.8 35.8 168.1 90.1l-88.5 69.3C241.7 122.9 200.4 93.3 150.9 93.3c-23.2 0-44.8 7.5-62.8 20.3z"></path></svg>
-          Masuk dengan Google
-        </button>
+<button onClick={loginWithGoogle} disabled={isLoading} className="w-full flex items-center justify-center gap-3 py-2 px-4 border border-slate-600 rounded-md shadow-sm text-sm font-medium text-white bg-slate-700 hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 disabled:opacity-50">
+  <Image src="/google-icon.svg" alt="Google icon" width={20} height={20} />
+  <span>Masuk dengan Google</span>
+</button>
       </div>
        <p className="mt-4 text-center text-sm text-slate-400">
         Belum punya akun?{' '}
