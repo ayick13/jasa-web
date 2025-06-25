@@ -5,12 +5,13 @@ import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import { PrismaClient } from '@prisma/client';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
-// import FacebookProvider from 'next-auth/providers/facebook'; // BARIS INI DIHAPUS ATAU DIKOMENTARI
+// import FacebookProvider from 'next-auth/providers/facebook'; // Biarkan ini dikomentari jika tidak digunakan
 import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
-const handler = NextAuth({
+// Definisikan authOptions sebagai konstanta yang diekspor
+export const authOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
@@ -28,7 +29,7 @@ const handler = NextAuth({
         email: { label: 'Email', type: 'text' },
         password: { label: 'Password', type: 'password' },
       },
-      async authorize(credentials) {
+      async authorize(credentials: any) {
         if (!credentials?.email || !credentials.password) {
           return null;
         }
@@ -63,22 +64,24 @@ const handler = NextAuth({
   },
   session: {
     strategy: 'jwt',
-  },
+  } as const, // <--- BARIS INI BERUBAH: Ditambahkan `as const` untuk memperbaiki tipe `session.strategy`
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
-    jwt({ token, user }) {
+    jwt({ token, user }: { token: any, user: any }) {
       if (user) {
         token.id = user.id;
       }
       return token;
     },
-    session({ session, token }) {
+    session({ session, token }: { session: any, token: any }) {
       if (session.user) {
         session.user.id = token.id as string;
       }
       return session;
     },
   },
-});
+};
+
+const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };
