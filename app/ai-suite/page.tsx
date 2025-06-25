@@ -9,8 +9,14 @@ import { toast, Toaster } from 'react-hot-toast';
 import {
     Download, Zap, Eraser, Sparkles, Wand2, MessageSquare, Bot, Send, Settings,
     ChevronDown, ImageIcon, BrainCircuit, Upload, CheckCircle, Copy, CornerDownLeft, X,
-    Volume2, Paperclip, History, KeyRound, ExternalLink, Trash2, DollarSign, RefreshCw,
-    Eye, EyeOff, LogOut
+    Volume2, Paperclip, History,
+    ExternalLink,
+    Eye,
+    EyeOff,
+    KeyRound,
+    LogOut,
+    Trash2
+    // DollarSign, RefreshCw, KeyRound, Eye, EyeOff, <-- Icons terkait koin/admin juga tidak perlu diimpor
 } from 'lucide-react';
 
 import { useSession, signOut } from 'next-auth/react';
@@ -57,12 +63,13 @@ const imagePresets = [
     { label: 'Portrait (1024x1792)', width: 1024, height: 1792 },
     { label: 'Landscape (1792x1024)', width: 1792, height: 1024 },
 ];
-const DEFAULT_DAILY_COINS = 500;
-const MAX_ADMIN_COINS_DISPLAY = 5000;
-const COIN_RESET_INTERVAL_MS = 24 * 60 * 60 * 1000;
-const ADMIN_REFILL_PRESETS = [100, 200, 300, 500, 1000];
+// DEFAULT_DAILY_COINS, MAX_ADMIN_COINS_DISPLAY, COIN_RESET_INTERVAL_MS, ADMIN_REFILL_PRESETS tidak lagi digunakan
+// const DEFAULT_DAILY_COINS = 500;
+// const MAX_ADMIN_COINS_DISPLAY = 5000;
+// const COIN_RESET_INTERVAL_MS = 24 * 60 * 60 * 1000;
+// const ADMIN_REFILL_PRESETS = [100, 200, 300, 500, 1000];
 
-// --- Komponen UI (Re-formatted untuk kejelasan dan perbaikan syntax) ---
+// --- Komponen UI (Sudah disesuaikan untuk tidak terkait koin) ---
 const ParameterInput = ({ label, children }: { label: string, children: React.ReactNode }) => {
     return (
         <div>
@@ -117,55 +124,186 @@ const CodeBlock = ({ language, code }: { language: string, code: string }) => {
     );
 };
 
-const AdminResetModal = ({ isOpen, onClose, onConfirm }: { isOpen: boolean; onClose: () => void; onConfirm: (password: string) => void; }) => {
-    const [passwordInput, setPasswordInput] = useState('');
-    const [showPassword, setShowPassword] = useState(false);
+// Admin modals tidak lagi diperlukan tanpa fitur koin
+// const AdminResetModal = ...
+// const AdminRefillModal = ...
 
-    if (!isOpen) return null;
+const ChatBox = ({ onPromptFromChat }: { onPromptFromChat: (prompt: string) => void }) => {
+    const [messages, setMessages] = useState<ChatMessage[]>([{ id: 'init', role: 'assistant', content: 'Halo! Anda bisa mengirim teks atau gambar untuk dianalisa.' }]);
+    const [input, setInput] = useState('');
+    const [isThinking, setIsThinking] = useState(false);
+    const [availableModels, setAvailableModels] = useState<Record<string, any>>({});
+    const [selectedModel, setSelectedModel] = useState('openai');
+    const imageInputRef = useRef<HTMLInputElement>(null);
+    const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    const handleSubmit = () => {
-        onConfirm(passwordInput);
-        setPasswordInput('');
-        onClose();
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [messages]);
+
+    useEffect(() => {
+        const fetchModels = async () => {
+            try {
+                const response = await fetch('/api/get-models');
+                if (!response.ok) throw new Error('Failed to fetch models');
+                const data = await response.json();
+                setAvailableModels(data);
+            } catch (error) {
+                toast.error("Gagal memuat daftar model AI.");
+            }
+        };
+        fetchModels();
+    }, []);
+
+    const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = async () => {
+            const base64Image = (reader.result as string);
+            const base64Data = base64Image.split(',')[1];
+
+            const userMessage: ChatMessage = { id: `user-${Date.now()}`, role: 'user', content: "Tolong analisa gambar ini.", imageUrl: base64Image };
+            const newMessages = [...messages, userMessage];
+            setMessages(newMessages);
+            setIsThinking(true);
+
+            const assistantMessageId = `assistant-${Date.now()}`;
+            setMessages(prev => [...prev, { id: assistantMessageId, role: 'assistant', content: "..." }]);
+
+            try {
+                const response = await fetch('/api/chat-vision', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ image: base64Data, messages: newMessages })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error);
+                }
+                const data = await response.json();
+                setMessages(prev => prev.map(msg => msg.id === assistantMessageId ? { ...msg, content: data.reply } : msg ));
+            } catch (error: any) {
+                toast.error(error.message);
+                setMessages(prev => prev.filter(msg => msg.id !== assistantMessageId));
+            } finally {
+                setIsThinking(false);
+            }
+        };
+        if (event.target) event.target.value = '';
+    };
+
+    const handleSendMessage = async () => {
+        if (!input.trim() || isThinking) return;
+
+        const userMessage: ChatMessage = { id: `user-${Date.now()}`, role: 'user', content: input };
+        const newMessages = [...messages, userMessage];
+        setMessages(newMessages);
+        setInput('');
+        setIsThinking(true);
+
+        const assistantMessageId = `assistant-${Date.now()}`;
+        setMessages(prev => [...prev, { id: assistantMessageId, role: 'assistant', content: "..." }]);
+
+        try {
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ messages: newMessages, model: selectedModel })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Gagal mendapatkan balasan dari AI.');
+            }
+            const data = await response.json();
+            setMessages(prev => prev.map(msg => msg.id === assistantMessageId ? { ...msg, content: data.reply } : msg ));
+        } catch (error: any) {
+            toast.error(error.message);
+            setMessages(prev => prev.filter(msg => msg.id !== assistantMessageId));
+        } finally {
+            setIsThinking(false);
+        }
+    };
+
+    const renderMessageContent = (content: string) => {
+        const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
+        let lastIndex = 0;
+        const parts = [];
+        let match;
+
+        while ((match = codeBlockRegex.exec(content)) !== null) {
+            const [fullMatch, language, code] = match;
+            const textBefore = content.substring(lastIndex, match.index);
+            if (textBefore) {
+                parts.push(<p key={lastIndex} className="whitespace-pre-wrap">{textBefore}</p>);
+            }
+            parts.push(<CodeBlock key={match.index} language={language || 'bash'} code={code.trim()} />);
+            lastIndex = match.index + fullMatch.length;
+        }
+
+        const textAfter = content.substring(lastIndex);
+        if (textAfter) {
+            parts.push(<p key={lastIndex + 1} className="whitespace-pre-wrap">{textAfter}</p>);
+        }
+
+        return parts.length > 0 ? parts : <p className="whitespace-pre-wrap">{content}</p>;
     };
 
     return (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose}>
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg max-w-sm w-full p-6 relative space-y-4" onClick={(e) => e.stopPropagation()}>
-                <button onClick={onClose} className="absolute top-4 right-4 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors z-10">
-                    <X size={20} />
-                </button>
-                <div className="flex items-center gap-3">
-                    <RefreshCw className="text-red-500 dark:text-red-400" size={24}/>
-                    <h3 className="text-xl font-bold text-slate-900 dark:text-white">Reset Koin Admin</h3>
-                </div>
-                <p className="text-sm text-slate-500 dark:text-slate-400">
-                    Masukkan password admin untuk mereset koin pengguna ke default harian ({DEFAULT_DAILY_COINS}).
-                </p>
-                <div className="relative w-full">
+        <div className="flex flex-col h-[500px] bg-white/5 dark:bg-slate-900/50 rounded-lg border border-slate-200 dark:border-slate-700">
+            <input type="file" ref={imageInputRef} onChange={handleImageUpload} accept="image/*" className="hidden" />
+            <div className="p-3 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between flex-shrink-0">
+                <h3 className="text-sm font-bold text-slate-800 dark:text-white flex items-center">AI Assistant</h3>
+                <select
+                    value={selectedModel}
+                    onChange={(e) => setSelectedModel(e.target.value)}
+                    className="bg-slate-100 dark:bg-slate-700 text-xs text-slate-600 dark:text-white rounded p-1 border border-slate-300 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-cyan-500 max-w-[150px]"
+                >
+                    {Object.keys(availableModels).length > 0 ? (
+                        Object.entries(availableModels).map(([key, modelInfo]) => (
+                            <option key={key} value={key}>{modelInfo.name || key}</option>
+                        ))
+                    ) : (
+                        <option value="openai">Memuat model...</option>
+                    )}
+                </select>
+            </div>
+            <div className="flex-grow p-4 space-y-4 overflow-y-auto">
+                {messages.map(msg => (
+                    <div key={msg.id} className={`flex gap-2 text-sm ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                        {msg.role === 'assistant' && <div className="w-7 h-7 rounded-full bg-cyan-100 dark:bg-cyan-900 flex items-center justify-center flex-shrink-0"><Bot size={16} className="text-cyan-600 dark:text-cyan-400"/></div>}
+                        <div className={`p-2.5 rounded-lg max-w-[85%] ${msg.role === 'user' ? 'bg-sky-600 text-white rounded-br-none' : 'bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-300 rounded-bl-none'}`}>
+                            {msg.imageUrl && <Image src={msg.imageUrl} alt="User upload" width={200} height={200} className="rounded-md mb-2"/>}
+                            {msg.content === "..." && isThinking ? <span className="animate-pulse">...</span> : renderMessageContent(msg.content)}
+                            {msg.role === 'assistant' && msg.content && msg.content !== "..." && !msg.content.includes("kesalahan") && (
+                                <button onClick={() => onPromptFromChat(msg.content)} className="mt-2 text-xs font-semibold text-cyan-600 dark:text-cyan-400 hover:underline">
+                                    Gunakan sebagai Prompt
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                ))}
+                <div ref={messagesEndRef} />
+            </div>
+            <div className="p-4 border-t border-slate-200 dark:border-slate-700">
+                <div className="flex items-center gap-2">
+                    <button onClick={() => imageInputRef.current?.click()} title="Upload Gambar" className="p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-800 dark:hover:text-white transition">
+                        <Paperclip size={20}/>
+                    </button>
                     <input
-                        type={showPassword ? 'text' : 'password'}
-                        value={passwordInput}
-                        onChange={(e) => setPasswordInput(e.target.value)}
-                        onKeyPress={(e) => { if (e.key === 'Enter') handleSubmit(); }}
-                        placeholder="Password admin"
-                        className="w-full bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-600 rounded-md p-2 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 pr-10"
+                        type="text"
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+                        placeholder="Tanya sesuatu atau upload gambar..."
+                        className="w-full bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white rounded-full py-2 px-4 focus:outline-none focus:ring-2 focus:ring-cyan-500"
                     />
-                    <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors"
-                        aria-label={showPassword ? 'Sembunyikan password' : 'Tampilkan password'}
-                    >
-                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                    </button>
-                </div>
-                <div className="flex justify-end gap-2 pt-2">
-                    <button onClick={onClose} className="bg-slate-200 hover:bg-slate-300 text-slate-800 dark:bg-slate-600 dark:hover:bg-slate-700 dark:text-white font-bold py-2 px-4 rounded-lg text-sm">
-                        Batal
-                    </button>
-                    <button onClick={handleSubmit} className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-lg text-sm">
-                        Konfirmasi Reset
+                    <button onClick={handleSendMessage} disabled={!input.trim() || isThinking} className="p-2 rounded-full bg-cyan-500 text-white hover:bg-cyan-600 disabled:bg-slate-400 dark:disabled:bg-slate-600 transition">
+                        <Send size={20}/>
                     </button>
                 </div>
             </div>
@@ -173,358 +311,73 @@ const AdminResetModal = ({ isOpen, onClose, onConfirm }: { isOpen: boolean; onCl
     );
 };
 
-const AdminRefillModal = ({ isOpen, onClose, onConfirm }: { isOpen: boolean; onClose: () => void; onConfirm: (password: string, amount: number) => void; }) => {
-    const [passwordInput, setPasswordInput] = useState('');
-    const [selectedAmount, setSelectedAmount] = useState<number | 'custom'>(ADMIN_REFILL_PRESETS[0]);
-    const [customAmountInput, setCustomAmountInput] = useState<string>('');
-    const [showPassword, setShowPassword] = useState(false);
+const TextToAudioConverter = () => {
+    const [text, setText] = useState('');
+    const [voice, setVoice] = useState('alloy');
+    const [isLoading, setIsLoading] = useState(false);
+    const [audioUrl, setAudioUrl] = useState<string | null>(null);
 
-    if (!isOpen) return null;
+    const handleGenerateAudio = async () => {
+        if (!text.trim()) return toast.error("Teks tidak boleh kosong.");
+        setIsLoading(true);
+        setAudioUrl(null);
+        const toastId = toast.loading("Membuat audio...");
+        try {
+            const response = await fetch('/api/text-to-audio', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text, voice }),
+            });
 
-    const handleRefillSubmit = () => {
-        let finalAmount = 0;
-        if (selectedAmount === 'custom') {
-            finalAmount = parseInt(customAmountInput);
-            if (isNaN(finalAmount) || finalAmount <= 0) {
-                toast.error('Jumlah kustom tidak valid.');
-                return;
+            if (!response.ok) {
+                try {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || "Gagal membuat audio.");
+                } catch {
+                    throw new Error(await response.text());
+                }
             }
-        } else {
-            finalAmount = selectedAmount;
+            const blob = await response.blob();
+            const url = URL.createObjectURL(blob);
+            setAudioUrl(url);
+            toast.success("Audio berhasil dibuat!", { id: toastId });
+        } catch (error: any) {
+            toast.error(error.message, { id: toastId });
+        } finally {
+            setIsLoading(false);
         }
-        onConfirm(passwordInput, finalAmount);
-        setPasswordInput('');
-        setCustomAmountInput('');
-        onClose();
     };
 
     return (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onClose}>
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg max-w-sm w-full p-6 relative space-y-4" onClick={(e) => e.stopPropagation()}>
-                <button onClick={onClose} className="absolute top-4 right-4 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors z-10">
-                    <X size={20} />
-                </button>
-                <div className="flex items-center gap-3">
-                    <KeyRound className="text-yellow-500 dark:text-yellow-400" size={24}/>
-                    <h3 className="text-xl font-bold text-slate-900 dark:text-white">Isi Ulang Koin Admin</h3>
-                </div>
-                <p className="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-2">Pilih Jumlah Koin:</p>
-                <div className="grid grid-cols-3 gap-2 mb-4">
-                    {ADMIN_REFILL_PRESETS.map(amount => (
-                        <label key={amount} className="flex items-center text-sm text-slate-700 dark:text-slate-300">
-                            <input
-                                type="radio"
-                                name="refillAmount"
-                                value={amount}
-                                checked={selectedAmount === amount}
-                                onChange={() => setSelectedAmount(amount)}
-                                className="form-radio text-cyan-500 mr-1"
-                            />
-                            {amount}
-                        </label>
-                    ))}
-                    <label className="flex items-center text-sm text-slate-700 dark:text-slate-300">
-                            <input
-                                type="radio"
-                                name="refillAmount"
-                                value="custom"
-                                checked={selectedAmount === 'custom'}
-                                onChange={() => setSelectedAmount('custom')}
-                                className="form-radio text-cyan-500 mr-1"
-                            />
-                            Custom
-                        </label>
-                    </div>
-                    {selectedAmount === 'custom' && (
-                        <input
-                            type="number"
-                            value={customAmountInput}
-                            onChange={(e) => setCustomAmountInput(e.target.value)}
-                            placeholder="Jumlah kustom"
-                            className="w-full bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-600 rounded-md p-2 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 mb-4"
-                        />
-                    )}
-                    <div className="relative w-full">
-                        <input
-                            type={showPassword ? 'text' : 'password'}
-                            value={passwordInput}
-                            onChange={(e) => setPasswordInput(e.target.value)}
-                            onKeyPress={(e) => { if (e.key === 'Enter') handleRefillSubmit(); }}
-                            placeholder="Password admin"
-                            className="w-full bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-600 rounded-md p-2 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 pr-10"
-                        />
-                        <button
-                            type="button"
-                            onClick={() => setShowPassword(!showPassword)}
-                            className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors"
-                            aria-label={showPassword ? 'Sembunyikan password' : 'Tampilkan password'}
-                        >
-                            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                        </button>
-                    </div>
-                    <div className="flex justify-end gap-2 pt-2">
-                        <button onClick={onClose} className="bg-slate-200 hover:bg-slate-300 text-slate-800 dark:bg-slate-600 dark:hover:bg-slate-700 dark:text-white font-bold py-2 px-4 rounded-lg text-sm">
-                            Batal
-                        </button>
-                        <button onClick={handleRefillSubmit} className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-lg text-sm">
-                            Konfirmasi Isi Ulang
-                        </button>
-                    </div>
-                </div>
-            </div>
-        );
-    };
-
-    const ChatBox = ({ onPromptFromChat }: { onPromptFromChat: (prompt: string) => void }) => {
-        const [messages, setMessages] = useState<ChatMessage[]>([{ id: 'init', role: 'assistant', content: 'Halo! Anda bisa mengirim teks atau gambar untuk dianalisa.' }]);
-        const [input, setInput] = useState('');
-        const [isThinking, setIsThinking] = useState(false);
-        const [availableModels, setAvailableModels] = useState<Record<string, any>>({});
-        const [selectedModel, setSelectedModel] = useState('openai');
-        const imageInputRef = useRef<HTMLInputElement>(null);
-        const messagesEndRef = useRef<HTMLDivElement>(null);
-
-        useEffect(() => {
-            messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-        }, [messages]);
-
-        useEffect(() => {
-            const fetchModels = async () => {
-                try {
-                    const response = await fetch('/api/get-models');
-                    if (!response.ok) throw new Error('Failed to fetch models');
-                    const data = await response.json();
-                    setAvailableModels(data);
-                } catch (error) {
-                    toast.error("Gagal memuat daftar model AI.");
-                }
-            };
-            fetchModels();
-        }, []);
-
-        const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-            const file = event.target.files?.[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = async () => {
-                const base64Image = (reader.result as string);
-                const base64Data = base64Image.split(',')[1];
-
-                const userMessage: ChatMessage = { id: `user-${Date.now()}`, role: 'user', content: "Tolong analisa gambar ini.", imageUrl: base64Image };
-                const newMessages = [...messages, userMessage];
-                setMessages(newMessages);
-                setIsThinking(true);
-
-                const assistantMessageId = `assistant-${Date.now()}`;
-                setMessages(prev => [...prev, { id: assistantMessageId, role: 'assistant', content: "..." }]);
-
-                try {
-                    const response = await fetch('/api/chat-vision', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ image: base64Data, messages: newMessages })
-                    });
-
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(errorData.error);
-                    }
-                    const data = await response.json();
-                    setMessages(prev => prev.map(msg => msg.id === assistantMessageId ? { ...msg, content: data.reply } : msg ));
-                } catch (error: any) {
-                    toast.error(error.message);
-                    setMessages(prev => prev.filter(msg => msg.id !== assistantMessageId));
-                } finally {
-                    setIsThinking(false);
-                }
-            };
-            if (event.target) event.target.value = '';
-        };
-
-        const handleSendMessage = async () => {
-            if (!input.trim() || isThinking) return;
-
-            const userMessage: ChatMessage = { id: `user-${Date.now()}`, role: 'user', content: input };
-            const newMessages = [...messages, userMessage];
-            setMessages(newMessages);
-            setInput('');
-            setIsThinking(true);
-
-            const assistantMessageId = `assistant-${Date.now()}`;
-            setMessages(prev => [...prev, { id: assistantMessageId, role: 'assistant', content: "..." }]);
-
-            try {
-                const response = await fetch('/api/chat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ messages: newMessages, model: selectedModel })
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || 'Gagal mendapatkan balasan dari AI.');
-                }
-                const data = await response.json();
-                setMessages(prev => prev.map(msg => msg.id === assistantMessageId ? { ...msg, content: data.reply } : msg ));
-            } catch (error: any) {
-                toast.error(error.message);
-                setMessages(prev => prev.map(msg => msg.id === assistantMessageId ? { ...msg, content: "Maaf, terjadi kesalahan." } : msg ));
-            } finally {
-                setIsThinking(false);
-            }
-        };
-
-        const renderMessageContent = (content: string) => {
-            const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
-            let lastIndex = 0;
-            const parts = [];
-            let match;
-
-            while ((match = codeBlockRegex.exec(content)) !== null) {
-                const [fullMatch, language, code] = match;
-                const textBefore = content.substring(lastIndex, match.index);
-                if (textBefore) {
-                    parts.push(<p key={lastIndex} className="whitespace-pre-wrap">{textBefore}</p>);
-                }
-                parts.push(<CodeBlock key={match.index} language={language || 'bash'} code={code.trim()} />);
-                lastIndex = match.index + fullMatch.length;
-            }
-
-            const textAfter = content.substring(lastIndex);
-            if (textAfter) {
-                parts.push(<p key={lastIndex + 1} className="whitespace-pre-wrap">{textAfter}</p>);
-            }
-
-            return parts.length > 0 ? parts : <p className="whitespace-pre-wrap">{content}</p>;
-        };
-
-        return (
-            <div className="flex flex-col h-[500px] bg-white/5 dark:bg-slate-900/50 rounded-lg border border-slate-200 dark:border-slate-700">
-                <input type="file" ref={imageInputRef} onChange={handleImageUpload} accept="image/*" className="hidden" />
-                <div className="p-3 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between flex-shrink-0">
-                    <h3 className="text-sm font-bold text-slate-800 dark:text-white flex items-center">AI Assistant</h3>
-                    <select
-                        value={selectedModel}
-                        onChange={(e) => setSelectedModel(e.target.value)}
-                        className="bg-slate-100 dark:bg-slate-700 text-xs text-slate-600 dark:text-white rounded p-1 border border-slate-300 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-cyan-500 max-w-[150px]"
-                    >
-                        {Object.keys(availableModels).length > 0 ? (
-                            Object.entries(availableModels).map(([key, modelInfo]) => (
-                                <option key={key} value={key}>{modelInfo.name || key}</option>
-                            ))
-                        ) : (
-                            <option value="openai">Memuat model...</option>
-                        )}
+        <div className="space-y-4">
+            <textarea
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                placeholder="Masukkan teks yang ingin diubah menjadi suara..."
+                rows={5}
+                className="w-full text-sm bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-md p-2 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            />
+            <div className="grid grid-cols-1 gap-4">
+                <ParameterInput label="Jenis Suara">
+                    <select value={voice} onChange={e => setVoice(e.target.value)} className="w-full text-xs bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-md p-2 text-slate-900 dark:text-white">
+                        <option value="alloy">Alloy</option>
+                        <option value="echo">Echo</option>
+                        <option value="fable">Fable</option>
+                        <option value="onyx">Onyx</option>
+                        <option value="nova">Nova</option>
+                        <option value="shimmer">Shimmer</option>
                     </select>
-                </div>
-                <div className="flex-grow p-4 space-y-4 overflow-y-auto">
-                    {messages.map(msg => (
-                        <div key={msg.id} className={`flex gap-2 text-sm ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                            {msg.role === 'assistant' && <div className="w-7 h-7 rounded-full bg-cyan-100 dark:bg-cyan-900 flex items-center justify-center flex-shrink-0"><Bot size={16} className="text-cyan-600 dark:text-cyan-400"/></div>}
-                            <div className={`p-2.5 rounded-lg max-w-[85%] ${msg.role === 'user' ? 'bg-sky-600 text-white rounded-br-none' : 'bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-300 rounded-bl-none'}`}>
-                                {msg.imageUrl && <Image src={msg.imageUrl} alt="User upload" width={200} height={200} className="rounded-md mb-2"/>}
-                                {msg.content === "..." && isThinking ? <span className="animate-pulse">...</span> : renderMessageContent(msg.content)}
-                                {msg.role === 'assistant' && msg.content && msg.content !== "..." && !msg.content.includes("kesalahan") && (
-                                    <button onClick={() => onPromptFromChat(msg.content)} className="mt-2 text-xs font-semibold text-cyan-600 dark:text-cyan-400 hover:underline">
-                                        Gunakan sebagai Prompt
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-                    ))}
-                    <div ref={messagesEndRef} />
-                </div>
-                <div className="p-4 border-t border-slate-200 dark:border-slate-700">
-                    <div className="flex items-center gap-2">
-                        <button onClick={() => imageInputRef.current?.click()} title="Upload Gambar" className="p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-800 dark:hover:text-white transition">
-                            <Paperclip size={20}/>
-                        </button>
-                        <input
-                            type="text"
-                            value={input}
-                            onChange={(e) => setInput(e.target.value)}
-                            onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-                            placeholder="Tanya sesuatu atau upload gambar..."
-                            className="w-full bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white rounded-full py-2 px-4 focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                        />
-                        <button onClick={handleSendMessage} disabled={!input.trim() || isThinking} className="p-2 rounded-full bg-cyan-500 text-white hover:bg-cyan-600 disabled:bg-slate-400 dark:disabled:bg-slate-600 transition">
-                            <Send size={20}/>
-                        </button>
-                    </div>
-                </div>
+                </ParameterInput>
             </div>
-        );
-    };
-
-    const TextToAudioConverter = () => {
-        const [text, setText] = useState('');
-        const [voice, setVoice] = useState('alloy');
-        const [isLoading, setIsLoading] = useState(false);
-        const [audioUrl, setAudioUrl] = useState<string | null>(null);
-
-        const handleGenerateAudio = async () => {
-            if (!text.trim()) return toast.error("Teks tidak boleh kosong.");
-            setIsLoading(true);
-            setAudioUrl(null);
-            const toastId = toast.loading("Membuat audio...");
-            try {
-                const response = await fetch('/api/text-to-audio', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ text, voice }),
-                });
-
-                if (!response.ok) {
-                    try {
-                        const errorData = await response.json();
-                        throw new Error(errorData.error || "Gagal membuat audio.");
-                    } catch {
-                        throw new Error(await response.text());
-                    }
-                }
-                const blob = await response.blob();
-                const url = URL.createObjectURL(blob);
-                setAudioUrl(url);
-                toast.success("Audio berhasil dibuat!", { id: toastId });
-            } catch (error: any) {
-                toast.error(error.message, { id: toastId });
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        return (
-            <div className="space-y-4">
-                <textarea
-                    value={text}
-                    onChange={(e) => setText(e.target.value)}
-                    placeholder="Masukkan teks yang ingin diubah menjadi suara..."
-                    rows={5}
-                    className="w-full text-sm bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-md p-2 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                />
-                <div className="grid grid-cols-1 gap-4">
-                    <ParameterInput label="Jenis Suara">
-                        <select value={voice} onChange={e => setVoice(e.target.value)} className="w-full text-xs bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-md p-2 text-slate-900 dark:text-white">
-                            <option value="alloy">Alloy</option>
-                            <option value="echo">Echo</option>
-                            <option value="fable">Fable</option>
-                            <option value="onyx">Onyx</option>
-                            <option value="nova">Nova</option>
-                            <option value="shimmer">Shimmer</option>
-                        </select>
-                    </ParameterInput>
-                </div>
-                <button
-                    onClick={handleGenerateAudio}
-                    disabled={isLoading || !text.trim()}
-                    className="w-full bg-emerald-600 text-white py-2 rounded-lg font-semibold text-sm hover:bg-emerald-700 transition disabled:opacity-50 flex justify-center items-center"
-                >
-                    {isLoading ? "Membuat..." : "Buat Audio"}
-                </button>
-                {audioUrl && (
-                    <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
+            <button
+                onClick={handleGenerateAudio}
+                disabled={isLoading || !text.trim()}
+                className="w-full bg-emerald-600 text-white py-2 rounded-lg font-semibold text-sm hover:bg-emerald-700 transition disabled:opacity-50 flex justify-center items-center"
+            >
+                {isLoading ? "Membuat..." : "Buat Audio"}
+            </button>
+            {audioUrl && (
+                <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
                         <audio controls src={audioUrl} className="w-full">
                             Your browser does not support the audio element.
                         </audio>
@@ -734,7 +587,7 @@ const AdminRefillModal = ({ isOpen, onClose, onConfirm }: { isOpen: boolean; onC
                             className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors"
                             aria-label={showApiKey ? 'Sembunyikan API Key' : 'Tampilkan API Key'}
                         >
-                            {showApiKey ? <EyeOff size={18} /> : <Eye size={18} />}
+                            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                         </button>
                     </div>
                     <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-xs text-cyan-500 dark:text-cyan-400 hover:underline flex items-center gap-1">
@@ -795,39 +648,23 @@ const AdminRefillModal = ({ isOpen, onClose, onConfirm }: { isOpen: boolean; onC
         const [isDalleModalOpen, setIsDalleModalOpen] = useState(false);
         const [activeTab, setActiveTab] = useState<'current' | 'history'>('current');
 
-        // Manajemen Koin - SEKARANG DARI DATABASE (Baris-baris ini akan dihapus)
+        // Manajemen Koin - Hapus semua state terkait koin
         // const [userCoins, setUserCoins] = useState(0);
         // const [lastUsageTimestamp, setLastUsageTimestamp] = useState<number>(0);
 
-        // Modal Admin (Baris-baris ini akan dihapus jika tidak ada fungsi admin lain)
+        // Modals Admin terkait koin - Hapus state terkait koin
         // const [showAdminResetModal, setShowAdminResetModal] = useState(false);
         // const [showAdminRefillModal, setShowAdminRefillModal] = useState(false);
 
-        // Waktu reset koin yang tersisa (Baris ini akan dihapus)
+        // Waktu reset koin yang tersisa - Hapus
         // const [remainingTime, setRemainingTime] = useState<string>('');
 
-        // calculateRemainingTime akan dihapus
-        // const calculateRemainingTime = useCallback((timestamp: number) => {
-        //     const now = Date.now();
-        //     const timeSinceLastUse = now - timestamp;
-        //     const timeLeft = COIN_RESET_INTERVAL_MS - timeSinceLastUse;
+        // calculateRemainingTime - Hapus useCallback ini
+        // const calculateRemainingTime = useCallback((timestamp: number) => { ... }, []);
 
-        //     if (timeLeft <= 0) {
-        //         return 'Siap direset atau sudah direset!';
-        //     }
-
-        //     const hours = Math.floor(timeLeft / (1000 * 60 * 60));
-        //     const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-        //     const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-
-        //     if (hours > 0) {
-        //         return `Direset dalam ${hours}j ${minutes}m`;
-        //     } else if (minutes > 0) {
-        //         return `Direset dalam ${minutes}m ${seconds}d`;
-        //     } else {
-        //         return `Direset dalam ${seconds}d`;
-        //     }
-        // }, []);
+        // useEffects terkait koin - Hapus
+        // useEffect(() => { ... fetchCoins ... }, [session, lastUsageTimestamp, calculateRemainingTime]);
+        // useEffect(() => { ... localStorage for coins ... }, [userCoins, lastUsageTimestamp]); // Ini sudah dihapus sebelumnya
 
         // Memuat riwayat dari localStorage saat komponen dimuat (tetap di lokal)
         useEffect(() => {
@@ -853,35 +690,6 @@ const AdminRefillModal = ({ isOpen, onClose, onConfirm }: { isOpen: boolean; onC
                 localStorage.removeItem('ai_image_history');
             }
         }, [historyImages]);
-
-        // EFEK BARU: Muat koin dari database saat komponen dimuat atau sesi berubah (Akan dihapus)
-        // useEffect(() => {
-        //     const fetchCoins = async () => {
-        //         if (session?.user?.id) {
-        //             try {
-        //                 const response = await fetch('/api/user/coins');
-        //                 if (!response.ok) {
-        //                     throw new Error('Failed to fetch coins');
-        //                 }
-        //                 const data = await response.json();
-        //                 setUserCoins(data.coins);
-        //                 setLastUsageTimestamp(data.lastCoinResetTimestamp);
-        //             } catch (error) {
-        //                 console.error('Error fetching coins:', error);
-        //                 toast.error('Gagal memuat koin pengguna dari database.');
-        //                 setUserCoins(DEFAULT_DAILY_COINS); // Fallback
-        //                 setLastUsageTimestamp(Date.now()); // Fallback
-        //             }
-        //         }
-        //     };
-        //     fetchCoins();
-
-        //     const intervalId = setInterval(() => {
-        //         setRemainingTime(calculateRemainingTime(lastUsageTimestamp));
-        //     }, 1000);
-
-        //     return () => clearInterval(intervalId);
-        // }, [session, lastUsageTimestamp, calculateRemainingTime]);
 
 
         const handleModelChange = (newModel: ImageGenModel) => {
@@ -938,20 +746,11 @@ const AdminRefillModal = ({ isOpen, onClose, onConfirm }: { isOpen: boolean; onC
 
             try {
                 // Logika pengurangan koin ini akan dihapus
-                // const updateCoinsResponse = await fetch('/api/user/update-coins', {
-                //     method: 'POST',
-                //     headers: { 'Content-Type': 'application/json' },
-                //     body: JSON.stringify({ decrementBy: 1 }),
-                // });
-
-                // if (!updateCoinsResponse.ok) {
-                //     const errorData = await updateCoinsResponse.json();
-                //     throw new Error(errorData.error || 'Gagal mengurangi koin.');
-                // }
+                // const updateCoinsResponse = await fetch('/api/user/update-coins', { ... });
+                // if (!updateCoinsResponse.ok) { ... }
                 // const updateCoinData = await updateCoinsResponse.json();
-                // setUserCoins(updateCoinData.newCoins); // Perbarui state koin dengan yang baru dari DB
+                // setUserCoins(updateCoinData.newCoins);
 
-                // Lanjutkan dengan generasi gambar
                 let images: GeneratedImageData[] = [];
                 const timestamp = Date.now();
 
@@ -1010,8 +809,7 @@ const AdminRefillModal = ({ isOpen, onClose, onConfirm }: { isOpen: boolean; onC
                 if (images.length > 0) {
                     setGeneratedImages(images);
                     setHistoryImages(prevHistory => [...images, ...prevHistory]);
-                    // Toast success message akan diubah karena tidak ada koin lagi
-                    toast.success(`${images.length} gambar berhasil dibuat!`, { id: toastId });
+                    toast.success(`${images.length} gambar berhasil dibuat!`, { id: toastId }); // Pesan sukses tanpa koin
                 } else {
                     throw new Error("Tidak ada gambar yang dihasilkan.");
                 }
@@ -1020,7 +818,7 @@ const AdminRefillModal = ({ isOpen, onClose, onConfirm }: { isOpen: boolean; onC
             } finally {
                 setIsLoading(false);
             }
-        }, [prompt, imageGenModel, artStyle, quality, imageWidth, imageHeight, batchSize, generatedImages]); // userCoins dihapus dari dependency
+        }, [prompt, imageGenModel, artStyle, quality, imageWidth, imageHeight, batchSize, generatedImages]);
 
         const handleClearPrompt = useCallback(() => {
             setPrompt('');
@@ -1094,69 +892,17 @@ const AdminRefillModal = ({ isOpen, onClose, onConfirm }: { isOpen: boolean; onC
             toast.success('Riwayat dihapus.');
         }, [historyImages]);
 
-        // ADMIN ACTIONS: Fungsi admin terkait koin akan dihapus atau diubah
-        // const handleAdminResetClick = useCallback(() => {
-        //     setShowAdminResetModal(true);
-        // }, []);
-
-        // const handleConfirmAdminReset = useCallback(async (password: string) => {
-        //     try {
-        //         const response = await fetch('/api/admin/action', {
-        //             method: 'POST',
-        //             headers: { 'Content-Type': 'application/json' },
-        //             body: JSON.stringify({ password, actionType: 'reset' }),
-        //         });
-        //         const data = await response.json();
-        //         if (response.ok) {
-        //             setUserCoins(data.newCoins);
-        //             setLastUsageTimestamp(Date.now());
-        //             toast.success(`Koin telah direset menjadi ${data.newCoins} oleh admin!`);
-        //         } else {
-        //             if (data.error === 'Konfigurasi server tidak lengkap.') {
-        //                 toast.error('Gagal mengelola koin. Mohon konfirmasi ke admin melalui halaman kontak.');
-        //             } else {
-        //                 toast.error(data.error || 'Gagal mengelola koin.');
-        //             }
-        //         }
-        //     } catch (error) {
-        //         console.error('Error during admin reset fetch:', error);
-        //         toast.error('Terjadi kesalahan saat menghubungi server.');
-        //     }
-        // }, []);
-
-        // const handleAdminRefillClick = useCallback(() => {
-        //     setShowAdminRefillModal(true);
-        // }, []);
-
-        // const handleConfirmAdminRefill = useCallback(async (password: string, amount: number) => {
-        //     try {
-        //         const response = await fetch('/api/admin/action', {
-        //             method: 'POST',
-        //             headers: { 'Content-Type': 'application/json' },
-        //             body: JSON.stringify({ password, actionType: 'refill', amount }),
-        //         });
-        //         const data = await response.json();
-        //         if (response.ok) {
-        //             setUserCoins(data.newCoins);
-        //             toast.success(`Koin telah diisi ulang menjadi ${data.newCoins} oleh admin!`);
-        //         } else {
-        //             if (data.error === 'Konfigurasi server tidak lengkap.') {
-        //                 toast.error('Gagal mengelola koin. Mohon konfirmasi ke admin melalui halaman kontak.');
-        //             } else {
-        //                 toast.error(data.error || 'Gagal mengelola koin.');
-        //             }
-        //         }
-        //     } catch (error) {
-        //         console.error('Error during admin refill fetch:', error);
-        //         toast.error('Terjadi kesalahan saat menghubungi server.');
-        //     }
-        // }, []);
+        // ADMIN ACTIONS: Hapus semua fungsi admin terkait koin
+        // const handleAdminResetClick = useCallback(() => { ... }, []);
+        // const handleConfirmAdminReset = useCallback(async (password: string) => { ... }, []);
+        // const handleAdminRefillClick = useCallback(() => { ... }, []);
+        // const handleConfirmAdminRefill = useCallback(async (password: string, amount: number) => { ... }, []);
 
         return (
             <Fragment>
                 <DalleApiKeyModal isOpen={isDalleModalOpen} onClose={handleCloseDalleModal} onSave={handleSaveDalleKey} />
                 <ImageDetailModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} imageData={selectedImageData} />
-                {/* Modals Admin terkait koin akan dihapus */}
+                {/* Modals Admin terkait koin juga dihapus */}
                 {/* <AdminResetModal isOpen={showAdminResetModal} onClose={() => setShowAdminResetModal(false)} onConfirm={handleConfirmAdminReset} /> */}
                 {/* <AdminRefillModal isOpen={showAdminRefillModal} onClose={() => setShowAdminRefillModal(false)} onConfirm={handleConfirmAdminRefill} /> */}
                 <Toaster position="top-center" toastOptions={{
@@ -1194,7 +940,7 @@ const AdminRefillModal = ({ isOpen, onClose, onConfirm }: { isOpen: boolean; onC
                     <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
                         <div className="lg:col-span-2 flex flex-col gap-6">
                             <div className="bg-white dark:bg-slate-800/40 backdrop-blur-md p-6 rounded-2xl shadow-lg dark:shadow-2xl dark:shadow-black/20 border border-slate-200 dark:border-slate-700 h-full flex flex-col space-y-6">
-                                {/* Bagian UI koin ini akan dihapus */}
+                                {/* Bagian UI koin ini dihapus */}
                                 {/* <div className="flex items-center justify-between p-3 bg-slate-100 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-lg text-sm font-semibold text-slate-800 dark:text-white">
                                     <span className="flex items-center gap-2">
                                         <DollarSign className="w-5 h-5 text-yellow-500 dark:text-yellow-400"/>Koin Anda:
@@ -1296,23 +1042,8 @@ const AdminRefillModal = ({ isOpen, onClose, onConfirm }: { isOpen: boolean; onC
                                             </div>
                                         </div>
                                     </Accordion>
-                                    {/* Bagian Accordion Manajemen Koin ini akan dihapus */}
-                                    {/* <Accordion title="Manajemen Koin" icon={<DollarSign size={16}/>} defaultOpen={true}>
-                                        <div className="space-y-3">
-                                            <p className="text-sm text-slate-600 dark:text-slate-400">
-                                                Anda memiliki <span className="text-yellow-600 dark:text-yellow-300 font-bold">{userCoins}</span> koin tersisa.
-                                            </p>
-                                            <button onClick={handleAdminResetClick} className="w-full bg-red-600 text-white py-2 rounded-lg font-semibold text-sm hover:bg-red-700 transition flex justify-center items-center gap-2">
-                                                <RefreshCw size={16}/> Reset Koin Admin (ke {DEFAULT_DAILY_COINS})
-                                            </button>
-                                            <button onClick={handleAdminRefillClick} className="w-full bg-purple-600 text-white py-2 rounded-lg font-semibold text-sm hover:bg-purple-700 transition flex justify-center items-center gap-2">
-                                                <KeyRound size={16}/> Isi Ulang Koin Admin
-                                            </button>
-                                            <p className="text-xs text-slate-500 dark:text-slate-400">
-                                                Fitur ini diperuntukkan bagi administrator. Akses dan fungsionalitas mungkin terbatas. Jika Anda seorang administrator dan mengalami masalah, mohon konfirmasi dengan tim dukungan melalui halaman kontak.
-                                            </p>
-                                        </div>
-                                    </Accordion> */}
+                                    {/* Accordion Manajemen Koin dihapus */}
+                                    {/* <Accordion title="Manajemen Koin" icon={<DollarSign size={16}/>} defaultOpen={true}>...</Accordion> */}
                                     <Accordion title="Prompt Creator" icon={<Wand2 size={16}/>}>
                                         <div className="space-y-4">
                                             <div className="space-y-3">
