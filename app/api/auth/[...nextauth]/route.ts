@@ -1,10 +1,10 @@
-// File: app/api/auth/[...nextauth]/route.ts (Ditambahkan GitHubProvider)
+// File: app/api/auth/[...nextauth]/route.ts (Final dengan perbaikan GitHub Profile)
 
 import NextAuth from "next-auth";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { PrismaClient } from "@prisma/client";
 import GoogleProvider from "next-auth/providers/google";
-import GitHubProvider from "next-auth/providers/github"; // <-- IMPORT BARU
+import GitHubProvider from "next-auth/providers/github";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from 'bcryptjs';
 
@@ -18,11 +18,19 @@ const handler = NextAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
       allowDangerousEmailAccountLinking: true,
     }),
-    // PROVIDER GITHUB BARU DITAMBAHKAN DI SINI
     GitHubProvider({
       clientId: process.env.GITHUB_CLIENT_ID as string,
       clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
       allowDangerousEmailAccountLinking: true,
+      // TAMBAHKAN BLOK INI UNTUK MEMASTIKAN PROFIL DIAMBIL DENGAN BENAR
+      profile(profile) {
+        return {
+          id: profile.id.toString(),
+          name: profile.name ?? profile.login,
+          email: profile.email,
+          image: profile.avatar_url,
+        };
+      },
     }),
     CredentialsProvider({
       name: 'credentials',
