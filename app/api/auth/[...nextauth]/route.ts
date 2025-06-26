@@ -1,6 +1,6 @@
-// File: app/api/auth/[...nextauth]/route.ts (Final dengan Endpoint Eksplisit)
+// File: app/api/auth/[...nextauth]/route.ts (Final dengan Konfigurasi Minimalis)
 
-import NextAuth from "next-auth";
+import NextAuth, { NextAuthOptions } from "next-auth";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { PrismaClient } from "@prisma/client";
 import GoogleProvider from "next-auth/providers/google";
@@ -10,7 +10,8 @@ import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
-const handler = NextAuth({
+// Definisikan authOptions secara terpisah untuk kejelasan
+export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
@@ -22,31 +23,7 @@ const handler = NextAuth({
       clientId: process.env.GITHUB_CLIENT_ID as string,
       clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
       allowDangerousEmailAccountLinking: true,
-      
-      // ===================================================================
-      // SOLUSI: Secara eksplisit mendefinisikan endpoint otorisasi & token
-      // Ini seringkali memperbaiki masalah di lingkungan serverless seperti Vercel
-      // ===================================================================
-      authorization: {
-        url: "https://github.com/login/oauth/authorize",
-        params: { scope: "read:user user:email" },
-      },
-      token: {
-        url: "https://github.com/login/oauth/access_token",
-      },
-      userinfo: {
-        url: "https://api.github.com/user",
-      },
-      // ===================================================================
-
-      profile(profile) {
-        return {
-          id: profile.id.toString(),
-          name: profile.name ?? profile.login,
-          email: profile.email,
-          image: profile.avatar_url,
-        };
-      },
+      // KITA HAPUS KONFIGURASI EKSPLISIT SEBELUMNYA DAN HANYA MENGANDALKAN DEFAULT DARI NEXT-AUTH
     }),
     CredentialsProvider({
       name: 'credentials',
@@ -75,11 +52,11 @@ const handler = NextAuth({
       },
     }),
   ],
-  debug: process.env.NODE_ENV === 'development',
   session: {
     strategy: "jwt",
   },
   callbacks: {
+    // Callback session masih penting untuk menyertakan ID pengguna
     async session({ session, token }) {
       if (session?.user && token?.sub) {
         session.user.id = token.sub;
@@ -91,6 +68,10 @@ const handler = NextAuth({
     signIn: '/login',
   },
   secret: process.env.NEXTAUTH_SECRET,
-});
+  // Menambahkan debug di level ini bisa memberikan lebih banyak insight di log Vercel
+  debug: process.env.NODE_ENV === 'development',
+};
+
+const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };
