@@ -1,4 +1,4 @@
-// File: app/api/auth/[...nextauth]/route.ts (Final dengan Konfigurasi Minimalis)
+// File: app/api/auth/[...nextauth]/route.ts (Final dengan export yang benar)
 
 import NextAuth, { NextAuthOptions } from "next-auth";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
@@ -10,8 +10,8 @@ import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
-// Definisikan authOptions secara terpisah untuk kejelasan
-export const authOptions: NextAuthOptions = {
+// KATA KUNCI "export" DIHAPUS DARI BARIS DI BAWAH INI
+const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
@@ -23,7 +23,6 @@ export const authOptions: NextAuthOptions = {
       clientId: process.env.GITHUB_CLIENT_ID as string,
       clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
       allowDangerousEmailAccountLinking: true,
-      // KITA HAPUS KONFIGURASI EKSPLISIT SEBELUMNYA DAN HANYA MENGANDALKAN DEFAULT DARI NEXT-AUTH
     }),
     CredentialsProvider({
       name: 'credentials',
@@ -56,7 +55,6 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
   },
   callbacks: {
-    // Callback session masih penting untuk menyertakan ID pengguna
     async session({ session, token }) {
       if (session?.user && token?.sub) {
         session.user.id = token.sub;
@@ -68,7 +66,6 @@ export const authOptions: NextAuthOptions = {
     signIn: '/login',
   },
   secret: process.env.NEXTAUTH_SECRET,
-  // Menambahkan debug di level ini bisa memberikan lebih banyak insight di log Vercel
   debug: process.env.NODE_ENV === 'development',
 };
 
