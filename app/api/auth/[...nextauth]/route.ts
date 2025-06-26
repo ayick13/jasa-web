@@ -1,4 +1,4 @@
-// File: app/api/auth/[...nextauth]/route.ts (Final dengan export yang benar)
+// File: app/api/auth/[...nextauth]/route.ts (Final dengan Perbaikan Credentials)
 
 import NextAuth, { NextAuthOptions } from "next-auth";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
@@ -10,7 +10,6 @@ import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
-// KATA KUNCI "export" DIHAPUS DARI BARIS DI BAWAH INI
 const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
@@ -31,22 +30,32 @@ const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
+        // 1. Pastikan kredensial (email & password) ada
         if (!credentials?.email || !credentials.password) {
-          throw new Error('Email dan password tidak valid');
+          throw new Error('Data yang diberikan tidak valid.');
         }
+
+        // 2. Cari pengguna di database berdasarkan email
         const user = await prisma.user.findUnique({
           where: { email: credentials.email },
         });
+
+        // 3. Jika pengguna tidak ditemukan ATAU pengguna tersebut mendaftar via Google/GitHub (tidak punya password)
         if (!user || !user.password) {
-          throw new Error('Pengguna tidak ditemukan');
+          throw new Error('Pengguna tidak ditemukan atau mendaftar dengan metode lain.');
         }
+        
+        // 4. Bandingkan password yang dimasukkan dengan hash di database
         const isCorrectPassword = await bcrypt.compare(
           credentials.password,
           user.password
         );
+
         if (!isCorrectPassword) {
-          throw new Error('Password salah');
+          throw new Error('Password yang Anda masukkan salah.');
         }
+
+        // 5. Jika semua berhasil, kembalikan data pengguna
         return user;
       },
     }),
