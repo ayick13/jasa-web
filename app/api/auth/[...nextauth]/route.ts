@@ -1,28 +1,27 @@
-// File: app/api/auth/[...nextauth]/route.ts (Dengan Perbaikan Penautan Akun)
+// File: app/api/auth/[...nextauth]/route.ts (Ditambahkan GitHubProvider)
 
 import NextAuth from "next-auth";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { PrismaClient } from "@prisma/client";
 import GoogleProvider from "next-auth/providers/google";
+import GitHubProvider from "next-auth/providers/github"; // <-- IMPORT BARU
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
-const googleClientId = process.env.GOOGLE_CLIENT_ID;
-const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
-
-if (!googleClientId || !googleClientSecret) {
-  throw new Error("Missing Google OAuth environment variables (CLIENT_ID or CLIENT_SECRET)");
-}
-
 const handler = NextAuth({
   adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
-      clientId: googleClientId,
-      clientSecret: googleClientSecret,
-      // TAMBAHKAN BARIS INI UNTUK MENGIZINKAN PENAUTAN OTOMATIS
+      clientId: process.env.GOOGLE_CLIENT_ID as string,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+      allowDangerousEmailAccountLinking: true,
+    }),
+    // PROVIDER GITHUB BARU DITAMBAHKAN DI SINI
+    GitHubProvider({
+      clientId: process.env.GITHUB_CLIENT_ID as string,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
       allowDangerousEmailAccountLinking: true,
     }),
     CredentialsProvider({
@@ -35,24 +34,19 @@ const handler = NextAuth({
         if (!credentials?.email || !credentials.password) {
           throw new Error('Email dan password tidak valid');
         }
-
         const user = await prisma.user.findUnique({
           where: { email: credentials.email },
         });
-
         if (!user || !user.password) {
           throw new Error('Pengguna tidak ditemukan');
         }
-
         const isCorrectPassword = await bcrypt.compare(
           credentials.password,
           user.password
         );
-
         if (!isCorrectPassword) {
           throw new Error('Password salah');
         }
-
         return user;
       },
     }),
@@ -75,5 +69,4 @@ const handler = NextAuth({
   secret: process.env.NEXTAUTH_SECRET,
 });
 
-// Ekspor handler untuk metode GET dan POST sesuai aturan App Router
 export { handler as GET, handler as POST };

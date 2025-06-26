@@ -1,23 +1,27 @@
+// File: app/components.tsx (Versi Final dengan Ikon Footer yang Benar)
+
 'use client';
 
-import React from 'react';
+import React, { Suspense } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import Script from 'next/script';
-import { usePathname } from 'next/navigation'; // Import hook untuk mendeteksi path
+import { usePathname } from 'next/navigation';
+import { toast, Toaster } from 'react-hot-toast';
 import { 
-    Home, User, Rss, Layers, Mail, Menu, X, Github, Linkedin, Instagram, Facebook, Code, 
+    Home, User, Rss, Layers, Mail, Menu, X, Github, Code, 
     CheckCircle, Smartphone, BarChart2, ArrowRight, Tag, Star, Settings, 
-    PenTool, Share2, Briefcase, Eye, Zap 
+    PenTool, Share2, Briefcase, Eye, Zap,
+    Facebook, // <-- Icon Facebook diimpor
+    Instagram // <-- Icon Instagram diimpor
 } from 'lucide-react'; 
 import { blogArticles } from '@/lib/blog-data';
 import { portfolioProjects } from '@/lib/portfolio-data';
 import { ThemeSwitcher } from './theme-switcher';
+import { SocialLoginButtons } from './components/SocialLoginButtons'; 
 
-// Tipe Section sekarang hanya untuk scrolling di halaman utama
 type HomeSection = 'home' | 'about' | 'services' | 'portfolio' | 'pricing' | 'blog' | 'contact'; 
 
-// Data navigasi yang lebih cerdas
 const navLinks = [
     { id: 'home', type: 'scroll', label: 'Beranda', icon: Home, href: '/#home' }, 
     { id: 'about', type: 'scroll', label: 'Tentang', icon: User, href: '/#about' },
@@ -29,7 +33,6 @@ const navLinks = [
     { id: 'contact', type: 'scroll', label: 'Kontak', icon: Mail, href: '/#contact' },
 ] as const;
 
-// --- Data lainnya ---
 const servicesData = [
     { icon: Code, title: "Pengembangan Web", description: "Membangun situs web kustom dari awal, memastikan fungsionalitas yang mulus." },
     { icon: Smartphone, title: "Desain Responsif", description: "Memastikan situs web Anda terlihat sempurna di semua perangkat." },
@@ -47,7 +50,6 @@ const skillsData = [
     { name: "Node.js" },
     { name: "Firebase" },
     { name: "Git & GitHub" },
-    // Keahlian baru yang ditambahkan:
     { name: "FontAwesome" },
     { name: "Bootstrap" },
     { name: "WordPress" },
@@ -62,8 +64,6 @@ const pricingData = [
     { title: "Pro", price: "4jt", period: "proyek", description: "Pilihan populer untuk UKM, startup, atau company profile yang lebih lengkap.", features: ["Hingga 8 Halaman", "Semua fitur paket Basic", "Desain Eksklusif Sesuai Brand", "Manajemen Konten (CMS)", "Integrasi Media Sosial & WhatsApp", "Analitik Pengunjung (Google Analytics)", "Dukungan Teknis 3 Bulan"], isRecommended: true },
     { title: "Enterprise", price: "Hubungi", period: "kami", description: "Solusi kustom untuk kebutuhan kompleks seperti e-commerce atau aplikasi web.", features: ["Halaman & Fitur Tanpa Batas", "Semua fitur paket Pro", "Fungsionalitas E-Commerce", "Integrasi API Pihak Ketiga", "Optimasi Performa Lanjutan", "Laporan SEO Bulanan", "Dukungan Prioritas & Pemeliharaan"], isRecommended: false }
 ];
-
-// --- Komponen-komponen ---
 
 export const Header: React.FC<{ currentSection?: HomeSection; onNavClick?: (section: HomeSection) => void }> = ({ currentSection, onNavClick }) => {
   const [isOpen, setIsOpen] = React.useState(false);
@@ -126,36 +126,28 @@ export const Header: React.FC<{ currentSection?: HomeSection; onNavClick?: (sect
 };
 
 export const HeroSection: React.FC<{ onNavClick: (section: HomeSection) => void; sectionRef: React.RefObject<HTMLElement> }> = ({ onNavClick, sectionRef }) => {
-    // State untuk menyimpan nilai dari input field
     const [prompt, setPrompt] = React.useState('');
-    // Hook untuk navigasi
-    const router = usePathname(); // Ganti dengan useRouter dari next/navigation jika ada error
 
-    // Fungsi yang akan dijalankan saat tombol Generate di klik
     const handleGenerateClick = () => {
         if (prompt) {
-            // Mengarahkan ke halaman /ai-suite dengan prompt sebagai query parameter
-            // (gunakan window.location.href jika router.push membuat masalah)
             window.location.href = `/ai-suite?prompt=${encodeURIComponent(prompt)}`;
         } else {
-            // Opsional: Beri tahu user untuk mengisi sesuatu
-            alert('Silakan tuliskan imajinasi Anda terlebih dahulu.');
+            toast.error('Silakan tuliskan imajinasi Anda terlebih dahulu.');
         }
     };
 
     return (
         <section ref={sectionRef} id="home" className="min-h-screen flex items-start md:items-center justify-center bg-grid-pattern animate-fade-in pt-28 md:pt-0">
+            <Toaster />
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
                 <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold text-slate-900 dark:text-white mb-4 leading-tight">Selamat Datang di Dunia Digital <span className="bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500">Ayick.dev</span></h1>
                 <p className="text-lg md:text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto mb-8">Web Developer & Akselerator Digital. Membantu Anda membangun kehadiran online yang kuat dan efektif.</p>
                 
-                {/* Tombol yang sudah ada */}
                 <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
                     <button onClick={() => onNavClick('contact')} className="bg-cyan-500 text-white font-bold py-3 px-8 rounded-full shadow-lg shadow-cyan-500/30 hover:bg-cyan-600 transition-all duration-300 transform hover:scale-105 w-full sm:w-auto">Hubungi Saya</button>
                     <button onClick={() => onNavClick('services')} className="bg-slate-700 dark:bg-slate-700 text-white dark:text-white font-bold py-3 px-8 rounded-full hover:bg-slate-600 dark:hover:bg-slate-600 transition-all duration-300 w-full sm:w-auto">Lihat Layanan</button>
                 </div>
 
-                {/* Bagian Form AI Baru */}
                 <div className="mt-12 max-w-2xl mx-auto">
                     <div className="flex flex-col sm:flex-row gap-2">
                         <input
@@ -171,6 +163,12 @@ export const HeroSection: React.FC<{ onNavClick: (section: HomeSection) => void;
                         >
                             Generate
                         </button>
+                    </div>
+                    <div className="mt-6">
+                        <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">Atau masuk untuk melanjutkan ke AI Suite</p>
+                        <Suspense fallback={<div className="h-12"></div>}>
+                            <SocialLoginButtons />
+                        </Suspense>
                     </div>
                 </div>
             </div>

@@ -1,9 +1,9 @@
-// File: app/ai-suite/page.tsx (Versi Final dengan SEMUA komponen dan perbaikan)
+// File: app/ai-suite/page.tsx (Versi Final dengan Tombol Download Repo)
 
 'use client';
 
 // Impor yang dibutuhkan
-import { useSession, signOut } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react'; 
 import React, { useState, useEffect, useRef, useCallback, Fragment, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
@@ -12,7 +12,8 @@ import {
     Download, Zap, Eraser, Sparkles, Wand2, MessageSquare, Bot, Send, Settings,
     ChevronDown, ImageIcon, BrainCircuit, Upload, CheckCircle, Copy, CornerDownLeft, X,
     Volume2, Paperclip, History, KeyRound, ExternalLink, Trash2,
-    Eye, EyeOff, LogOut
+    Eye, EyeOff, LogOut,
+    Github // <-- Ikon GitHub ditambahkan
 } from 'lucide-react';
 
 // --- Tipe Data & Konstanta (Tidak ada perubahan) ---
@@ -306,6 +307,7 @@ const imagePresets = [
     { label: 'Landscape (1792x1024)', width: 1792, height: 1024 },
 ];
 
+
 // --- Komponen-komponen UI ---
 const ParameterInput = ({ label, children }: { label: string, children: React.ReactNode }) => (
     <div>
@@ -350,9 +352,6 @@ const CodeBlock = ({ language, code }: { language: string, code: string }) => {
     );
 };
 
-// ===================================================================================
-// DEFINISI KOMPONEN FUNGSIONAL (ChatBox, ImageAnalyzer, dll)
-// ===================================================================================
 const ChatBox = ({ onPromptFromChat }: { onPromptFromChat: (prompt: string) => void }) => {
     const [messages, setMessages] = useState<ChatMessage[]>([{ id: 'init', role: 'assistant', content: 'Halo! Anda bisa mengirim teks atau gambar untuk dianalisa.' }]);
     const [input, setInput] = useState(''); const [isThinking, setIsThinking] = useState(false); const [availableModels, setAvailableModels] = useState<Record<string, any>>({}); const [selectedModel, setSelectedModel] = useState('openai'); const imageInputRef = useRef<HTMLInputElement>(null); const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -457,8 +456,6 @@ const ImageAnalyzer = ({ onPromptFromAnalysis }: { onPromptFromAnalysis: (prompt
     );
 };
 
-// ===================================================================================
-
 const UserDisplay = () => {
     const { data: session, status } = useSession();
 
@@ -470,7 +467,7 @@ const UserDisplay = () => {
         return (
             <div className="flex items-center gap-4 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2 rounded-full">
                 <Image
-                    src={session.user.image || '/images/profil.webp'} // Menggunakan profil.webp sebagai fallback
+                    src={session.user.image || '/images/user.svg'}
                     alt={session.user.name || 'User Avatar'}
                     width={32}
                     height={32}
@@ -491,7 +488,7 @@ const UserDisplay = () => {
         );
     }
 
-    return null; // Tidak menampilkan apa-apa jika tidak login
+    return null;
 };
 
 const ImageDetailModal = ({ isOpen, onClose, imageData }: { isOpen: boolean, onClose: () => void, imageData: GeneratedImageData | null }) => {
@@ -578,7 +575,11 @@ function AISuitePageContent() {
             <ImageDetailModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} imageData={selectedImageData} />
             <Toaster position="top-center" toastOptions={{ className: 'dark:bg-slate-800 dark:text-white', style: { border: '1px solid #334155' } }} />
             <main className="container mx-auto py-8 px-4 sm:px-6 lg:px-8 bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
-                <div className="flex justify-end mb-8">
+                <div className="flex justify-between items-center mb-8">
+                    <a href="https://github.com/ayick13/jasa-web" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 px-4 py-2 rounded-full transition-colors">
+                        <Github size={16} />
+                        <span>Download Repository</span>
+                    </a>
                     <UserDisplay />
                 </div>
                 <div className="text-center mb-12">
