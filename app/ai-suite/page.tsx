@@ -1,4 +1,4 @@
-// File: app/ai-suite/page.tsx (Versi Final dengan Tombol Download Repo)
+// File: app/ai-suite/page.tsx (Versi Final dengan Tombol Download Repo dan User Bertumpuk Vertikal)
 
 'use client';
 
@@ -13,10 +13,10 @@ import {
     ChevronDown, ImageIcon, BrainCircuit, Upload, CheckCircle, Copy, CornerDownLeft, X,
     Volume2, Paperclip, History, KeyRound, ExternalLink, Trash2,
     Eye, EyeOff, LogOut,
-    Github // <-- Ikon GitHub ditambahkan
+    Github 
 } from 'lucide-react';
 
-// --- Tipe Data & Konstanta (Tidak ada perubahan) ---
+// --- Tipe Data & Konstanta ---
 const imageGenModels = ['flux', 'turbo', 'dall-e-3', 'gptimage'] as const;
 type ImageGenModel = (typeof imageGenModels)[number];
 const artStyles = [
@@ -42,7 +42,6 @@ const artStyles = [
 ] as const;
 type ArtStyle = (typeof artStyles)[number];
 const artStylesGrouped = [
-    // ... (data artStylesGrouped tetap sama, tidak perlu diubah) ...
     { label: 'Default Styles', options: [
         { value: 'realistic', text: 'Realistic' },
         { value: 'photographic', text: 'Photographic' },
@@ -277,7 +276,7 @@ const artStylesGrouped = [
         { value: 'double exposure', text: 'Double Exposure' },
         { value: 'light painting', text: 'Light Painting' },
         { value: 'lens flare', text: 'Lens Flare' },
-        { value: 'vhs effect', text: 'VHS Effect' },
+        { value: 'vhs effect', 'text': 'VHS Effect' },
         { value: 'crt screen', text: 'CRT Screen' },
         { value: 'film grain', text: 'Film Grain' },
         { value: 'cross processing', text: 'Cross Processing' }
@@ -575,12 +574,15 @@ function AISuitePageContent() {
             <ImageDetailModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} imageData={selectedImageData} />
             <Toaster position="top-center" toastOptions={{ className: 'dark:bg-slate-800 dark:text-white', style: { border: '1px solid #334155' } }} />
             <main className="container mx-auto py-8 px-4 sm:px-6 lg:px-8 bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
-                <div className="flex justify-between items-center mb-8">
-                    <a href="https://github.com/ayick13/jasa-web" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 px-4 py-2 rounded-full transition-colors">
-                        <Github size={16} />
-                        <span>Download Repository</span>
-                    </a>
-                    <UserDisplay />
+                {/* Perubahan di sini: Mengatur tombol di pojok kanan atas secara vertikal */}
+                <div className="flex justify-end items-start mb-8">
+                    <div className="flex flex-col gap-3">
+                        <a href="https://github.com/ayick13/jasa-web" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 px-4 py-2 rounded-full transition-colors">
+                            <Github size={16} />
+                            <span>Download Repository</span>
+                        </a>
+                        <UserDisplay />
+                    </div>
                 </div>
                 <div className="text-center mb-12">
                     <h1 className="text-5xl md:text-6xl font-extrabold mb-4 text-slate-900 dark:text-white">AI <span className="bg-clip-text text-transparent bg-gradient-to-r from-sky-400 to-cyan-300">Image Suite</span></h1>
@@ -672,7 +674,6 @@ function AISuitePageContent() {
                                         <div className="flex-grow"><h2 className="text-2xl font-bold mb-4 text-slate-900 dark:text-white">Riwayat Generasi</h2><div className="grid grid-cols-1 sm:grid-cols-2 gap-4">{[...historyImages].sort((a, b) => b.timestamp - a.timestamp).map((imageData, index) => (
                                             <div key={imageData.url + index} className="relative rounded-lg overflow-hidden group aspect-square border-2 border-slate-200 dark:border-slate-700 cursor-pointer" onClick={() => handleOpenModal(imageData)}>
                                                 <Image src={imageData.url} alt="Generated AI Image" layout="fill" className="object-cover" unoptimized/>
-                                                <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition"><p className="text-white font-bold">Lihat Detail</p></div>
                                                 <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs p-1 text-center">{new Date(imageData.timestamp).toLocaleString()}</div>
                                             </div>))}
                                         </div></div>
