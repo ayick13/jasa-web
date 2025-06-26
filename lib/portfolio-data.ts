@@ -21,7 +21,7 @@ export const portfolioProjects: Project[] = [
       <p class="mt-4">Proyek ini berfokus pada pemanfaatan kecerdasan buatan untuk menyediakan solusi web yang cerdas, seperti analisis data, otomatisasi, dan interaksi pengguna yang ditingkatkan. Pengalaman ini memperdalam pemahaman saya tentang arsitektur aplikasi AI dan pengembangan web berskala besar.</p>
     `,
     technologies: ['AI', 'Next.js', 'React', 'TypeScript', 'API Integration'],
-    imageUrl: 'https://image.pollinations.ai/prompt/A%20sleek%20and%20futuristic%20web%20interface%20displaying%20AI%20elements%20like%20neural%20networks%20and%20data%20visualizations,%20with%20a%20modern%20minimalist%20design%20and%20glowing%20blue%20accents.?nologo=true&referrer=ariftirtana.my.id',
+    imageUrl: '/images/blog/magai.svg',
     liveUrl: 'https://app.magai.co',
   },
   {
@@ -34,7 +34,7 @@ export const portfolioProjects: Project[] = [
       <p class="mt-4">Kontribusi saya meliputi pembuatan sketsa kasar (wireframe) untuk struktur halaman, alur pengguna (user flow), dan prototipe interaktif. Saya juga merancang elemen visual seperti tata letak, tipografi, skema warna, dan ikonografi untuk memastikan konsistensi merek dan daya tarik visual. Fokus utama adalah pada kemudahan penggunaan dan estetika yang modern untuk aplikasi berbasis AI.</p>
     `,
     technologies: ['UI/UX Design', 'Wireframing', 'Figma', 'Web Design', 'AI'],
-    imageUrl: 'https://image.pollinations.ai/prompt/A%20futuristic%20and%20minimalist%20AI%20design%20studio%20interface%20with%20clean%20lines,%20soft%20gradients,%20and%20interactive%20elements.%20Focus%20on%20intuitive%20layout%20and%20modern%20typography.?nologo=true&referrer=ariftirtana.my.id',
+    imageUrl: '/images/blog/dzine-ai.svg',
     liveUrl: 'https://dzine.ai',
   },
   {

@@ -1,4 +1,4 @@
-// File: app/login/page.tsx (Dengan console.log untuk debugging redirect)
+// File: app/login/page.tsx
 
 'use client';
 
@@ -15,47 +15,46 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl') || '/ai-suite';
   const error = searchParams.get('error');
+  
   const [data, setData] = useState({ email: '', password: '' });
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  const { update } = useSession();
+  // Gunakan useSession untuk memeriksa status otentikasi
+  const { data: session, status } = useSession();
 
   useEffect(() => {
-    if (error === "OAuthAccountNotLinked") {
-      toast.error("Email ini sudah terdaftar dengan metode lain. Silakan masuk dengan metode yang sama.", { duration: 5000 });
+    // Jika ada error dari NextAuth (misalnya, kredensial salah), tampilkan toast
+    if (error && !isLoading) {
+      toast.error('Login gagal: Email atau password salah.');
+      // Hapus parameter error dari URL agar tidak muncul lagi saat refresh
+      router.replace('/login', { scroll: false });
     }
-  }, [error]);
+  }, [error, isLoading, router]);
+  
+  useEffect(() => {
+    // Jika sesi sudah terotentikasi, langsung arahkan
+    if (status === 'authenticated') {
+      toast.success('Anda sudah masuk. Mengarahkan...');
+      router.push(callbackUrl);
+    }
+  }, [status, callbackUrl, router]);
+
 
   const loginUser = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
-    const toastId = toast.loading('Mencoba masuk...');
-    const result = await signIn('credentials', {
+    toast.loading('Mencoba masuk...');
+
+    // Biarkan NextAuth menangani pengalihan dengan redirect: true (default)
+    // NextAuth akan secara otomatis mengarahkan ke callbackUrl jika berhasil
+    await signIn('credentials', {
       ...data,
-      redirect: false,
-      callbackUrl,
+      callbackUrl, // Berikan callbackUrl ke NextAuth
     });
+
+    // Kode di bawah ini mungkin tidak akan tercapai jika login berhasil karena halaman akan dialihkan
     setIsLoading(false);
-    toast.dismiss(toastId);
-
-    // --- TAMBAHAN UNTUK DEBUGGING ---
-    console.log("Hasil dari signIn:", result);
-    console.log("URL pengalihan yang diharapkan:", result?.url);
-    // --- AKHIR TAMBAHAN DEBUGGING ---
-
-    if (result?.error) {
-      toast.error('Login gagal: Email atau password salah.');
-    } else if (result?.url) {
-      toast.success('Login berhasil! Mengarahkan...');
-      
-      await update();
-      // Memberi sedikit waktu lagi, meskipun idealnya tidak diperlukan jika update() bekerja
-      await new Promise(resolve => setTimeout(resolve, 200)); // Coba delay lebih lama sedikit
-      
-      console.log("Melakukan router.push ke:", result.url); // --- TAMBAHAN DEBUGGING ---
-      router.push(result.url);
-    }
   };
 
   return (
@@ -89,7 +88,7 @@ function LoginForm() {
           </div>
         </div>
         <div>
-          <button type="submit" disabled={isLoading} className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-cyan-600 hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 disabled:opacity-50">
+          <button type="submit" disabled={isLoading || status === 'authenticated'} className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-cyan-600 hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 disabled:opacity-50">
             {isLoading ? 'Memproses...' : 'Masuk'}
           </button>
         </div>
