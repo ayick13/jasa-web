@@ -1,4 +1,4 @@
-// File: app/api/auth/[...nextauth]/route.ts (Final dengan perbaikan GitHub Profile)
+// File: app/api/auth/[...nextauth]/route.ts (Final dengan Endpoint Eksplisit)
 
 import NextAuth from "next-auth";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
@@ -22,7 +22,23 @@ const handler = NextAuth({
       clientId: process.env.GITHUB_CLIENT_ID as string,
       clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
       allowDangerousEmailAccountLinking: true,
-      // TAMBAHKAN BLOK INI UNTUK MEMASTIKAN PROFIL DIAMBIL DENGAN BENAR
+      
+      // ===================================================================
+      // SOLUSI: Secara eksplisit mendefinisikan endpoint otorisasi & token
+      // Ini seringkali memperbaiki masalah di lingkungan serverless seperti Vercel
+      // ===================================================================
+      authorization: {
+        url: "https://github.com/login/oauth/authorize",
+        params: { scope: "read:user user:email" },
+      },
+      token: {
+        url: "https://github.com/login/oauth/access_token",
+      },
+      userinfo: {
+        url: "https://api.github.com/user",
+      },
+      // ===================================================================
+
       profile(profile) {
         return {
           id: profile.id.toString(),
