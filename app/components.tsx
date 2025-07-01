@@ -87,12 +87,12 @@ export const Header: React.FC<{ currentSection?: HomeSection; onNavClick?: (sect
               {navLinks.map(link => {
                 if (link.type === 'submenu') {
                   return (
-                    <div key={link.id} className="relative group">
+                    <div key={link.id} className="relative group" style={{ position: 'relative' }}>
                       <button className="flex items-center gap-2 p-2 rounded-md transition-all text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700">
                         <link.icon className="w-5 h-5" />
                         <span>{link.label}</span>
                       </button>
-                      <div className="absolute left-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-md shadow-lg opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity z-50">
+                      <div className="absolute left-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-md shadow-lg opacity-0 group-hover:opacity-100 pointer-events-auto transition-opacity z-50">
                         {link.submenu.map((sub) => (
                           <Link key={sub.id} href={sub.href} className="block px-4 py-2 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 text-sm">
                             {sub.label}
