@@ -25,6 +25,10 @@ export default function CookieConsent() {
   return (
     <div className="fixed bottom-6 left-6 z-50 max-w-xs bg-slate-800 text-white rounded-lg shadow-lg p-4 animate-slideup">
       <p className="mb-2 text-sm">Situs ini menggunakan cookies untuk meningkatkan pengalaman Anda. Dengan melanjutkan, Anda menyetujui penggunaan cookies.</p>
+      <div className="mb-2 text-xs">
+        <a href="/privacy-policy" className="underline text-cyan-400 hover:text-cyan-300 mr-2" target="_blank" rel="noopener noreferrer">Kebijakan Privasi</a>
+        <a href="/data-deletion" className="underline text-cyan-400 hover:text-cyan-300" target="_blank" rel="noopener noreferrer">Petunjuk Penghapusan Data</a>
+      </div>
       <button onClick={handleAccept} className="bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-1 rounded transition-colors text-sm">Saya Setuju</button>
     </div>
   );
