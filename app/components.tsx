@@ -31,6 +31,11 @@ const navLinks = [
     { id: 'blog', type: 'scroll', label: 'Blog', icon: Rss, href: '/#blog' }, 
     { id: 'ai-suite', type: 'page', label: 'AI Suite', icon: Zap, href: '/ai-suite' },
     { id: 'contact', type: 'scroll', label: 'Kontak', icon: Mail, href: '/#contact' },
+    // Tambahkan menu kebijakan dengan submenu
+    { id: 'kebijakan', type: 'submenu', label: 'Kebijakan', icon: Settings, submenu: [
+      { id: 'privacy', label: 'Kebijakan Privasi', href: '/privacy-policy' },
+      { id: 'data-deletion', label: 'Petunjuk Penghapusan Data', href: '/data-deletion' },
+    ]},
 ] as const;
 
 const servicesData = [
@@ -80,6 +85,23 @@ export const Header: React.FC<{ currentSection?: HomeSection; onNavClick?: (sect
           <div className="flex items-center gap-4">
             <nav className="hidden md:flex items-center space-x-1">
               {navLinks.map(link => {
+                if (link.type === 'submenu') {
+                  return (
+                    <div key={link.id} className="relative group">
+                      <button className="flex items-center gap-2 p-2 rounded-md transition-all text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700">
+                        <link.icon className="w-5 h-5" />
+                        <span>{link.label}</span>
+                      </button>
+                      <div className="absolute left-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-md shadow-lg opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity z-50">
+                        {link.submenu.map((sub) => (
+                          <Link key={sub.id} href={sub.href} className="block px-4 py-2 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 text-sm">
+                            {sub.label}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                }
                 const isActive = (link.type === 'scroll' && link.id === currentSection && pathname === '/') || (link.type === 'page' && pathname === link.href);
                 const activeClass = 'bg-cyan-500 text-white shadow-lg';
                 const inactiveClass = 'text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700';
@@ -112,12 +134,26 @@ export const Header: React.FC<{ currentSection?: HomeSection; onNavClick?: (sect
       {isOpen && (
         <div className="md:hidden absolute top-20 left-0 w-full bg-white dark:bg-slate-800 shadow-xl pb-4">
           <nav className="flex flex-col items-start space-y-2 p-4">
-            {navLinks.map(link => (
+            {navLinks.map(link => {
+              if (link.type === 'submenu') {
+                return (
+                  <div key={link.id} className="w-full">
+                    <span className="block px-3 py-2 font-semibold text-slate-700 dark:text-slate-200">{link.label}</span>
+                    {link.submenu.map((sub) => (
+                      <Link key={sub.id} href={sub.href} onClick={() => setIsOpen(false)} className="w-full block px-6 py-2 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 text-base">
+                        {sub.label}
+                      </Link>
+                    ))}
+                  </div>
+                );
+              }
+              return (
                 <Link key={link.id} href={link.href} onClick={() => setIsOpen(false)} className="w-full flex items-center gap-3 p-3 rounded-md text-lg text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700">
                     <link.icon className="w-6 h-6"/>
                     {link.label}
                 </Link>
-            ))}
+              );
+            })}
           </nav>
         </div>
       )}
