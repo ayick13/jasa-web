@@ -210,4 +210,35 @@ export const blogArticles: Article[] = [
       <p class="mt-4">Jadi, jangan biarkan asumsi biaya menghalangi Anda untuk memiliki kehadiran online yang profesional. Dengan pendekatan pengembangan yang cerdas dan modern, website impian Anda jauh lebih terjangkau dari yang Anda kira.</p>
     `,
   },
+  ,
+  {
+    slug: 'keamanan-website-panduan-esensial',
+    title: 'Benteng Digital Anda: Panduan Esensial Keamanan Website',
+    summary: 'Panduan praktis dan penting untuk melindungi website Anda dari ancaman siber, menjaga reputasi, dan membangun kepercayaan pelanggan.',
+    publishedDate: '30 Juni 2025',
+    imageUrl: 'https://image.pollinations.ai/prompt/A%20digital%20fortress%20protecting%20a%20website,%20cybersecurity,%20modern,%20futuristic,%20safe,%20blue%20tones?nologo=true&referrer=ariftirtana.my.id',
+    content: `
+      <p class="mb-4">Anda telah membangun website yang cepat, dengan desain menawan, dan konten yang dioptimalkan untuk SEO. Namun, semua aset digital tersebut bisa lenyap dalam sekejap tanpa adanya satu pilar fundamental: <strong>keamanan</strong>. Menganggap keamanan website sebagai opsi tambahan adalah seperti membangun toko mewah dengan pintu yang tidak bisa dikunci. Ini bukan lagi pilihan, melainkan sebuah keharusan.</p>
+      <p class="mb-4">Keamanan website adalah serangkaian tindakan dan strategi untuk melindungi situs Anda dari berbagai ancaman siber. Tanpanya, Anda tidak hanya berisiko kehilangan data, tetapi juga kepercayaan pelanggan dan reputasi bisnis yang telah Anda bangun dengan susah payah.</p>
+      <h3 class="text-2xl font-bold text-white mt-8 mb-3">Ancaman Siber yang Selalu Mengintai</h3>
+      <ul class="list-disc list-inside space-y-2 mb-4">
+        <li><strong>Malware:</strong> Perangkat lunak jahat yang dirancang untuk merusak atau mencuri data dari situs Anda.</li>
+        <li><strong>Phishing:</strong> Upaya penipuan untuk mendapatkan informasi sensitif seperti nama pengguna, kata sandi, dan detail kartu kredit.</li>
+        <li><strong>Serangan DDoS (Distributed Denial-of-Service):</strong> Upaya untuk membuat situs Anda tidak dapat diakses oleh pengunjung dengan membanjirinya dengan lalu lintas palsu.</li>
+      </ul>
+      <blockquote class="p-4 my-6 border-l-4 border-cyan-500 bg-slate-800">
+        <p class="text-lg italic leading-relaxed text-white">"Dibutuhkan 20 tahun untuk membangun reputasi dan beberapa menit insiden siber untuk merusaknya."</p>
+        <cite class="block text-right not-italic text-slate-400 mt-2">— Stephane Nappo, Global Chief Information Security Officer</cite>
+      </blockquote>
+      <h3 class="text-2xl font-bold text-white mt-8 mb-3">Langkah Praktis Membangun Benteng Digital Anda</h3>
+      <ol class="list-decimal list-inside space-y-2 mb-4">
+        <li><strong>Gunakan HTTPS (Sertifikat SSL):</strong> Ini adalah standar absolut. HTTPS mengenkripsi data yang dikirim antara browser pengunjung dan server Anda. Tanpa ini, browser modern akan menandai situs Anda sebagai "Tidak Aman," yang secara langsung merusak kepercayaan dan peringkat SEO.</li>
+        <li><strong>Pembaruan Rutin adalah Kunci:</strong> Sebagian besar peretasan terjadi melalui celah keamanan pada perangkat lunak yang usang. Selalu perbarui inti sistem manajemen konten (CMS), plugin, dan tema Anda ke versi terbaru.</li>
+        <li><strong>Kebijakan Kata Sandi yang Kuat:</strong> Terapkan penggunaan kata sandi yang kompleks dan unik. Lebih baik lagi, aktifkan Otentikasi Dua Faktor (2FA), yang menambahkan lapisan keamanan ekstra selain kata sandi.</li>
+        <li><strong>Pasang Firewall Aplikasi Web (WAF):</strong> WAF bertindak seperti penjaga keamanan di garis depan, menyaring dan memblokir lalu lintas berbahaya sebelum mencapai website Anda.</li>
+        <li><strong>Cadangkan Secara Teratur (Backup):</strong> Anggap ini sebagai jaring pengaman utama Anda. Jika hal terburuk terjadi, backup yang andal memungkinkan Anda memulihkan situs Anda ke kondisi semula dengan cepat.</li>
+      </ol>
+      <p class="mt-4">Pada akhirnya, keamanan adalah proses yang berkelanjutan, bukan proyek satu kali. Dengan membangun fondasi yang aman sejak awal dan memeliharanya secara proaktif, Anda memastikan bahwa "benteng digital" Anda tetap kokoh dalam menghadapi ancaman yang terus berkembang.</p>
+    `,
+  }
 ];
