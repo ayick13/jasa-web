@@ -138,7 +138,10 @@ export const Header: React.FC<{ currentSection?: HomeSection; onNavClick?: (sect
               if (link.type === 'submenu') {
                 return (
                   <div key={link.id} className="w-full">
-                    <span className="block px-3 py-2 font-semibold text-slate-700 dark:text-slate-200">{link.label}</span>
+                    <span className="block px-3 py-2 font-semibold text-slate-700 dark:text-slate-200 flex items-center gap-2">
+                      <link.icon className="w-5 h-5" />
+                      {link.label}
+                    </span>
                     {link.submenu.map((sub) => (
                       <Link key={sub.id} href={sub.href} onClick={() => setIsOpen(false)} className="w-full block px-6 py-2 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 text-base">
                         {sub.label}
