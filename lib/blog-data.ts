@@ -210,7 +210,6 @@ export const blogArticles: Article[] = [
       <p class="mt-4">Jadi, jangan biarkan asumsi biaya menghalangi Anda untuk memiliki kehadiran online yang profesional. Dengan pendekatan pengembangan yang cerdas dan modern, website impian Anda jauh lebih terjangkau dari yang Anda kira.</p>
     `,
   },
-  ,
   {
     slug: 'keamanan-website-panduan-esensial',
     title: 'Benteng Digital Anda: Panduan Esensial Keamanan Website',
