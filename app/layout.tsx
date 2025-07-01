@@ -7,6 +7,7 @@ import { Providers } from "./providers";
 import { Header, Footer } from "./components"; // Impor yang sudah ada dan benar
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Analytics } from '@vercel/analytics/react';
+import CookieConsent from "./components/CookieConsent";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -126,6 +127,8 @@ export default function RootLayout({
           {/* Footer diletakkan di luar main agar selalu di bagian bawah */}
           <Footer />
         </Providers>
+        {/* Consent cookies */}
+        <CookieConsent />
         {/* Vercel Speed Insights dan Analytics diletakkan di luar Providers jika tidak memerlukan context */}
         <SpeedInsights />
         <Analytics />
