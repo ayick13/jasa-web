@@ -35,6 +35,7 @@ const navLinks = [
     { id: 'kebijakan', type: 'submenu', label: 'Kebijakan', icon: Settings, submenu: [
       { id: 'privacy', label: 'Kebijakan Privasi', href: '/privacy-policy' },
       { id: 'data-deletion', label: 'Petunjuk Penghapusan Data', href: '/data-deletion' },
+      { id: 'terms', label: 'Ketentuan Layanan', href: '/terms-of-service' },
     ]},
 ] as const;
 
