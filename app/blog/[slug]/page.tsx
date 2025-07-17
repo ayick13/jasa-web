@@ -1,53 +1,48 @@
-// jasa-web-main/app/blog/[slug]/page.tsx
-
-import { Metadata } from 'next';
-import { notFound } from 'next/navigation';
-import { blogArticles, Article } from '@/lib/blog-data';
+import { getAllPostSlugs, getPostData } from '@/lib/posts';
 import BlogPostContent from './blog-post-content';
+import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 
-// PERBAIKAN: Tipe untuk props didefinisikan secara inline
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const slug = params.slug;
-  const article = blogArticles.find((a) => a.slug === slug);
+type Props = {
+  params: {
+    slug: string
+  }
+}
 
-  if (!article) {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const postData = await getPostData(params.slug);
+  
+  if (!postData) {
     return {
-      title: 'Artikel Tidak Ditemukan',
-    };
+      title: 'Artikel Tidak Ditemukan'
+    }
   }
 
   return {
-    title: article.title,
-    description: article.summary,
+    title: postData.title,
+    description: postData.summary,
     openGraph: {
-        title: article.title,
-        description: article.summary,
-        images: [
-            {
-                url: article.imageUrl,
-                width: 1200,
-                height: 630,
-                alt: article.title,
-            },
-        ],
+        title: postData.title,
+        description: postData.summary,
+        images: [postData.imageUrl],
     },
-  };
+  }
 }
 
 export async function generateStaticParams() {
-    return blogArticles.map((article) => ({
-      slug: article.slug,
-    }));
+  const paths = getAllPostSlugs();
+  return paths;
 }
-  
-// PERBAIKAN: Tipe untuk props didefinisikan secara inline
-export default function BlogPostPage({ params }: { params: { slug: string } }) {
-  const slug = params.slug;
-  const article: Article | undefined = blogArticles.find((a) => a.slug === slug);
 
+export default async function BlogPostPage({ params }: Props) {
+  const article = await getPostData(params.slug);
+
+  // Pengaman ini SANGAT PENTING
   if (!article) {
     notFound();
   }
 
-  return <BlogPostContent article={article} />;
+  return (
+    <BlogPostContent article={article} />
+  );
 }

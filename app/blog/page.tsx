@@ -1,37 +1,41 @@
-import { Metadata } from 'next';
 import Link from 'next/link';
-import { blogArticles } from '@/lib/blog-data';
-import { ArrowRight } from 'lucide-react';
+import { getSortedPostsData } from '@/lib/posts';
+import Image from 'next/image';
 
-export const metadata: Metadata = {
-  title: 'Blog',
-  description: 'Kumpulan artikel, wawasan, dan tutorial seputar pengembangan web dan teknologi dari Ayick.dev.',
-};
+export default function Blog() {
+  const allPostsData = getSortedPostsData();
 
-export default function BlogIndexPage() {
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
-      <div className="text-center mb-16">
-        <h1 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white">Artikel Blog</h1>
-        <p className="text-slate-600 dark:text-slate-400 mt-3 max-w-2xl mx-auto">
-          Berbagi pemikiran, wawasan, dan tutorial seputar teknologi web.
-        </p>
+    <section className="py-20 px-4">
+      <div className="container mx-auto">
+        <h2 className="text-4xl font-bold text-center mb-12">Artikel Terbaru</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {allPostsData.map(({ slug, title, summary, imageUrl, publishedDate }) => (
+            <Link href={`/blog/${slug}`} key={slug}>
+              <div className="bg-white rounded-lg shadow-lg overflow-hidden h-full transform transition-transform hover:scale-105">
+                <div className="relative h-48 w-full">
+                    <Image
+                        src={imageUrl}
+                        alt={title}
+                        layout="fill"
+                        objectFit="cover"
+                    />
+                </div>
+                <div className="p-6">
+                  <h3 className="text-gray-800 text-xl font-bold mb-2">{title}</h3>
+                  <p className="text-gray-500 text-sm mb-4">{new Date(publishedDate).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                  <p className="text-gray-700">{summary}</p>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
       </div>
-
-      <div className="max-w-3xl mx-auto grid gap-10">
-        {blogArticles.map((article) => (
-          <Link href={`/blog/${article.slug}`} key={article.slug} className="block bg-white dark:bg-slate-800/50 p-8 rounded-xl shadow-md hover:shadow-xl group border border-slate-200 dark:border-slate-800 hover:border-cyan-500 dark:hover:border-cyan-500 transition-all duration-300">
-            <p className="text-sm text-slate-500 dark:text-slate-400 mb-2">{article.publishedDate}</p>
-            <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-3 group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors duration-300">
-              {article.title}
-            </h2>
-            <p className="text-slate-600 dark:text-slate-300 mb-5">{article.summary}</p>
-            <div className="font-semibold text-cyan-600 dark:text-cyan-400 transition-colors duration-300 flex items-center gap-2">
-              Baca Selengkapnya <ArrowRight className="w-4 h-4" />
-            </div>
-          </Link>
-        ))}
-      </div>
-    </div>
+    </section>
   );
 }
+
+export const metadata = {
+    title: 'Blog | Artikel tentang Pengembangan Web dan Teknologi',
+    description: 'Kumpulan artikel dan tutorial mengenai pengembangan web, teknologi terbaru, dan tips coding.',
+};
