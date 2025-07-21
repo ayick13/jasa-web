@@ -172,7 +172,9 @@ const topics = [
   "RESTful API dengan Node.js: Best Practices",
   "Debugging Web: Tools dan Teknik Profesional",
   "Manajemen State di React: Redux vs Context API",
-  "Cloud Computing untuk Pengembang: Pilihan Layanan Terbaik"
+  "Cloud Computing untuk Pengembang: Pilihan Layanan Terbaik",
+    "Keamanan Web: Praktik Terbaik untuk Melindungi Aplikasi",
+    "Membangun Aplikasi Real-Time dengan Socket.IO",
 ];
 
 // Pilih topik acak dan jalankan
