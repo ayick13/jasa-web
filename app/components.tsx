@@ -1,7 +1,5 @@
 'use client';
 
-'use client';
-
 import React, { Suspense } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -27,15 +25,10 @@ type HomeSection = 'home' | 'about' | 'services' | 'portfolio' | 'pricing' | 'bl
 // Data untuk link navigasi
 const navLinks = [
     { id: 'home', type: 'scroll', label: 'Beranda', icon: Home, href: '/#home' },
-    { id: 'about', type: 'scroll', label: 'Tentang', icon: User, href: '/#about' },
     { id: 'services', type: 'scroll', label: 'Layanan', icon: Layers, href: '/#services' },
     { id: 'portfolio', type: 'scroll', label: 'Proyek', icon: Briefcase, href: '/#portfolio' },
     { id: 'pricing', type: 'scroll', label: 'Harga', icon: Tag, href: '/#pricing' },
-    // Item 'Blog' diubah menjadi submenu
-    { id: 'blog', type: 'submenu', label: 'Blog', icon: Rss, submenu: [
-      { id: 'all-posts', label: 'Semua Postingan', href: '/blog' },
-      { id: 'artikel', label: 'Artikel', href: '/artikel' }, // <-- Ini sub-menu barumu
-    ]},
+    { id: 'blog', type: 'scroll', label: 'Blog', icon: Rss,  href: '/#blog' },
     { id: 'ai-suite', type: 'page', label: 'AI Suite', icon: Zap, href: '/ai-suite' },
     { id: 'contact', type: 'scroll', label: 'Kontak', icon: Mail, href: '/#contact' },
     { id: 'kebijakan', type: 'submenu', label: 'Kebijakan', icon: Settings, submenu: [
@@ -249,7 +242,7 @@ export const AboutSection: React.FC<{ sectionRef: React.RefObject<HTMLElement> }
 
 // Komponen Services Section
 export const ServicesSection: React.FC<{ sectionRef: React.RefObject<HTMLElement> }> = ({ sectionRef }) => (
-    <section id="services" className="py-20 bg-slate-50 dark:bg-slate-900/50">
+     <section id="services" className="py-20 bg-slate-50 dark:bg-slate-900/50">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center mb-12">
                     <h2 className="text-3xl md:text-4xl font-extrabold text-slate-800 dark:text-white">Layanan Kami</h2>
@@ -272,7 +265,7 @@ export const ServicesSection: React.FC<{ sectionRef: React.RefObject<HTMLElement
                                 <div className="lg:col-span-3 md:col-span-2 my-4">
                                     <AdSlot
                                         client="ca-pub-1439044724518446" // Ganti dengan ID Klien-mu
-                                        slot="6897039624"          // GANTI DENGAN ID SLOT IKLAN-MU
+                                        slot="YOUR_AD_SLOT_ID"          // GANTI DENGAN ID SLOT IKLAN-MU
                                         format="auto"
                                         responsive={true}
                                         className="bg-slate-200 dark:bg-slate-800 flex items-center justify-center min-h-[100px] rounded-lg"
