@@ -1,7 +1,7 @@
 ---
 slug: 'website-cerdas-era-baru-interaksi-digital-dengan-ai'
 title: 'Website Cerdas: Bagaimana AI Mengubah Wajah Interaksi Digital'
-publishedDate: '2025-08-10T00:00:00Z'
+publishedDate: '2025-07-21T00:00:00Z'
 author: 'Arif Tirtana'
 summary: 'AI bukan lagi fiksi ilmiah; ia telah menjadi arsitek utama di balik website modern yang lebih personal, efisien, dan prediktif. Ini manfaatnya untuk bisnis.'
 imageUrl: '/images/blog/website-cerdas-era-baru-interaksi-digital-dengan-ai.png'
