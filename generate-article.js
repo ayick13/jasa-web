@@ -1,18 +1,46 @@
 const fs = require('fs').promises;
 const fsSync = require('fs');
 const path = require('path');
-const fetch = require('node-fetch');
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+require('dotenv').config();
 
 // Fungsi untuk memeriksa apakah artikel dengan slug tertentu sudah ada
 async function isArticleExists(slug) {
-  const blogDir = path.join(__dirname, 'content', 'blog');
-  const filePath = path.join(blogDir, `${slug}.md`);
+const blogDir = path.join(__dirname, '_articles');
+const filePath = path.join(blogDir, `${slug}.md`);
   return fsSync.existsSync(filePath);
 }
 
 // Fungsi untuk menghasilkan konten artikel via Pollinations AI (dengan token)
 async function generateArticleContent(topic) {
   try {
+    // --- BLOK INI UNTUK VARIASI AGAR TIDAK MONOTON ---
+    const personas = [
+      "penulis artikel teknis ahli yang fokus pada detail implementasi",
+      "seorang mentor developer yang menjelaskan konsep sulit dengan cara yang mudah dipahami",
+      "jurnalis teknologi yang melaporkan tren terbaru dengan sudut pandang yang menarik",
+      "seorang arsitek software yang membagikan best practice dalam pengembangan",
+      "blogger teknologi yang antusias dan menggunakan gaya bahasa yang santai",
+        "pengembang web yang berpengalaman dan selalu update dengan teknologi terbaru",
+        "seorang pendidik yang mengajarkan konsep-konsep kompleks dengan analogi sederhana",
+        "seorang peneliti yang membahas inovasi terbaru dalam teknologi dan dampaknya",
+    ];
+
+    const writingStyles = [
+      "dengan menyertakan contoh kode praktis dalam blok markdown.",
+      "dengan menggunakan analogi dari kehidupan sehari-hari untuk menjelaskan poin-poin utama.",
+      "dengan format listicle (poin-poin bernomor) agar mudah dibaca.",
+      "dengan fokus pada keuntungan dan kerugian dari setiap teknologi yang dibahas.",
+      "dengan gaya penulisan tanya jawab (Q&A) untuk menjawab pertanyaan umum.",
+      "dengan menyertakan kutipan dari ahli atau referensi terpercaya untuk mendukung argumen.",
+      "dengan fokus pada studi kasus nyata yang relevan dengan topik.",
+    ];
+
+    // Pilih persona dan gaya secara acak
+    const randomPersona = personas[Math.floor(Math.random() * personas.length)];
+    const randomStyle = writingStyles[Math.floor(Math.random() * writingStyles.length)];
+    // --- AKHIR BLOK TAMBAHAN ---
+
     const apiUrl = "https://text.pollinations.ai/openai";
     const pollinationToken = process.env.POLLINATIONS_TEXT_API_TOKEN;
 
@@ -24,40 +52,36 @@ async function generateArticleContent(topic) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${pollinationToken}` // Gunakan token seperti route lain
+        "Authorization": `Bearer ${pollinationToken}`
       },
       body: JSON.stringify({
         model: "openai",
         messages: [
           {
             role: "system",
-            content: "Kamu adalah penulis artikel teknis ahli. Tulis dengan struktur: Introduction, 3-4 subjudul (dengan ###), dan Conclusion. Panjang 600-800 kata, bahasa Indonesia yang rapi, informatif, dan bebas dari kesalahan grammar."
+            // --- UBAH BARIS INI ---
+            content: `Kamu adalah ${randomPersona}. Selalu tulis artikel dengan struktur: Introduction, 3-4 subjudul (dengan ###), dan Conclusion.`
           },
           {
             role: "user",
-            content: `Tulis artikel tentang: ${topic}. Fokus pada teknis dan manfaat praktis.`
+            // --- UBAH BARIS INI ---
+            content: `Buat artikel tentang: ${topic}, ${randomStyle}`
           }
-        ],
-        stream: false
+        ]
       })
     });
 
     if (!response.ok) {
-      const errorDetails = await response.text();
-      throw new Error(`API error (${response.status}): ${errorDetails}`);
+      const errorText = await response.text();
+      throw new Error(`Gagal fetch ke Pollinations AI: ${response.statusText} - ${errorText}`);
     }
 
     const data = await response.json();
-    
-    // Validasi struktur respons AI
-    if (!data?.choices?.[0]?.message?.content) {
-      throw new Error("Respons AI tidak memiliki konten yang valid");
-    }
-
     return data.choices[0].message.content;
+
   } catch (error) {
     console.error("Error generate konten:", error.message);
-    throw error;
+    throw new Error(`❌ Gagal membuat artikel: ${error.message}`);
   }
 }
 
@@ -108,7 +132,7 @@ async function createArticle(topic) {
     // Generate konten
     console.log(`Membuat konten untuk: ${title}...`);
     const content = await generateArticleContent(topic);
-    if (!content || content.length < 300) {
+    if (!content || content.length < 500) {
       throw new Error("Konten artikel terlalu pendek atau tidak valid");
     }
 
@@ -124,6 +148,10 @@ async function createArticle(topic) {
     const category = topic.includes("AI") ? "AI, Teknologi" :
                      topic.includes("Web") ? "Pengembangan Web, Teknologi" :
                      "Teknologi, Pemrograman";
+    if (!category) {
+      throw new Error("Kategori tidak ditemukan untuk topik ini");
+    }
+    console.log(`Kategori: ${category}`);
 
     // Format markdown (sesuai contoh artikel)
     const mdContent = `---
@@ -133,14 +161,15 @@ summary: '${safeSummary}'
 publishedDate: '${publishedDate}'
 imageUrl: '${imageUrl}'
 category: '${category}'
-author: 'AI Generator'
+author: 'Arif Tirtana'
+tags: ['${topic}']
 ---
 
 ${content}
 `;
 
     // Simpan file
-    const blogDir = path.join(__dirname, 'content', 'blog');
+    const blogDir = path.join(__dirname, '_articles');
     if (!fsSync.existsSync(blogDir)) {
       fsSync.mkdirSync(blogDir, { recursive: true });
     }
@@ -173,8 +202,8 @@ const topics = [
   "Debugging Web: Tools dan Teknik Profesional",
   "Manajemen State di React: Redux vs Context API",
   "Cloud Computing untuk Pengembang: Pilihan Layanan Terbaik",
-    "Keamanan Web: Praktik Terbaik untuk Melindungi Aplikasi",
-    "Membangun Aplikasi Real-Time dengan Socket.IO",
+  "Keamanan Web: Praktik Terbaik untuk Melindungi Aplikasi",
+  "Membangun Aplikasi Real-Time dengan Socket.IO",
 ];
 
 // Pilih topik acak dan jalankan
