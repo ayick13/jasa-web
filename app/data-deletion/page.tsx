@@ -49,7 +49,7 @@ export default function DataDeletionPage() {
         
         <h2>Ada Pertanyaan?</h2>
         <p>
-          Jika Anda memiliki pertanyaan lebih lanjut tentang proses ini atau kebijakan data kami, silakan baca <Link href="/privacy-policy">Kebijakan Privasi</Link> kami atau hubungi kami langsung di <strong>[Alamat Email Kontak Anda]</strong>.
+          Jika Anda memiliki pertanyaan lebih lanjut tentang proses ini atau kebijakan data kami, silakan baca <Link href="/privacy-policy">Kebijakan Privasi</Link> kami atau hubungi kami langsung di <strong>[admin@ariftirtana.my.id]</strong>.
         </p>
       </div>
     </div>

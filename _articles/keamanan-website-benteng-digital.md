@@ -4,6 +4,7 @@ title: 'Keamanan Website: Membangun Benteng Digital yang Kokoh'
 summary: 'Satu celah keamanan dapat merusak reputasi yang telah Anda bangun bertahun-tahun. Memahami dan menerapkan praktik keamanan dasar adalah hal yang tidak bisa ditawar.'
 publishedDate: '2025-06-19'
 imageUrl: '/images/blog/keamanan-website-benteng-digital.png'
+category: 'Pengembangan Web, firewall'
 ---
 
 Di dunia digital, aset Anda yang paling berharga adalah data dan reputasi. Keduanya dapat hancur dalam sekejap akibat satu pelanggaran keamanan. Menganggap keamanan website sebagai prioritas utama bukanlah pilihan, melainkan sebuah keharusan untuk melindungi bisnis, pelanggan, dan citra brand Anda.

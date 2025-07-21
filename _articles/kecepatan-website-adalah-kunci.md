@@ -4,6 +4,7 @@ title: 'Kecepatan Website Adalah Kunci: Jangan Buat Pengunjung Anda Menunggu'
 summary: 'Di dunia yang serba cepat, setiap detik sangat berarti. Website yang lambat tidak hanya membuat pengunjung frustrasi, tetapi juga dapat merusak peringkat SEO Anda secara signifikan.'
 publishedDate: '2025-06-20'
 imageUrl: '/images/blog/kecepatan-website-adalah-kunci.png'
+category: 'Pengembangan Web'
 ---
 
 Perhatian manusia lebih pendek dari seekor ikan mas. Pernyataan ini mungkin berlebihan, tetapi di dunia digital, ini terasa benar. Studi secara konsisten menunjukkan bahwa jika sebuah halaman tidak dimuat dalam beberapa detik, sebagian besar pengunjung akan menyerah dan pergi, kemungkinan besar tidak akan pernah kembali. Kecepatan bukanlah sebuah fitur; ini adalah fondasi dari pengalaman pengguna yang baik.

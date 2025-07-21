@@ -4,6 +4,7 @@ title: 'Pentingnya Struktur Website yang Baik: Peta Jalan untuk Pengguna dan Goo
 summary: 'Navigasi yang jelas dan struktur yang logis adalah kunci untuk pengalaman pengguna yang memuaskan dan peringkat SEO yang lebih baik. Tanpa itu, website Anda hanyalah labirin digital.'
 publishedDate: '2025-06-22'
 imageUrl: '/images/blog/struktur-website-yang-baik.png'
+category: 'Pengembangan Web, SEO, desain, website, responsive, UI/UX,'
 ---
 
 Jika sebuah website adalah sebuah kota, maka strukturnya adalah peta jalan. Tanpa peta yang jelas, pengunjung akan tersesat, frustrasi, dan akhirnya pergi. Struktur website yang baik tidak hanya penting untuk pengalaman pengguna (User Experience), tetapi juga krusial untuk optimisasi mesin pencari (SEO).

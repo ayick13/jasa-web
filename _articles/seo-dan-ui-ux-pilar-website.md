@@ -4,6 +4,7 @@ title: 'SEO & UI/UX: Dua Pilar Tak Terpisahkan untuk Sukses Online'
 summary: 'Menarik ribuan pengunjung melalui SEO tidak akan berarti jika mereka langsung pergi karena frustrasi. Pelajari bagaimana sinergi antara SEO dan UI/UX menjadi penentu kemenangan.'
 publishedDate: '2025-06-25'
 imageUrl: '/images/blog/seo-dan-ui-ux-pilar-website.png'
+category: 'Pengembangan Web, SEO, desain, UI/UX, website'
 ---
 
 Dalam arena digital yang kompetitif, ada dua kekuatan utama yang menentukan nasib sebuah website: kemampuannya untuk **ditemukan** dan kemampuannya untuk **mempertahankan** pengunjung. Kekuatan pertama adalah domain dari Search Engine Optimization (SEO), sedangkan kekuatan kedua adalah ranah User Interface (UI) dan User Experience (UX).

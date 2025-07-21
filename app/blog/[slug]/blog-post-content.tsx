@@ -2,9 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
-// --- PERUBAHAN DI SINI ---
-// Impor tipe baru dari pusat data kita
+import { ArrowLeft, Tag, User } from 'lucide-react';
 import type { PostWithContent } from '@/lib/posts';
 import { default as AdSlot } from '@/app/components/AdSlot';
 // --- AKHIR PERUBAHAN ---
@@ -25,10 +23,26 @@ export default function BlogPostContent({ article }: BlogPostContentProps) {
             <ArrowLeft size={18} className="mr-2" />
             Kembali ke Semua Artikel
           </Link>
+          <div className="flex items-center gap-2 text-cyan-600 dark:text-cyan-400 mb-2">
+             <Tag size={16} />
+            <span className="font-semibold">{article.category}</span>
+          </div>
           <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white mb-4">{article.title}</h1>
-          <p className="text-slate-500 dark:text-slate-400 mb-6">
-            Dipublikasikan pada {new Date(article.publishedDate).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}
-          </p>
+         <div className="flex flex-wrap items-center text-slate-500 dark:text-slate-400 mb-6 gap-x-4 gap-y-2">
+            {article.author && (
+              <>
+                <div className="flex items-center gap-2">
+                  <User size={16} />
+                  <span>Ditulis oleh: {article.author}</span>
+                </div>
+                <span className="hidden sm:inline">•</span>
+              </>
+            )}
+             <span> diterbitkan pada: 
+               {new Date(article.publishedDate).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}
+             </span>
+          </div>
+
 
           <div className="relative h-64 md:h-96 w-full mb-8 rounded-lg overflow-hidden shadow-lg">
             <Image

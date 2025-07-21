@@ -5,6 +5,7 @@ publishedDate: '2025-07-26T00:00:00Z'
 author: 'Arif Tirtana'
 summary: 'Headless CMS memisahkan tempat konten dikelola dari cara ia ditampilkan, memberikan fleksibilitas, performa, dan skalabilitas yang tak tertandingi.'
 imageUrl: '/images/blog/headless-cms-masa-depan-manajemen-konten-yang-fleksibel.png'
+category: 'Teknologi, Pemrograman, dan Desain'
 ---
 
 Selama bertahun-tahun, **Content Management System (CMS)** tradisional seperti WordPress telah mendominasi dunia web. Mereka menawarkan paket lengkap: sebuah *backend* untuk mengelola konten dan sebuah *frontend* (tema) untuk menampilkannya. Namun, seiring dengan ledakan jumlah perangkat—mulai dari website, aplikasi mobile, jam tangan pintar, hingga layar digital—pendekatan "satu paket untuk semua" ini mulai terasa kaku. Di sinilah **Headless CMS** masuk sebagai solusi yang lebih modern dan fleksibel.

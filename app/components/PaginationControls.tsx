@@ -4,14 +4,15 @@
 
 import Link from 'next/link';
 
-export default function PaginationControls({ currentPage, totalPages }: { currentPage: number; totalPages: number }) {
+export default function PaginationControls({ currentPage, totalPages, category }: { currentPage: number; totalPages: number, category?: string }) {
   const hasPrevPage = currentPage > 1;
   const hasNextPage = currentPage < totalPages;
+  const baseLink = category ? `/blog?category=${category}&` : '/blog?';
 
   return (
     <div className="flex justify-center items-center gap-4 mt-16">
       <Link 
-        href={`/blog?page=${currentPage - 1}`}
+        href={`${baseLink}page=${currentPage - 1}`}
         className={`px-4 py-2 bg-gray-800 text-white rounded-md ${!hasPrevPage ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-700'}`}
         aria-disabled={!hasPrevPage}
         // Mencegah navigasi jika tombol dinonaktifkan
@@ -27,7 +28,7 @@ export default function PaginationControls({ currentPage, totalPages }: { curren
       </span>
 
       <Link 
-        href={`/blog?page=${currentPage + 1}`}
+        href={`${baseLink}page=${currentPage + 1}`}
         className={`px-4 py-2 bg-gray-800 text-white rounded-md ${!hasNextPage ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-700'}`}
         aria-disabled={!hasNextPage}
         // Mencegah navigasi jika tombol dinonaktifkan

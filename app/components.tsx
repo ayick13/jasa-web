@@ -28,7 +28,7 @@ const navLinks = [
     { id: 'services', type: 'scroll', label: 'Layanan', icon: Layers, href: '/#services' },
     { id: 'portfolio', type: 'scroll', label: 'Proyek', icon: Briefcase, href: '/#portfolio' },
     { id: 'pricing', type: 'scroll', label: 'Harga', icon: Tag, href: '/#pricing' },
-    { id: 'blog', type: 'scroll', label: 'Blog', icon: Rss,  href: '/#blog' },
+    { id: 'blog', type: 'scroll', label: 'Blog', icon: Rss,  href: '/blog' },
     { id: 'ai-suite', type: 'page', label: 'AI Suite', icon: Zap, href: '/ai-suite' },
     { id: 'contact', type: 'scroll', label: 'Kontak', icon: Mail, href: '/#contact' },
     { id: 'kebijakan', type: 'submenu', label: 'Kebijakan', icon: Settings, submenu: [

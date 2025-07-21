@@ -4,6 +4,7 @@ title: 'Membangun Website Profesional Menggunakan Cloudflare, GitHub & Vercel de
 summary: 'Panduan lengkap membangun alur kerja pengembangan web modern yang cepat, aman, dan dapat diakses dari perangkat mobile menggunakan Cloudflare, GitHub, Vercel, dan Codespace.'
 publishedDate: '2025-07-01'
 imageUrl: '/images/blog/membangun-website-dengan-cloudflare-github-vercel.png'
+category: 'Pengembangan Web, firewall, hosting, pemrograman, desain'
 ---
 
 Di era modern, membangun dan menerapkan website profesional tidak lagi memerlukan setup lokal yang rumit. Dengan kombinasi layanan cloud yang kuat, Anda bisa mengembangkan, menerapkan, dan mengelola situs Anda dari mana saja, bahkan dari perangkat mobile.

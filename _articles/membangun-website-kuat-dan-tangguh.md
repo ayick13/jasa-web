@@ -4,6 +4,7 @@ title: 'Membangun Website Kuat dan Tangguh'
 summary: 'Pelajari bagaimana Kecerdasan Buatan merevolusi setiap tahap pembangunan website, dari perencanaan hingga peluncuran, menjadikannya lebih kuat, tangguh, dan efisien.'
 publishedDate: '2025-06-24'
 imageUrl: '/images/blog/membangun-website-kuat-dan-tangguh.png'
+category: 'AI, Teknologi, Pemrograman, dan Desain'
 ---
 
 Membangun website yang tangguh dan efektif kini bukan lagi domain eksklusif para developer ahli. Dengan pesatnya kemajuan Kecerdasan Buatan (AI), proses pembuatan website dari nol menjadi lebih cepat, cerdas, dan efisien. AI bertransformasi dari sekadar alat bantu menjadi 'rekan' yang merevolusi setiap tahap pembangunan digital Anda.

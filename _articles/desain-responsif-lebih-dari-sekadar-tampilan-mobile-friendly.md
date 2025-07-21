@@ -5,6 +5,7 @@ publishedDate: '2025-07-23T00:00:00Z'
 author: 'Arif Tirtana'
 summary: 'Desain responsif bukan hanya soal mobile-friendly. Ini adalah filosofi desain yang berpusat pada fleksibilitas, aksesibilitas, dan pengalaman pengguna yang konsisten.'
 imageUrl: '/images/blog/desain-responsif-lebih-dari-sekadar-tampilan-mobile-friendly.png'
+category: 'Pengembangan Web'
 ---
 
 Mengatakan sebuah website harus "mobile-friendly" di tahun ini sama saja dengan mengatakan mobil harus punya roda; itu adalah standar mutlak, bukan sebuah fitur tambahan. Namun, esensi dari desain responsif yang sesungguhnya jauh lebih dalam daripada sekadar memastikan teks tidak terpotong di layar ponsel. Ini adalah filosofi desain yang berpusat pada fleksibilitas, aksesibilitas, dan pengalaman pengguna yang konsisten di seluruh spektrum perangkat.

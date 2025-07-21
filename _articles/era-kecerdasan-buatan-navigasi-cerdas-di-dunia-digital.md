@@ -5,6 +5,7 @@ publishedDate: '2025-07-22T00:00:00Z'
 author: 'Arif Tirtana'
 summary: 'AI bukan lagi jargon, melainkan kompas yang membantu kita menavigasi dunia digital. Mari lihat bagaimana AI mengubah cara kita berinteraksi dan berkreasi.'
 imageUrl: '/images/blog/era-kecerdasan-buatan-navigasi-cerdas-di-dunia-digital.png'
+category: 'AI, Teknologi, Pemrograman, dan Desain'
 ---
 
 Di era digital yang semakin padat, Kecerdasan Buatan (AI) bukan lagi sekadar jargon teknologi, melainkan menjadi kompas utama yang membantu kita menavigasi kompleksitas informasi. Dari asisten virtual yang mengatur jadwal kita hingga sistem rekomendasi yang menyarankan konten favorit, AI secara diam-diam telah menjadi co-pilot dalam kehidupan digital kita, menjadikannya lebih personal dan efisien.

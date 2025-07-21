@@ -5,6 +5,7 @@ publishedDate: '2025-07-24T00:00:00Z'
 author: 'Arif Tirtana'
 summary: 'Penundaan bahkan satu detik bisa menurunkan konversi. Performa web bukan lagi metrik teknis, melainkan pilar utama strategi bisnis, UX, dan SEO.'
 imageUrl: '/images/blog/web-performa-tinggi-setiap-milidetik-berharga.png'
+category: 'Pengembangan Web'
 ---
 
 Di dunia digital, kesabaran adalah komoditas langka. Studi menunjukkan bahwa penundaan pemuatan halaman bahkan hanya satu detik dapat menurunkan konversi hingga 7%. Itulah mengapa performa web bukan lagi sekadar metrik teknis untuk para developer, melainkan telah menjadi pilar utama dalam strategi bisnis, pengalaman pengguna (UX), dan optimisasi mesin pencari (SEO).

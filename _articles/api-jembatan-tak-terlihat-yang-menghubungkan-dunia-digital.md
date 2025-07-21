@@ -5,6 +5,7 @@ publishedDate: '2025-07-25T00:00:00Z'
 author: 'Arif Tirtana'
 summary: 'API adalah pahlawan tanpa tanda jasa di dunia digital. Ia adalah jembatan yang memungkinkan berbagai aplikasi untuk "berbicara" dan berbagi data satu sama lain.'
 imageUrl: '/images/blog/api-jembatan-tak-terlihat-yang-menghubungkan-dunia-digital.png'
+category: 'Teknologi, Pemrograman, dan Desain'
 ---
 
 Setiap kali Anda memesan ojek online, memeriksa ramalan cuaca di ponsel, atau masuk ke sebuah situs menggunakan akun Google Anda, Anda sedang menyaksikan keajaiban dari sebuah API. **Application Programming Interface (API)** adalah pahlawan tanpa tanda jasa di dunia digital; sebuah seperangkat aturan dan protokol yang memungkinkan berbagai aplikasi perangkat lunak untuk "berbicara" satu sama lain, berbagi data, dan saling memanfaatkan fungsionalitas.

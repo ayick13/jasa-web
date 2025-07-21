@@ -1,6 +1,7 @@
 {
   "name": "Jasa Pembuatan Website | Arif Tirtana",
-  "short_name": "Jasa Web Ayick",
+  "short_name": "Jasa Pembuatan Website",
+  "author": "arif Tirtana",
   "description": "Layanan pembuatan website profesional dan akselerator digital untuk bisnis Anda oleh Arif Tirtana.",
   "start_url": "/",
   "display": "standalone",
