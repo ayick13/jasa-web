@@ -6,7 +6,7 @@ import { ArrowLeft } from 'lucide-react';
 // --- PERUBAHAN DI SINI ---
 // Impor tipe baru dari pusat data kita
 import type { PostWithContent } from '@/lib/posts';
-import AdSlot from '@/app/components/AdSlot';
+import { default as AdSlot } from '@/app/components/AdSlot';
 // --- AKHIR PERUBAHAN ---
 
 // --- PERUBAHAN DI SINI ---
@@ -61,12 +61,14 @@ export default function BlogPostContent({ article }: BlogPostContentProps) {
             />
             <div className="my-8 text-center">
               <AdSlot
-                client="ca-pub-1439044724518446" 
-                slot="6897039624"          
-                format="auto"
-                responsive={true}
+                client="ca-pub-1439044724518446"
+                slot="5961316189"
+                format="fluid"
+                layout="in-article"
+                className="mx-auto"
               />
             </div>
+           
           </div>
         </div>
       </div>

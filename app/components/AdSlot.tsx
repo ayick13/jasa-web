@@ -7,11 +7,12 @@ type AdSlotProps = {
   client: string;
   slot: string;
   className?: string;
-  format?: 'auto' | 'rectangle' | 'vertical' | 'horizontal';
+  format?: 'auto' | 'rectangle' | 'vertical' | 'horizontal' | 'fluid';
   responsive?: boolean;
+  layout?: string;
 };
 
-const AdSlot = ({ client, slot, className, format = 'auto', responsive = true }: AdSlotProps) => {
+const AdSlot = ({ client, slot, className, format = 'auto', responsive = true, layout }: AdSlotProps) => {
   useEffect(() => {
     try {
       // Mendorong iklan ke slot yang tersedia
@@ -25,11 +26,12 @@ const AdSlot = ({ client, slot, className, format = 'auto', responsive = true }:
     <div className={className}>
       <ins
         className="adsbygoogle"
-        style={{ display: 'block' }}
+        style={{ display: 'block', textAlign: layout ? 'center' : undefined }}
         data-ad-client={client}
         data-ad-slot={slot}
         data-ad-format={format}
         data-full-width-responsive={responsive.toString()}
+        {...(layout ? { 'data-ad-layout': layout } : {})}
       ></ins>
     </div>
   );

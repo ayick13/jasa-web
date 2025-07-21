@@ -202,12 +202,12 @@ export const HeroSection: React.FC<{ onNavClick: (section: HomeSection) => void;
                             Generate
                         </button>
                     </div>
-                    <div className="mt-6">
+                   {/* <div className="mt-6">
                         <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">Atau masuk untuk melanjutkan ke AI Suite</p>
                         <Suspense fallback={<div className="h-12"></div>}>
                             <SocialLoginButtons />
                         </Suspense>
-                    </div>
+                    </div>*/}
                 </div>
             </div>
         </section>
@@ -242,7 +242,7 @@ export const AboutSection: React.FC<{ sectionRef: React.RefObject<HTMLElement> }
 
 // Komponen Services Section
 export const ServicesSection: React.FC<{ sectionRef: React.RefObject<HTMLElement> }> = ({ sectionRef }) => (
-     <section id="services" className="py-20 bg-slate-50 dark:bg-slate-900/50">
+     <section id="services" ref={sectionRef} className="py-20 bg-slate-50 dark:bg-slate-900/50">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center mb-12">
                     <h2 className="text-3xl md:text-4xl font-extrabold text-slate-800 dark:text-white">Layanan Kami</h2>
@@ -264,8 +264,8 @@ export const ServicesSection: React.FC<{ sectionRef: React.RefObject<HTMLElement
                             {index === 2 && (
                                 <div className="lg:col-span-3 md:col-span-2 my-4">
                                     <AdSlot
-                                        client="ca-pub-1439044724518446" // Ganti dengan ID Klien-mu
-                                        slot="YOUR_AD_SLOT_ID"          // GANTI DENGAN ID SLOT IKLAN-MU
+                                        client="ca-pub-1439044724518446"
+                                        slot="6897039624"
                                         format="auto"
                                         responsive={true}
                                         className="bg-slate-200 dark:bg-slate-800 flex items-center justify-center min-h-[100px] rounded-lg"
