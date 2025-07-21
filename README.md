@@ -56,7 +56,7 @@ Pastikan Anda telah menginstal lingkungan berikut:
 ### **Instalasi**
 
 1. **Kloning Repositori:**  
-   git clone https://github.com/ayick13/jasa-web.git
+   git clone <https://github.com/ayick13/jasa-web.git>
    cd jasa-web
 
 2. **Instal Dependensi Proyek:**  
@@ -71,7 +71,7 @@ Pastikan Anda telah menginstal lingkungan berikut:
 3. Konfigurasi Variabel Lingkungan:  
    Buat file bernama .env.local di direktori root proyek Anda. Salin konten berikut dan sesuaikan nilainya:  
    \# Konfigurasi NextAuth.js  
-   NEXTAUTH\_URL="http://localhost:3000"  
+   NEXTAUTH\_URL="<http://localhost:3000>"  
    NEXTAUTH\_SECRET="your\_nextauth\_secret\_here" \# Ganti dengan string acak yang kuat dan unik
 
    \# Konfigurasi Database (Contoh untuk PostgreSQL dengan Prisma)  

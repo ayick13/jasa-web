@@ -3,7 +3,7 @@ slug: 'kaitan-ai-dengan-website'
 title: 'Kaitan AI dengan Website: Revolusi Digital yang Tak Terhindarkan'
 summary: 'AI telah mengubah cara website dikembangkan, dioptimalkan, dan berinteraksi dengan pengguna. Dari personalisasi konten hingga keamanan, teknologi ini membawa efisiensi dan inovasi tanpa batas.'
 publishedDate: '2025-07-17'
-imageUrl: 'https://image.pollinations.ai/prompt/A%20futuristic%20website%20interface%20with%20AI%20elements%20like%20floating%20code,%20neural%20networks,%20and%20a%20robot%20hand%20interacting%20with%20a%20glowing%20screen,%20ultra-detailed,%20digital%20art?nologo=true&referrer=ariftirtana.my.id'
+imageUrl: '/images/blog/kaitan-ai-dengan-website.png'
 ---
 
 Dalam hitungan detik setelah mendarat di situs Anda, pengunjung modern tidak hanya menilai desain, tetapi juga seberapa cerdas website tersebut beradaptasi dengan kebutuhannya. Kecerdasan Buatan (AI) telah menjadi tulang punggung revolusi ini, mengubah website dari sekadar halaman statis menjadi entitas dinamis yang mampu belajar dan berinteraksi.

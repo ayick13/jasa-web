@@ -3,7 +3,7 @@ slug: 'membangun-website-kuat-dan-tangguh'
 title: 'Membangun Website Kuat dan Tangguh'
 summary: 'Pelajari bagaimana Kecerdasan Buatan merevolusi setiap tahap pembangunan website, dari perencanaan hingga peluncuran, menjadikannya lebih kuat, tangguh, dan efisien.'
 publishedDate: '2025-06-24'
-imageUrl: 'https://image.pollinations.ai/prompt/A%20robot%20hand%20building%20a%20website%20on%20a%20digital%20blueprint,%20with%20glowing%20AI%20elements,%20futuristic,%20strong%20and%20robust%20structure?nologo=true&referrer=ariftirtana.my.id'
+imageUrl: '/images/blog/membangun-website-kuat-dan-tangguh.png'
 ---
 
 Membangun website yang tangguh dan efektif kini bukan lagi domain eksklusif para developer ahli. Dengan pesatnya kemajuan Kecerdasan Buatan (AI), proses pembuatan website dari nol menjadi lebih cepat, cerdas, dan efisien. AI bertransformasi dari sekadar alat bantu menjadi 'rekan' yang merevolusi setiap tahap pembangunan digital Anda.

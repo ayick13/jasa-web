@@ -4,14 +4,12 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
-import { Header, Footer } from "./components"; // Impor yang sudah ada dan benar
-import { SpeedInsights } from '@vercel/speed-insights/next';
-import { Analytics } from '@vercel/analytics/react';
+import { Header, Footer } from "./components"; // Impor dari file components.tsx
 import CookieConsent from "./components/CookieConsent";
 
 const inter = Inter({ subsets: ["latin"] });
 
-// --- Metadata (Tidak ada perubahan, semua dari kode asli Anda) ---
+// --- Definisi Metadata ---
 const businessName = "Jasa Pembuatan Website";
 const authorName = "Arif Tirtana";
 const businessDescription = "Selamat datang di Dunia Digital Ayick. Sebagai Web Developer & Akselerator Digital, saya membantu bisnis Anda melesat di dunia online melalui kehadiran digital yang kuat, efektif, dan modern.";
@@ -65,16 +63,20 @@ export const metadata: Metadata = {
     shortcut: '/favicon-16x16.png',
     apple: '/apple-touch-icon.png',
   },
-  manifest: '/manifest.json',
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Jasa Pembuatan Website",
+  },
 };
 
+// --- Viewport untuk PWA (dideklarasikan terpisah) ---
 export const viewport: Viewport = {
-  themeColor: '#000000',
-  colorScheme: 'light',
+  themeColor: "#1D0F2CFF",
 };
 
-
-// --- FUNGSI RootLayout (BAGIAN YANG SUDAH ANDA PERBAIKI DAN KONSISTEN) ---
+// --- Komponen RootLayout ---
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -115,23 +117,15 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      {/* Penambahan kelas flexbox untuk sticky footer dan pengaturan background */}
       <body className={`${inter.className} flex flex-col min-h-screen bg-white dark:bg-slate-900`}>
         <Providers>
-          {/* Header diletakkan di luar main agar selalu di bagian atas */}
           <Header />
-          {/* Main content akan mengisi ruang yang tersisa, mendorong footer ke bawah */}
           <main className="flex-grow">
             {children}
           </main>
-          {/* Footer diletakkan di luar main agar selalu di bagian bawah */}
           <Footer />
         </Providers>
-        {/* Consent cookies */}
         <CookieConsent />
-        {/* Vercel Speed Insights dan Analytics diletakkan di luar Providers jika tidak memerlukan context */}
-        <SpeedInsights />
-        <Analytics />
       </body>
     </html>
   );

@@ -3,7 +3,7 @@ slug: 'membangun-website-dengan-cloudflare-github-vercel'
 title: 'Membangun Website Profesional Menggunakan Cloudflare, GitHub & Vercel dengan Codespace'
 summary: 'Panduan lengkap membangun alur kerja pengembangan web modern yang cepat, aman, dan dapat diakses dari perangkat mobile menggunakan Cloudflare, GitHub, Vercel, dan Codespace.'
 publishedDate: '2025-07-01'
-imageUrl: 'https://image.pollinations.ai/prompt/A%20developer%20working%20on%20a%20laptop%20with%20logos%20of%20Cloudflare,%20GitHub,%20Vercel,%20and%20Codespaces%20glowing%20around%20it?nologo=true&referrer=ariftirtana.my.id'
+imageUrl: '/images/blog/membangun-website-dengan-cloudflare-github-vercel.png'
 ---
 
 Di era modern, membangun dan menerapkan website profesional tidak lagi memerlukan setup lokal yang rumit. Dengan kombinasi layanan cloud yang kuat, Anda bisa mengembangkan, menerapkan, dan mengelola situs Anda dari mana saja, bahkan dari perangkat mobile.

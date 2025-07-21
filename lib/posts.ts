@@ -1,3 +1,5 @@
+// /lib/posts.ts
+
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
@@ -5,11 +7,9 @@ import { remark } from 'remark';
 import html from 'remark-html';
 import { notFound } from 'next/navigation';
 
-// --- TAMBAHKAN KEMBALI BARIS YANG HILANG DI SINI ---
 const postsDirectory = path.join(process.cwd(), '_articles');
-// ---------------------------------------------------
 
-// Tipe dasar untuk sebuah post (misalnya untuk daftar)
+// Tipe dasar untuk sebuah post
 export type Post = {
   slug: string;
   title: string;
@@ -23,7 +23,15 @@ export type PostWithContent = Post & {
   contentHtml: string;
 };
 
-export function getSortedPostsData(): Post[] {
+// Tipe baru untuk data yang dipaginasi
+export type PaginatedPosts = {
+  posts: Post[];
+  totalPages: number;
+  currentPage: number;
+};
+
+// --- FUNGSI YANG DIPERBARUI ---
+export function getSortedPostsData({ page = 1, limit = 6 }: { page?: number; limit?: number }): PaginatedPosts {
   const fileNames = fs.readdirSync(postsDirectory);
   const allPostsData = fileNames.map((fileName) => {
     const slug = fileName.replace(/\.md$/, '');
@@ -37,14 +45,22 @@ export function getSortedPostsData(): Post[] {
     };
   });
 
-  return allPostsData.sort((a, b) => {
-    if (a.publishedDate < b.publishedDate) {
-      return 1;
-    } else {
-      return -1;
-    }
-  });
+  // Urutkan post berdasarkan tanggal terbit
+  const sortedPosts = allPostsData.sort((a, b) => (a.publishedDate < b.publishedDate ? 1 : -1));
+  
+  // Logika Paginasi
+  const totalPages = Math.ceil(sortedPosts.length / limit);
+  const startIndex = (page - 1) * limit;
+  const endIndex = startIndex + limit;
+  const posts = sortedPosts.slice(startIndex, endIndex);
+
+  return {
+    posts,
+    totalPages,
+    currentPage: page,
+  };
 }
+
 
 export function getAllPostSlugs() {
   const fileNames = fs.readdirSync(postsDirectory);
@@ -59,7 +75,6 @@ export async function getPostData(slug: string): Promise<PostWithContent> {
   const fullPath = path.join(postsDirectory, `${slug}.md`);
 
   if (!fs.existsSync(fullPath)) {
-    // Fungsi notFound() akan melempar error yang ditangkap Next.js untuk menampilkan 404
     notFound();
   }
 
@@ -74,10 +89,7 @@ export async function getPostData(slug: string): Promise<PostWithContent> {
   const postData: PostWithContent = {
     slug,
     contentHtml,
-    title: matterResult.data.title,
-    publishedDate: matterResult.data.publishedDate,
-    summary: matterResult.data.summary,
-    imageUrl: matterResult.data.imageUrl,
+    ...(matterResult.data as { title: string; publishedDate: string; summary: string; imageUrl: string }),
   };
 
   return postData;

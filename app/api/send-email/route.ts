@@ -46,7 +46,7 @@ export async function POST(request: Request) {
       from: user,
       to: user, // Kirim ke alamat email Anda sendiri
       replyTo: email, // Agar saat membalas, langsung ke email pengirim
-      subject: `Pesan Baru dari Portfolio: ${name}`,
+      subject: `Pesan Baru dari ariftirtana.my.id: ${name}`,
       html: `
         <h2>Pesan Baru dari Formulir Kontak</h2>
         <p><strong>Nama:</strong> ${name}</p>

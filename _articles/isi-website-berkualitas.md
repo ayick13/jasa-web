@@ -3,7 +3,7 @@ slug: 'isi-website-berkualitas'
 title: 'Isi Website yang Berkualitas: Jantung dari Website Anda'
 summary: 'Desain yang indah tidak akan berarti tanpa konten yang relevan dan menarik. Konten adalah alasan utama pengunjung datang dan bertahan di situs Anda. Inilah cara membangunnya.'
 publishedDate: '2025-06-23'
-imageUrl: 'https://image.pollinations.ai/prompt/A%20glowing%20heart%20at%20the%20center%20of%20a%20digital%20website%20layout,%20symbolizing%20quality%20content,%20cinematic?nologo=true&referrer=ariftirtana.my.id'
+imageUrl: '/images/blog/isi-website-berkualitas.png'
 ---
 
 Di antara semua elemen pembangun website, konten adalah rajanya. Desain yang memukau dan navigasi yang mulus memang penting, tetapi tanpa konten yang berkualitas, relevan, dan berharga, pengunjung tidak akan punya alasan untuk kembali. Konten adalah jantung yang memompa kehidupan ke dalam website Anda.

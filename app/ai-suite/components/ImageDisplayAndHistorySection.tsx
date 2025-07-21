@@ -33,7 +33,7 @@ const ImageDetailModal = ({ isOpen, onClose, imageData }: { isOpen: boolean, onC
                 <button onClick={onClose} className="absolute top-4 right-4 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors z-10"><X size={24} /></button>
                 <div className="flex-shrink-0 lg:w-1/2">
                     <div className="relative aspect-square w-full bg-slate-100 dark:bg-slate-900 rounded-md overflow-hidden">
-                        <Image src={imageData.url} alt={imageData.prompt} layout="fill" className="object-contain" unoptimized/>
+                        <Image src={imageData.url} alt={imageData.prompt} fill sizes="50vw" className="object-contain" unoptimized/>
                     </div>
                 </div>
                 <div className="flex-grow lg:w-1/2 overflow-y-auto pr-2 space-y-4">
@@ -176,7 +176,7 @@ export const ImageDisplayAndHistorySection: React.FC<ImageDisplayAndHistorySecti
                                         className="relative rounded-lg overflow-hidden group aspect-square border-2 border-slate-200 dark:border-slate-700 cursor-pointer"
                                         onClick={() => handleOpenModal(imageData)}
                                     >
-                                        <Image src={imageData.url} alt="Generated AI Image" layout="fill" className="object-cover" unoptimized/>
+                                        <Image src={imageData.url} alt="Generated AI Image" fill sizes="(max-width: 640px) 100vw, 50vw" className="object-cover" unoptimized/>
                                         <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs p-1 text-center">{new Date(imageData.timestamp).toLocaleString()}</div>
                                     </div>
                                 ))}

@@ -309,9 +309,14 @@ const ImageAnalyzer = ({ onPromptFromAnalysis }: { onPromptFromAnalysis: (prompt
             {imagePreview && (
                 <div className="mt-4 space-y-4">
                     <div className="relative w-full aspect-video rounded-lg overflow-hidden border-2 border-slate-200 dark:border-slate-600">
-                        {/* Use objectFit="contain" to prevent cropping */}
-                        <Image src={imagePreview} alt="Pratinjau Gambar" layout="fill" objectFit="contain" />
-                    </div>
+                    <Image 
+                        src={imagePreview} 
+                        alt="Pratinjau Gambar" 
+                        fill 
+                        sizes="50vw"
+                        className="object-contain" 
+                    />
+                </div>
                     <button
                         onClick={handleAnalyze}
                         disabled={isAnalyzing}

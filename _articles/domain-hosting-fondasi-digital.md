@@ -3,7 +3,7 @@ slug: 'domain-hosting-fondasi-digital'
 title: 'Domain & Hosting: Memilih Fondasi yang Tepat untuk Website Anda'
 summary: 'Pahami perbedaan esensial antara nama domain dan web hosting, serta bagaimana pilihan Anda terhadap keduanya akan menentukan kecepatan, keamanan, dan keandalan website Anda di masa depan.'
 publishedDate: '2025-06-28'
-imageUrl: 'https://image.pollinations.ai/prompt/A%20digital%20blueprint%20of%20a%20house,%20where%20the%20land%20is%20labeled%20%27Hosting%27%20and%20the%20mailbox%20is%20labeled%20%27Domain%27,%20cinematic,%20futuristic?nologo=true&referrer=ariftirtana.my.id'
+imageUrl: '/images/blog/domain-hosting-fondasi-digital.png'
 ---
 
 Membangun sebuah website profesional bisa diibaratkan seperti mendirikan sebuah bangunan bisnis di dunia nyata. Anda memerlukan dua komponen fundamental yang tidak bisa dipisahkan: sebuah alamat premium agar mudah ditemukan (**Domain**), dan sebidang tanah yang kokoh untuk membangunnya (**Hosting**). Mengabaikan kualitas salah satunya dapat meruntuhkan seluruh investasi digital Anda sebelum sempat berkembang.

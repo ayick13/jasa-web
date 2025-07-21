@@ -3,7 +3,7 @@ slug: 'desain-website-menarik'
 title: 'Kekuatan Desain Website yang Menarik: Bukan Sekadar Tampilan'
 summary: 'Desain visual adalah kesan pertama yang Anda berikan. Ini bukan hanya tentang keindahan, tetapi tentang membangun kepercayaan, mengkomunikasikan brand, dan memandu pengunjung.'
 publishedDate: '2025-06-21'
-imageUrl: 'https://image.pollinations.ai/prompt/An%20elegant%20and%20modern%20website%20design%20on%20a%20glowing%20screen,%20showing%20a%20perfect%20balance%20of%20colors,%20typography,%20and%20layout,%20professional?nologo=true&referrer=ariftirtana.my.id'
+imageUrl: '/images/blog/desain-website-menarik.png'
 ---
 
 Dalam hitungan detik setelah mendarat di situs Anda, pengunjung membuat penilaian instan. Apakah situs ini profesional? Apakah bisa dipercaya? Apakah relevan dengan yang saya cari? Sebagian besar dari kesan pertama ini dibentuk oleh desain visual. Desain yang menarik lebih dari sekadar estetika; ini adalah alat komunikasi yang kuat.

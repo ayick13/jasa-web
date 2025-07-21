@@ -1,3 +1,13 @@
+import withPWAInit from 'next-pwa';
+
+// Inisialisasi PWA dengan konfigurasi
+const withPWA = withPWAInit({
+  dest: 'public', // Direktori output untuk file service worker
+  disable: process.env.NODE_ENV === 'development', // Nonaktifkan PWA di mode development
+  register: true, // Daftarkan service worker secara otomatis
+  skipWaiting: true, // Langsung aktifkan service worker baru tanpa menunggu
+});
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -8,31 +18,27 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'placehold.co',
       },
-      // === TAMBAHKAN BLOK BARU INI ===
       {
         protocol: 'https',
         hostname: 'image.pollinations.ai',
       },
-     {
+      {
         protocol: 'https',
         hostname: 'avatars.githubusercontent.com',
         port: '',
         pathname: '/u/**',
       },
       {
-        protocol: 'http',
-        hostname: 'googleusercontent.com',
-        port: '',
-        pathname: '/**',
-      },
-       {
         protocol: 'https',
         hostname: 'lh3.googleusercontent.com',
         port: '',
         pathname: '/**',
       },
+       // Remote pattern untuk googleusercontent.com yang lama bisa dihapus jika tidak diperlukan
+       // Jika masih ragu, biarkan saja tidak apa-apa
     ],
   },
 };
 
-export default nextConfig;
+// Bungkus konfigurasi Next.js Anda dengan konfigurasi PWA
+export default withPWA(nextConfig);
