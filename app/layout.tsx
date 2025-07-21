@@ -6,6 +6,7 @@ import "./globals.css";
 import { Providers } from "./providers";
 import { Header, Footer } from "./components"; // Impor dari file components.tsx
 import CookieConsent from "./components/CookieConsent";
+import Script from 'next/script';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -112,6 +113,12 @@ export default function RootLayout({
   return (
     <html lang="id" suppressHydrationWarning>
       <head>
+        <Script
+          async
+          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1439044724518446`}
+          crossOrigin="anonymous"
+          strategy="lazyOnload"
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

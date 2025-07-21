@@ -1,5 +1,7 @@
 'use client';
 
+'use client';
+
 import React, { Suspense } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -17,9 +19,11 @@ import type { Post } from '@/lib/posts';
 import { portfolioProjects } from '@/lib/portfolio-data';
 import { ThemeSwitcher } from './theme-switcher';
 import { SocialLoginButtons } from './components/SocialLoginButtons';
+import AdSlot from './components/AdSlot';
 
 type HomeSection = 'home' | 'about' | 'services' | 'portfolio' | 'pricing' | 'blog' | 'contact';
 
+// --- PERUBAHAN DI SINI ---
 // Data untuk link navigasi
 const navLinks = [
     { id: 'home', type: 'scroll', label: 'Beranda', icon: Home, href: '/#home' },
@@ -27,7 +31,11 @@ const navLinks = [
     { id: 'services', type: 'scroll', label: 'Layanan', icon: Layers, href: '/#services' },
     { id: 'portfolio', type: 'scroll', label: 'Proyek', icon: Briefcase, href: '/#portfolio' },
     { id: 'pricing', type: 'scroll', label: 'Harga', icon: Tag, href: '/#pricing' },
-    { id: 'blog', type: 'scroll', label: 'Blog', icon: Rss, href: '/#blog' },
+    // Item 'Blog' diubah menjadi submenu
+    { id: 'blog', type: 'submenu', label: 'Blog', icon: Rss, submenu: [
+      { id: 'all-posts', label: 'Semua Postingan', href: '/blog' },
+      { id: 'artikel', label: 'Artikel', href: '/artikel' }, // <-- Ini sub-menu barumu
+    ]},
     { id: 'ai-suite', type: 'page', label: 'AI Suite', icon: Zap, href: '/ai-suite' },
     { id: 'contact', type: 'scroll', label: 'Kontak', icon: Mail, href: '/#contact' },
     { id: 'kebijakan', type: 'submenu', label: 'Kebijakan', icon: Settings, submenu: [
@@ -80,8 +88,8 @@ export const Header: React.FC<{ currentSection?: HomeSection; onNavClick?: (sect
             <nav className="hidden md:flex items-center space-x-1">
               {navLinks.map(link => {
                 if (link.type === 'submenu') {
+                  // Logika untuk merender submenu ini sudah benar dan akan otomatis menangani item "Blog" yang baru
                   return (
-                    // PERBAIKAN BUG SUBMENU DI SINI
                     <div key={link.id} className="relative group pb-4 -mb-4">
                       <button className="flex items-center gap-2 p-2 rounded-md transition-all text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700">
                         <link.icon className="w-5 h-5" />
@@ -241,25 +249,41 @@ export const AboutSection: React.FC<{ sectionRef: React.RefObject<HTMLElement> }
 
 // Komponen Services Section
 export const ServicesSection: React.FC<{ sectionRef: React.RefObject<HTMLElement> }> = ({ sectionRef }) => (
-    <section ref={sectionRef} id="services" className="py-16 md:py-24">
-         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-16">
-                <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white">Layanan Kami</h2>
-                <p className="text-slate-500 dark:text-slate-400 mt-3 max-w-2xl mx-auto">Solusi yang saya tawarkan untuk membangun kehadiran digital Anda.</p>
+    <section id="services" className="py-20 bg-slate-50 dark:bg-slate-900/50">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="text-center mb-12">
+                    <h2 className="text-3xl md:text-4xl font-extrabold text-slate-800 dark:text-white">Layanan Kami</h2>
+                    <p className="mt-4 text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">Solusi digital yang dirancang untuk mendorong pertumbuhan bisnis Anda.</p>
+                </div>
+                {/* 2. Modifikasi grid untuk menyisipkan iklan */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {servicesData.map((service, index) => (
+                        <React.Fragment key={index}>
+                            <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300">
+                                <div className="flex items-center justify-center h-12 w-12 rounded-full bg-cyan-100 dark:bg-cyan-900/50 mb-4">
+                                    <service.icon className="h-6 w-6 text-cyan-600 dark:text-cyan-400" />
+                                </div>
+                                <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">{service.title}</h3>
+                                <p className="text-slate-600 dark:text-slate-400">{service.description}</p>
+                            </div>
+
+                            {/* 3. Sisipkan slot iklan setelah item ketiga */}
+                            {index === 2 && (
+                                <div className="lg:col-span-3 md:col-span-2 my-4">
+                                    <AdSlot
+                                        client="ca-pub-1439044724518446" // Ganti dengan ID Klien-mu
+                                        slot="6897039624"          // GANTI DENGAN ID SLOT IKLAN-MU
+                                        format="auto"
+                                        responsive={true}
+                                        className="bg-slate-200 dark:bg-slate-800 flex items-center justify-center min-h-[100px] rounded-lg"
+                                    />
+                                </div>
+                            )}
+                        </React.Fragment>
+                    ))}
+                </div>
             </div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
-                {servicesData.map((service, index) => (
-                    <div key={index} className="bg-white dark:bg-slate-800 p-8 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 flex flex-col text-center items-center hover:border-cyan-500 transition-all duration-300 transform hover:-translate-y-2">
-                        <div className="bg-slate-100 dark:bg-slate-900 p-4 rounded-full mb-5 border-2 border-slate-200 dark:border-cyan-500/30">
-                           <service.icon className="w-10 h-10 text-cyan-500 dark:text-cyan-400"/>
-                        </div>
-                        <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-3">{service.title}</h3>
-                        <p className="text-slate-500 dark:text-slate-400">{service.description}</p>
-                    </div>
-                ))}
-            </div>
-        </div>
-    </section>
+        </section>
 );
 
 // Komponen Portfolio Section
