@@ -4,48 +4,180 @@ const path = require('path');
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 require('dotenv').config();
 
+// --- KUMPULAN TOPIK BERDASARKAN KATEGORI ---
+const topicsByCategory = {
+  "Pengembangan Web": [
+    "Cara Mengoptimalkan Performance Next.js dengan AI",
+    "Panduan Praktis Tailwind CSS untuk Desain Responsif",
+    "Serverless Architecture: Keuntungan dan Cara Implementasinya",
+    "WebSockets: Membangun Aplikasi Real-Time yang Handal",
+    "Progressive Web Apps (PWA): Menggabungkan Kelebihan Web dan Mobile",
+    "Wordpress untuk E-Commerce: Tips dan Trik",
+    "Membangun API dengan Node.js dan Express: Panduan Lengkap",
+    "GraphQL vs REST: Kapan Harus Memilih Masing-Masing",
+    "TypeScript untuk Pemula: Mengurangi Error dalam Kode",
+    "Docker untuk Pengembangan: Cara Memudahkan Deployment",
+    "Manajemen State di React: Redux vs Context API",
+    "RESTful API dengan Node.js: Best Practices",
+  ],
+  "AI & Teknologi": [
+    "Integrasi AI dalam Pengembangan Web Modern: Kasus Nyata",
+    "Tren Aplikasi Mobile 2025: Dari Native ke Cross-Platform",
+    "Microservices: Arsitektur untuk Skalabilitas Bisnis",
+    "Wordpress blog untuk SEO: Cara Meningkatkan Visibilitas",
+    "Cloud Computing untuk Pengembang: Pilihan Layanan Terbaik",
+    "Keamanan Web: Praktik Terbaik untuk Melindungi Aplikasi",
+  ],
+  "Mobile Development": [
+    "Flutter vs React Native: Mana yang Lebih Baik untuk Proyek Anda?",
+    "Membangun Aplikasi Mobile dengan Ionic: Panduan Lengkap",
+    "Kotlin untuk Android: Tips dan Trik untuk Pengembang",
+  ],
+  "E-Commerce": [
+    "SEO untuk E-Commerce: Strategi Peningkatan Visibilitas",
+    "Debugging Web: Tools dan Teknik Profesional",
+    "Membangun Aplikasi Real-Time dengan Socket.IO",
+  ],
+  "Data Science & AI": [
+    "Machine Learning untuk Pengembang Web: Panduan Awal",
+    "Deep Learning dengan TensorFlow.js: Langkah Pertama",
+    "Natural Language Processing (NLP) untuk Aplikasi Web",
+    "Computer Vision dengan OpenCV.js: Membangun Aplikasi Cerdas",
+    "AI dalam Pengembangan Web: Tren dan Teknologi Terkini",
+    "Membangun Chatbot dengan Dialogflow dan Node.js",
+    "Rekomendasi Produk dengan Machine Learning: Studi Kasus",
+    "Analisis Data Besar dengan Apache Spark dan Node.js",
+    "Visualisasi Data dengan D3.js: Panduan Lengkap",
+    "Membangun Sistem Rekomendasi dengan Python dan Flask",
+    "Pengolahan Gambar dengan TensorFlow.js: Aplikasi Praktis",
+    "Membangun Aplikasi AI dengan Python: Panduan untuk Pengembang Web",
+    "Menerapkan AI dalam Pengembangan Web: Studi Kasus Nyata",
+    "Membangun Aplikasi AI dengan React dan TensorFlow.js",
+    "Menerapkan Deep Learning dalam Aplikasi Web: Panduan Praktis",
+    "Membangun Aplikasi AI dengan Python dan Flask: Panduan Lengkap",
+    "Menerapkan Machine Learning dalam Aplikasi Web: Studi Kasus",  
+  ],
+  "DevOps & Infrastruktur": [
+    "CI/CD untuk Pengembang Web: Praktik Terbaik",
+    "Docker untuk Pengembangan: Cara Memudahkan Deployment",
+    "Kubernetes untuk Pengembang: Panduan Awal",
+    "Monitoring Aplikasi Web dengan Prometheus dan Grafana",
+    "Pengelolaan Infrastruktur dengan Terraform: Panduan Lengkap",
+    "Serverless Architecture: Keuntungan dan Cara Implementasinya",
+  ],
+  "UI/UX Design": [
+    "Desain Responsif dengan Tailwind CSS: Panduan Praktis",
+    "Membuat Prototipe Interaktif dengan Figma: Tips dan Trik",
+    "Desain Antarmuka Pengguna yang Efektif: Prinsip dan Praktik",
+    "Menerapkan Desain Material di Aplikasi Web: Panduan Lengkap",
+    "Desain UI/UX untuk Aplikasi Mobile: Tips dan Trik",
+    "Menerapkan Prinsip Desain Universal dalam Aplikasi Web",
+    "Desain Antarmuka Pengguna yang Efektif: Prinsip dan Praktik",
+    "Menerapkan Desain Responsif di Aplikasi Web: Panduan Praktis",
+  ],
+  "Monetisasi & Bisnis": [
+    "Monetisasi Aplikasi Web: Strategi dan Model Bisnis",
+    "Membangun Aplikasi Berbasis Langganan: Panduan untuk Pengembang",
+    "Crowdfunding untuk Proyek Teknologi: Cara Memulai", 
+    "Membangun Komunitas Pengguna: Strategi untuk Aplikasi Web",
+    "Menerapkan Model Freemium dalam Aplikasi Web: Tips dan Trik",
+    "Membangun Aplikasi Berbasis Iklan: Panduan untuk Pengembang",
+    "Menerapkan Model Bisnis Berlangganan di Aplikasi Web: Panduan Lengkap",
+    "Membangun Aplikasi Berbasis Donasi: Cara Memulai", 
+    "Menerapkan Model Bisnis Berbasis Iklan di Aplikasi Web: Tips dan Trik",
+  ],
+  "Next.js & React": [
+    "Next.js untuk Pemula: Panduan Lengkap", 
+    "Membangun Aplikasi Web dengan React: Tips dan Trik",
+    "State Management di React: Redux vs Context API",
+    "Optimasi Kinerja Aplikasi React: Teknik dan Alat",
+    "Menerapkan Server-Side Rendering di Next.js: Panduan Praktis",
+    "Membangun Aplikasi Web dengan Next.js: Panduan untuk Pengembang",
+    "Menerapkan Static Site Generation di Next.js: Panduan Lengkap",
+    "Menerapkan Incremental Static Regeneration di Next.js: Tips dan Trik",
+    "Menerapkan API Routes di Next.js: Panduan Praktis",
+    "Menerapkan Middleware di Next.js: Panduan Lengkap",
+    "Menerapkan Internationalization di Next.js: Panduan untuk Pengembang",
+    "Menerapkan Image Optimization di Next.js: Panduan Praktis",
+    "Menerapkan Authentication di Next.js: Panduan Lengkap",
+    "Menerapkan Deployment di Next.js: Panduan untuk Pengembang",
+    "Menerapkan SEO di Next.js: Panduan Praktis",
+  ],
+  "SEO & Pemasaran Digital": [
+      "SEO untuk E-Commerce: Strategi Peningkatan Visibilitas",
+      "Debugging Web: Tools dan Teknik Profesional",
+      "Membangun Aplikasi Real-Time dengan Socket.IO",
+  ]
+};
+
 // Fungsi untuk memeriksa apakah artikel dengan slug tertentu sudah ada
 async function isArticleExists(slug) {
-const blogDir = path.join(__dirname, '_articles');
-const filePath = path.join(blogDir, `${slug}.md`);
+  const blogDir = path.join(__dirname, '_articles');
+  const filePath = path.join(blogDir, `${slug}.md`);
   return fsSync.existsSync(filePath);
 }
 
-// Fungsi untuk menghasilkan konten artikel via Pollinations AI (dengan token)
+// Fungsi untuk menghasilkan konten artikel (dibuat lebih fleksibel)
 async function generateArticleContent(topic) {
   try {
-    // --- BLOK INI UNTUK VARIASI AGAR TIDAK MONOTON ---
     const personas = [
       "penulis artikel teknis ahli yang fokus pada detail implementasi",
       "seorang mentor developer yang menjelaskan konsep sulit dengan cara yang mudah dipahami",
       "jurnalis teknologi yang melaporkan tren terbaru dengan sudut pandang yang menarik",
-      "seorang arsitek software yang membagikan best practice dalam pengembangan",
-      "blogger teknologi yang antusias dan menggunakan gaya bahasa yang santai",
-        "pengembang web yang berpengalaman dan selalu update dengan teknologi terbaru",
-        "seorang pendidik yang mengajarkan konsep-konsep kompleks dengan analogi sederhana",
-        "seorang peneliti yang membahas inovasi terbaru dalam teknologi dan dampaknya",
+      "pengembang web berpengalaman yang berbagi tips praktis dan studi kasus",
+      "seorang ahli UX/UI yang menjelaskan pentingnya desain dalam pengembangan web",
     ];
 
     const writingStyles = [
       "dengan menyertakan contoh kode praktis dalam blok markdown.",
-      "dengan menggunakan analogi dari kehidupan sehari-hari untuk menjelaskan poin-poin utama.",
-      "dengan format listicle (poin-poin bernomor) agar mudah dibaca.",
-      "dengan fokus pada keuntungan dan kerugian dari setiap teknologi yang dibahas.",
-      "dengan gaya penulisan tanya jawab (Q&A) untuk menjawab pertanyaan umum.",
-      "dengan menyertakan kutipan dari ahli atau referensi terpercaya untuk mendukung argumen.",
-      "dengan fokus pada studi kasus nyata yang relevan dengan topik.",
+      "dengan menggunakan analogi dari kehidupan sehari-hari.",
+      "dengan format listicle agar mudah dibaca.",
+      "dengan nada yang santai dan mudah dipahami.",
+      "dengan fokus pada aspek teknis dan implementasi.",
+      "dengan pendekatan yang berbasis data dan statistik.",
+      "dengan menyertakan wawancara dengan ahli di bidangnya.",
+      "dengan menyertakan kutipan dari sumber terpercaya.",
+      "dengan menyertakan grafik atau diagram untuk visualisasi.",
+    ];
+    
+    const promptVariations = [
+      `Tulis sebuah panduan mendalam tentang: ${topic}.`,
+      `Bandingkan kelebihan dan kekurangan dari: ${topic}.`,
+      `Jelaskan konsep ${topic} untuk pemula.`,
+      `Tulis sebuah artikel yang membahas tren terbaru dalam: ${topic}.`,
+      `Buat sebuah tutorial langkah-demi-langkah tentang: ${topic}.`,
+      `Tulis sebuah artikel opini tentang: ${topic}.`,
+      `Diskusikan tantangan dan solusi dalam: ${topic}.`,
+      `Tulis sebuah studi kasus tentang implementasi ${topic} di industri.`,
+      `Buat sebuah artikel yang membahas dampak ${topic} terhadap industri teknologi.`,
+      `Tulis sebuah artikel yang menjelaskan bagaimana ${topic} dapat meningkatkan efisiensi pengembangan.`,
+      `Tulis sebuah artikel yang membahas bagaimana ${topic} dapat membantu dalam pengambilan keputusan bisnis.`,
+      `Tulis sebuah artikel yang membahas bagaimana ${topic} dapat meningkatkan pengalaman pengguna.`,
     ];
 
-    // Pilih persona dan gaya secara acak
+    const articleStructures = [
+        "Introduction, 3-4 subjudul (dengan ###), dan Conclusion.",
+        "sebuah artikel opini dengan pendahuluan yang kuat, argumen utama, dan kesimpulan.",
+        "sebuah tutorial langkah-demi-langkah dengan bagian 'Persiapan' dan 'Langkah-langkah Implementasi'.",
+        "sebuah panduan lengkap dengan bagian 'Apa itu', 'Mengapa Penting', dan 'Cara Implementasi'.",
+        "sebuah artikel yang membahas sejarah dan evolusi topik, dengan subjudul yang menjelaskan setiap fase penting.",
+        "sebuah artikel yang membahas dampak teknologi terhadap industri, dengan subjudul yang menjelaskan setiap aspek penting.",
+        "sebuah artikel yang membahas tantangan dan solusi dalam pengembangan web, dengan subjudul yang menjelaskan setiap aspek penting.",
+        "sebuah artikel yang membahas bagaimana teknologi dapat meningkatkan produktivitas, dengan subjudul yang menjelaskan setiap aspek penting.",
+        "sebuah artikel yang membahas bagaimana teknologi dapat membantu dalam pengambilan keputusan bisnis, dengan subjudul yang menjelaskan setiap aspek penting.",
+        "sebuah artikel yang membahas bagaimana teknologi dapat meningkatkan pengalaman pengguna, dengan subjudul yang menjelaskan setiap aspek penting.",
+    ];
+
     const randomPersona = personas[Math.floor(Math.random() * personas.length)];
     const randomStyle = writingStyles[Math.floor(Math.random() * writingStyles.length)];
-    // --- AKHIR BLOK TAMBAHAN ---
+    const randomPrompt = promptVariations[Math.floor(Math.random() * promptVariations.length)];
+    const randomStructure = articleStructures[Math.floor(Math.random() * articleStructures.length)];
 
     const apiUrl = "https://text.pollinations.ai/openai";
     const pollinationToken = process.env.POLLINATIONS_TEXT_API_TOKEN;
 
     if (!pollinationToken) {
-      throw new Error("POLLINATIONS_TEXT_API_TOKEN tidak ditemukan di environment variables");
+      throw new Error("POLLINATIONS_TEXT_API_TOKEN tidak ditemukan");
     }
 
     const response = await fetch(apiUrl, {
@@ -59,13 +191,11 @@ async function generateArticleContent(topic) {
         messages: [
           {
             role: "system",
-            // --- UBAH BARIS INI ---
-            content: `Kamu adalah ${randomPersona}. Selalu tulis artikel dengan struktur: Introduction, 3-4 subjudul (dengan ###), dan Conclusion.`
+            content: `Kamu adalah ${randomPersona}. Tulis artikel dengan struktur: ${randomStructure}`
           },
           {
             role: "user",
-            // --- UBAH BARIS INI ---
-            content: `Buat artikel tentang: ${topic}, ${randomStyle}`
+            content: `${randomPrompt} ${randomStyle}`
           }
         ]
       })
@@ -85,10 +215,10 @@ async function generateArticleContent(topic) {
   }
 }
 
-// Fungsi untuk menghasilkan gambar cover (ditingkatkan)
+// Fungsi untuk menghasilkan gambar cover
 async function generateArticleImage(topic, slug) {
   try {
-    const imagePrompt = `Cover artikel tentang ${topic}, desain modern, high resolution, web banner,风格 ${
+    const imagePrompt = `Cover artikel tentang ${topic}, desain modern, ilustasi, high resolution, web banner, tanpa text, ${
       topic.includes("AI") ? "futuristik" : 
       topic.includes("Web") ? "teknis dan clean" : "profesional"
     }`;
@@ -115,45 +245,39 @@ async function generateArticleImage(topic, slug) {
 }
 
 // Fungsi utama untuk membuat artikel
-async function createArticle(topic) {
+async function createArticle(topic, category) {
   try {
-    // Persiapkan metadata
     const title = topic;
     const slug = title.toLowerCase()
       .replace(/\s+/g, '-')
-      .replace(/[^\w-]/g, ''); // Bersihkan karakter khusus
+      .replace(/[^\w-]/g, '');
     const publishedDate = new Date().toISOString().split('T')[0];
 
-    // Cek duplikasi artikel
     if (await isArticleExists(slug)) {
-      throw new Error(`Artikel dengan slug "${slug}" sudah ada`);
+      console.log(`🟡 Artikel dengan slug "${slug}" sudah ada. Melanjutkan ke topik lain.`);
+      return { success: false, error: 'duplicate' }; // Memberikan status duplikat
     }
 
-    // Generate konten
     console.log(`Membuat konten untuk: ${title}...`);
-    const content = await generateArticleContent(topic);
-    if (!content || content.length < 500) {
+    let content = await generateArticleContent(topic);
+    if (!content || content.length < 300) {
       throw new Error("Konten artikel terlalu pendek atau tidak valid");
     }
 
-    // Generate gambar
+    // Membersihkan konten dari baris --- yang mungkin muncul
+    content = content.replace(/^\s*---\s*$/gm, '');
+
     console.log(`Membuat gambar untuk: ${title}...`);
     const imageUrl = await generateArticleImage(topic, slug);
 
-    // Buat summary yang aman untuk YAML
     const rawSummary = content.substring(0, 150).replace(/\n/g, ' ');
-    const safeSummary = rawSummary.replace(/["']/g, "'").trim() + (content.length > 150 ? '...' : '');
+    const safeSummary = rawSummary.replace(/["':]/g, "").trim() + (content.length > 150 ? '...' : '');
 
-    // Tentukan kategori dinamis berdasarkan topik
-    const category = topic.includes("AI") ? "AI, Teknologi" :
-                     topic.includes("Web") ? "Pengembangan Web, Teknologi" :
-                     "Teknologi, Pemrograman";
-    if (!category) {
-      throw new Error("Kategori tidak ditemukan untuk topik ini");
-    }
     console.log(`Kategori: ${category}`);
+    const tags = `${topic.split(' ')[0]}, ${category}`;
 
-    // Format markdown (sesuai contoh artikel)
+    // ✨ --- PERBAIKAN FORMAT YAML --- ✨
+    // Pastikan tidak ada spasi di awal setiap baris metadata
     const mdContent = `---
 slug: '${slug}'
 title: '${title}'
@@ -162,13 +286,13 @@ publishedDate: '${publishedDate}'
 imageUrl: '${imageUrl}'
 category: '${category}'
 author: 'Arif Tirtana'
-tags: ['${topic}']
+tags: '${tags}'
 ---
 
 ${content}
 `;
+    // --- AKHIR PERBAIKAN ---
 
-    // Simpan file
     const blogDir = path.join(__dirname, '_articles');
     if (!fsSync.existsSync(blogDir)) {
       fsSync.mkdirSync(blogDir, { recursive: true });
@@ -184,38 +308,32 @@ ${content}
   }
 }
 
-// Daftar topik (ditingkatkan variasinya)
-const topics = [
-  "Cara Mengoptimalkan Performance Next.js dengan AI",
-  "Panduan Praktis Tailwind CSS untuk Desain Responsif",
-  "Integrasi AI dalam Pengembangan Web Modern: Kasus Nyata",
-  "Serverless Architecture: Keuntungan dan Cara Implementasinya",
-  "Tren Aplikasi Mobile 2025: Dari Native ke Cross-Platform",
-  "GraphQL vs REST: Kapan Harus Memilih Masing-Masing",
-  "TypeScript untuk Pemula: Mengurangi Error dalam Kode",
-  "WebSockets: Membangun Aplikasi Real-Time yang Handal",
-  "SEO untuk E-Commerce: Strategi Peningkatan Visibilitas",
-  "Docker untuk Pengembangan: Cara Memudahkan Deployment",
-  "Progressive Web Apps (PWA): Menggabungkan Kelebihan Web dan Mobile",
-  "Microservices: Arsitektur untuk Skalabilitas Bisnis",
-  "RESTful API dengan Node.js: Best Practices",
-  "Debugging Web: Tools dan Teknik Profesional",
-  "Manajemen State di React: Redux vs Context API",
-  "Cloud Computing untuk Pengembang: Pilihan Layanan Terbaik",
-  "Keamanan Web: Praktik Terbaik untuk Melindungi Aplikasi",
-  "Membangun Aplikasi Real-Time dengan Socket.IO",
-];
-
-// Pilih topik acak dan jalankan
+// Blok eksekusi utama
 (async () => {
-  // Coba 3x jika artikel duplikat
-  for (let attempt = 1; attempt <= 3; attempt++) {
-    const randomTopic = topics[Math.floor(Math.random() * topics.length)];
-    const result = await createArticle(randomTopic);
-    if (result.success) break;
+  let createdCount = 0;
+  const maxAttempts = 10; // Coba hingga 10 kali untuk memastikan artikel dibuat
+  for (let attempt = 1; attempt <= maxAttempts && createdCount < 1; attempt++) {
+    const allCategories = Object.keys(topicsByCategory);
+    const randomCategory = allCategories[Math.floor(Math.random() * allCategories.length)];
     
-    if (attempt === 3) {
-      console.error("Gagal membuat artikel setelah 3 percobaan");
+    const topicsInCategory = topicsByCategory[randomCategory];
+    const randomTopic = topicsInCategory[Math.floor(Math.random() * topicsInCategory.length)];
+
+    console.log(`\n--- Percobaan ${attempt} ---`);
+    console.log(`Memilih topik "${randomTopic}" dari kategori "${randomCategory}"`);
+
+    const result = await createArticle(randomTopic, randomCategory);
+    
+    if (result.success) {
+        createdCount++;
+        console.log("--------------------------\n");
+    } else if (result.error !== 'duplicate') {
+        // Jika gagal bukan karena duplikat, tunggu sebentar sebelum mencoba lagi
+        await new Promise(resolve => setTimeout(resolve, 2000));
+    }
+    
+    if (attempt === maxAttempts && createdCount === 0) {
+      console.error("Gagal membuat artikel baru setelah beberapa percobaan.");
     }
   }
 })();
