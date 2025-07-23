@@ -2,7 +2,9 @@ const fs = require('fs').promises;
 const fsSync = require('fs');
 const path = require('path');
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
-require('dotenv').config();
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config();
+}
 
 // --- KUMPULAN TOPIK BERDASARKAN KATEGORI ---
 const topicsByCategory = {
@@ -37,6 +39,10 @@ const topicsByCategory = {
     "SEO untuk E-Commerce: Strategi Peningkatan Visibilitas",
     "Debugging Web: Tools dan Teknik Profesional",
     "Membangun Aplikasi Real-Time dengan Socket.IO",
+    "Menerapkan Pembayaran Online di Aplikasi E-Commerce",
+    "Menerapkan Sistem Rekomendasi di Aplikasi E-Commerce",
+    "Menerapkan Sistem Manajemen Inventaris di Aplikasi E-Commerce",
+    "Menerapkan Sistem Pengiriman di Aplikasi E-Commerce",
   ],
   "Data Science & AI": [
     "Machine Learning untuk Pengembang Web: Panduan Awal",
